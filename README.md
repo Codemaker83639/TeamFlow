@@ -1,17 +1,18 @@
-🚀 TeamFlow
+### 🚀 TeamFlow
 Plataforma de Gestión de Proyectos para Equipos Remotos
 
 Proyecto de Tesis - Ingeniería en Sistemas
 
-📋 Descripción
+### 📋 Descripción
 TeamFlow es una plataforma web integral diseñada específicamente para la gestión de proyectos en equipos remotos. Desarrollada con tecnologías modernas y arquitectura de microservicios, ofrece herramientas esenciales para la coordinación, seguimiento y análisis de productividad en equipos distribuidos geográficamente.
 
-🎯 Problema que Resuelve
+### 🎯 Problema que Resuelve
 Falta de visibilidad en el progreso de proyectos remotos
 Dificultades de coordinación entre equipos distribuidos
 Ausencia de herramientas integradas de seguimiento de tiempo
 Carencia de análisis de productividad accesibles para PyMEs
-✨ Características Principales
+---
+### ✨ Características Principales
 📊 Tableros Kanban Interactivos - Gestión visual de tareas con drag & drop
 ⏱️ Seguimiento de Tiempo Integrado - Cronómetros y registro manual de horas
 👥 Gestión de Equipos - Roles, permisos y colaboración en tiempo real
@@ -39,7 +40,9 @@ Infraestructura
 Docker & Docker Compose - Contenedorización y orquestación
 Nginx - Proxy inverso y servidor web
 GitHub Actions - CI/CD (próximamente)
-🚀 Instalación y Configuración
+---
+
+### 🚀 Instalación y Configuración
 Prerrequisitos
 Node.js >= 16.0.0
 npm >= 8.0.0
@@ -65,10 +68,11 @@ Redis Commander: http://localhost:8082
 Configuración Manual
 Si prefieres configurar paso a paso:
 
-Configurar variables de entorno
+### Configurar variables de entorno
 bash
 cp .env.example .env
-# Editar .env con tus configuraciones
+---
+### Editar .env con tus configuraciones
 Levantar base de datos
 bash
 docker-compose up postgres redis -d
@@ -82,6 +86,7 @@ bash
 cd client
 npm install
 npm run dev
+---
 📚 Comandos Disponibles
 Desarrollo
 bash
@@ -107,6 +112,7 @@ bash
 npm run test             # Ejecutar todos los tests
 npm run lint             # Verificar código con ESLint
 npm run build            # Construir para producción
+---
 🏗️ Arquitectura del Proyecto
 teamflow/
 ├── 📁 client/                    # Frontend Vue.js
@@ -184,3 +190,4 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo LICENSE para más detal
  ⏳ Pruebas de usabilidad
  ⏳ Documentación final
 Desarrollado con ❤️ para equipos remotos en todo el mundo
+
