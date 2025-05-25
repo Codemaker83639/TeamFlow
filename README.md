@@ -91,9 +91,48 @@ _Proyecto de Tesis - Ingeniería en Sistemas_
      ```bash
      npm run dev:services
 
-4. 
+4. Acceder a la aplicación:
+
+    Frontend: http://localhost:8080
+
+    Backend API: http://localhost:3000
+
+    pgAdmin: http://localhost:8081
+
+    Redis Commander: http://localhost:8082
+
+---
+
+## 📚 Comandos Disponibles
+
+### Desarrollo
+
+npm run dev              # Levantar todos los servicios
+npm run dev:detached     # Levantar en segundo plano
+npm run dev:services     # Incluir herramientas de desarrollo
+npm run stop             # Detener todos los servicios
+npm run clean            # Limpiar contenedores y volúmenes
+
+### Logs y Debugging
+
+npm run logs             # Logs generales
+npm run logs:backend     # Logs del backend
+npm run logs:frontend    # Logs del frontend
+npm run shell:backend    # Acceso al contenedor del backend
+npm run shell:postgres   # Acceso a PostgreSQL
+
+### Base de Datos
+
+npm run db:migrate       # Ejecutar migraciones
+npm run db:seed          # Poblar con datos de prueba
+npm run db:reset         # Resetear y repoblar BD
+
+### Testing y Calidad
+
+npm run test             # Ejecutar tests
+npm run lint             # Linter con ESLint
+npm run build            # Build para producción
+
+---
 
 
-5. 
-
-    
