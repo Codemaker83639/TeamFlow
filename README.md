@@ -80,3 +80,20 @@ _Proyecto de Tesis - Ingeniería en Sistemas_
    ```bash
    git clone https://github.com/tu-usuario/teamflow.git
    cd teamflow
+
+2. Instalar dependencias:
+
+     ```bash
+     npm run install:all
+
+3. Levantar los servicios de desarrollo:
+
+     ```bash
+     npm run dev:services
+
+4. 
+
+
+5. 
+
+    
