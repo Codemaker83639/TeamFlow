@@ -1,15 +1,15 @@
-### ¡Bienvenidos a TeamFlow🚀!🚀<br>
-*Su Plataforma de Gestión de Proyectos para Equipos Remotos.*
+### ¡Bienvenidos a TeamFlow🚀!<br>
+Su Plataforma de Gestión de Proyectos para Equipos Remotos.
 ---
 
 ### 📋 Descripción.
 TeamFlow es una plataforma web integral diseñada específicamente para la gestión de proyectos en equipos remotos. Desarrollada con tecnologías modernas y arquitectura de microservicios, ofrece herramientas esenciales para la coordinación, seguimiento y análisis de productividad en equipos distribuidos geográficamente.<br>
 
-### 🎯 Problema que Resuelve.
-Falta de visibilidad en el progreso de proyectos remotos
-Dificultades de coordinación entre equipos distribuidos
-Ausencia de herramientas integradas de seguimiento de tiempo
-Carencia de análisis de productividad accesibles para PyMEs<br>
+### 🎯 Problemas que Resuelve.
+Falta de visibilidad en el progreso de proyectos remotos.<br>
+Dificultades de coordinación entre equipos distribuidos.<br>
+Ausencia de herramientas integradas de seguimiento de tiempo.<br>
+Carencia de análisis de productividad accesibles para PyMEs.<br>
 
 ### ✨ Características Principales
 📊 Tableros Kanban Interactivos - Gestión visual de tareas con drag & drop.<br>
@@ -18,42 +18,47 @@ Carencia de análisis de productividad accesibles para PyMEs<br>
 📁 Gestión Documental Avanzada - Versionado y organización de archivos.<br>
 📈 Análisis de Productividad - Reportes visuales y métricas de rendimiento.<br>
 🔔 Notificaciones en Tiempo Real - WebSockets para sincronización instantánea.<br>
-📱 Diseño Responsivo - Interfaz optimizada para todos los dispositivos<br>
+📱 Diseño Responsivo - Interfaz optimizada para todos los dispositivos.<br>
+---
 
 ### 🛠️ Stack Tecnológico
-Frontend<br>
-Vue.js 3 - Framework progresivo con Composition API<br>
-TypeScript - Tipado estático para mayor robustez<br>
-Tailwind CSS - Framework de utilidades CSS<br>
-Pinia - Gestión de estado moderna para Vue<br>
-Vue Router - Enrutamiento del lado del cliente<br>
----
-Backend<br>
-NestJS - Framework de Node.js con TypeScript<br>
-TypeORM - ORM para TypeScript y JavaScript<br>
-JWT - Autenticación mediante tokens<br>
-WebSockets - Comunicación en tiempo real<br>
-Multer - Manejo de archivos multipart<br>
-Base de Datos
-PostgreSQL 15 - Base de datos relacional principal
-Redis 7 - Caché en memoria y gestión de sesiones
-Infraestructura
+
+*Frontend*<br>
+Vue.js 3 - Framework progresivo con Composition API.<br>
+TypeScript - Tipado estático para mayor robustez.<br>
+Tailwind CSS - Framework de utilidades CSS.<br>
+Pinia - Gestión de estado moderna para Vue.<br>
+Vue Router - Enrutamiento del lado del cliente.<br>
+
+*Backend*<br>
+NestJS - Framework de Node.js con TypeScript.<br>
+TypeORM - ORM para TypeScript y JavaScript.<br>
+JWT - Autenticación mediante tokens.<br>
+WebSockets - Comunicación en tiempo real.<br>
+Multer - Manejo de archivos multipart.<br>
+
+*Base de Datos*<br>
+PostgreSQL 15 - Base de datos relacional principal.<br>
+Redis 7 - Caché en memoria y gestión de sesiones.<br>
+
+*Infraestructura*
 Docker & Docker Compose - Contenedorización y orquestación
 Nginx - Proxy inverso y servidor web
 GitHub Actions - CI/CD (próximamente)<br>
+---
 
-*🚀 Instalación y Configuración.*
-# Prerrequisitos
-Node.js >= 16.0.0
-npm >= 8.0.0
-Docker >= 24.0.0
-Docker Compose >= 2.0.0
+### 🚀 Instalación y Configuración.
+
+*Prerrequisitos*<br>
+Node.js >= 16.0.0<br>
+npm >= 8.0.0<br>
+Docker >= 24.0.0<br>
+Docker Compose >= 2.0.0<br>
 Git >= 2.30.0<br>
 
-# Configuración Rápida
-Clonar el repositorio
-bash
-git clone https://github.com/tu-usuario/teamflow.git
+*Configuración Rápida*<br>
+Clonar el repositorio:<br>
+git clone https://github.com/tu-usuario/teamflow.git<br>
 cd teamflow<br>
 
 # Instalar dependencias
