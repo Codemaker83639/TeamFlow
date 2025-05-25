@@ -165,5 +165,32 @@ teamflow/
 
 ---
 
+## 🎯 Objetivos del Proyecto
+
+### Objetivo General
+Desarrollar e implementar una plataforma web para la gestión de proyectos en equipos remotos, utilizando arquitectura de microservicios y tecnologías de contenedores.
+
+### Objetivos Específicos
+
+📊 Seguimiento de Tiempo y Análisis.
+- Registro de horas por tarea.
+- Informes visuales de productividad.
+- Dashboards para líderes de equipo. 
+---
+
+📁 Gestión Documental
+- Carga y versionado de archivos.
+- Organización por proyecto.
+- Sistema de búsqueda eficiente.
+---
+
+👥 Evaluación de Usabilidad
+- Pruebas con 10–15 usuarios finales.
+- Medición de métricas de usabilidad.
+- Optimización de la experiencia de usuario.
+---
+
+## 📄 Licencia
+Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
 
 
