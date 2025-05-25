@@ -135,4 +135,35 @@ _Proyecto de Tesis - Ingeniería en Sistemas_
 
 ---
 
+## 🏗️ Arquitectura del Proyecto
+
+teamflow/
+├── client/                 # Frontend Vue.js
+│   ├── src/
+│   │   ├── components/     # Componentes reutilizables
+│   │   ├── views/          # Vistas principales
+│   │   ├── stores/         # Gestión de estado (Pinia)
+│   │   ├── services/       # Llamadas a APIs
+│   │   ├── router/         # Rutas de la app
+│   │   └── types/          # Tipado TypeScript
+│   └── Dockerfile
+├── server/                 # Backend NestJS
+│   ├── src/
+│   │   ├── modules/        # Módulos funcionales
+│   │   ├── common/         # Utilidades compartidas
+│   │   ├── config/         # Configuraciones del sistema
+│   │   └── database/       # Entidades y migraciones
+│   └── Dockerfile
+├── database/               # Scripts de base de datos
+│   ├── migrations/
+│   ├── seeds/
+│   └── scripts/
+├── nginx/                  # Configuración del proxy inverso
+├── docs/                   # Documentación del proyecto
+└── docker-compose.yml      # Orquestación con Docker
+
+
+---
+
+
 
