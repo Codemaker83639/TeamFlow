@@ -1,38 +1,39 @@
-*¡Bienvenidos a TeamFlow!!🚀*
-Su Plataforma de Gestión de Proyectos para Equipos Remotos
+### ¡Bienvenidos a TeamFlow🚀!🚀<br>
+*Su Plataforma de Gestión de Proyectos para Equipos Remotos.*
 ---
 
-*📋 Descripción.*
+### 📋 Descripción.
 TeamFlow es una plataforma web integral diseñada específicamente para la gestión de proyectos en equipos remotos. Desarrollada con tecnologías modernas y arquitectura de microservicios, ofrece herramientas esenciales para la coordinación, seguimiento y análisis de productividad en equipos distribuidos geográficamente.<br>
 
-*🎯 Problema que Resuelve.*
+### 🎯 Problema que Resuelve.
 Falta de visibilidad en el progreso de proyectos remotos
 Dificultades de coordinación entre equipos distribuidos
 Ausencia de herramientas integradas de seguimiento de tiempo
 Carencia de análisis de productividad accesibles para PyMEs<br>
 
 ### ✨ Características Principales
-📊 Tableros Kanban Interactivos - Gestión visual de tareas con drag & drop
-⏱️ Seguimiento de Tiempo Integrado - Cronómetros y registro manual de horas
-👥 Gestión de Equipos - Roles, permisos y colaboración en tiempo real
-📁 Gestión Documental Avanzada - Versionado y organización de archivos
-📈 Análisis de Productividad - Reportes visuales y métricas de rendimiento
-🔔 Notificaciones en Tiempo Real - WebSockets para sincronización instantánea
+📊 Tableros Kanban Interactivos - Gestión visual de tareas con drag & drop.<br>
+⏱️ Seguimiento de Tiempo Integrado - Cronómetros y registro manual de horas.<br>
+👥 Gestión de Equipos - Roles, permisos y colaboración en tiempo real.<br>
+📁 Gestión Documental Avanzada - Versionado y organización de archivos.<br>
+📈 Análisis de Productividad - Reportes visuales y métricas de rendimiento.<br>
+🔔 Notificaciones en Tiempo Real - WebSockets para sincronización instantánea.<br>
 📱 Diseño Responsivo - Interfaz optimizada para todos los dispositivos<br>
 
-*🛠️ Stack Tecnológico*
-Frontend
-Vue.js 3 - Framework progresivo con Composition API
-TypeScript - Tipado estático para mayor robustez
-Tailwind CSS - Framework de utilidades CSS
-Pinia - Gestión de estado moderna para Vue
-Vue Router - Enrutamiento del lado del cliente
-Backend
-NestJS - Framework de Node.js con TypeScript
-TypeORM - ORM para TypeScript y JavaScript
-JWT - Autenticación mediante tokens
-WebSockets - Comunicación en tiempo real
-Multer - Manejo de archivos multipart
+### 🛠️ Stack Tecnológico
+Frontend<br>
+Vue.js 3 - Framework progresivo con Composition API<br>
+TypeScript - Tipado estático para mayor robustez<br>
+Tailwind CSS - Framework de utilidades CSS<br>
+Pinia - Gestión de estado moderna para Vue<br>
+Vue Router - Enrutamiento del lado del cliente<br>
+---
+Backend<br>
+NestJS - Framework de Node.js con TypeScript<br>
+TypeORM - ORM para TypeScript y JavaScript<br>
+JWT - Autenticación mediante tokens<br>
+WebSockets - Comunicación en tiempo real<br>
+Multer - Manejo de archivos multipart<br>
 Base de Datos
 PostgreSQL 15 - Base de datos relacional principal
 Redis 7 - Caché en memoria y gestión de sesiones
