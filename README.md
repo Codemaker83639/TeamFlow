@@ -1,17 +1,16 @@
-### 🚀 TeamFlow
-Plataforma de Gestión de Proyectos para Equipos Remotos
+*¡Bienvenidos a TeamFlow!!🚀*
+Su Plataforma de Gestión de Proyectos para Equipos Remotos
+---
 
-Proyecto de Tesis - Ingeniería en Sistemas
+*📋 Descripción.*
+TeamFlow es una plataforma web integral diseñada específicamente para la gestión de proyectos en equipos remotos. Desarrollada con tecnologías modernas y arquitectura de microservicios, ofrece herramientas esenciales para la coordinación, seguimiento y análisis de productividad en equipos distribuidos geográficamente.<br>
 
-### 📋 Descripción
-TeamFlow es una plataforma web integral diseñada específicamente para la gestión de proyectos en equipos remotos. Desarrollada con tecnologías modernas y arquitectura de microservicios, ofrece herramientas esenciales para la coordinación, seguimiento y análisis de productividad en equipos distribuidos geográficamente.
-
-### 🎯 Problema que Resuelve
+*🎯 Problema que Resuelve.*
 Falta de visibilidad en el progreso de proyectos remotos
 Dificultades de coordinación entre equipos distribuidos
 Ausencia de herramientas integradas de seguimiento de tiempo
-Carencia de análisis de productividad accesibles para PyMEs
----
+Carencia de análisis de productividad accesibles para PyMEs<br>
+
 ### ✨ Características Principales
 📊 Tableros Kanban Interactivos - Gestión visual de tareas con drag & drop
 ⏱️ Seguimiento de Tiempo Integrado - Cronómetros y registro manual de horas
@@ -19,8 +18,9 @@ Carencia de análisis de productividad accesibles para PyMEs
 📁 Gestión Documental Avanzada - Versionado y organización de archivos
 📈 Análisis de Productividad - Reportes visuales y métricas de rendimiento
 🔔 Notificaciones en Tiempo Real - WebSockets para sincronización instantánea
-📱 Diseño Responsivo - Interfaz optimizada para todos los dispositivos
-🛠️ Stack Tecnológico
+📱 Diseño Responsivo - Interfaz optimizada para todos los dispositivos<br>
+
+*🛠️ Stack Tecnológico*
 Frontend
 Vue.js 3 - Framework progresivo con Composition API
 TypeScript - Tipado estático para mayor robustez
@@ -39,39 +39,41 @@ Redis 7 - Caché en memoria y gestión de sesiones
 Infraestructura
 Docker & Docker Compose - Contenedorización y orquestación
 Nginx - Proxy inverso y servidor web
-GitHub Actions - CI/CD (próximamente)
----
+GitHub Actions - CI/CD (próximamente)<br>
 
-### 🚀 Instalación y Configuración
-Prerrequisitos
+*🚀 Instalación y Configuración.*
+# Prerrequisitos
 Node.js >= 16.0.0
 npm >= 8.0.0
 Docker >= 24.0.0
 Docker Compose >= 2.0.0
-Git >= 2.30.0
-Configuración Rápida
+Git >= 2.30.0<br>
+
+# Configuración Rápida
 Clonar el repositorio
 bash
 git clone https://github.com/tu-usuario/teamflow.git
-cd teamflow
-Instalar dependencias
+cd teamflow<br>
+
+# Instalar dependencias
 bash
-npm run install:all
-Levantar servicios de desarrollo
+npm run install:all<br>
+
+# Levantar servicios de desarrollo
 bash
-npm run dev:services
-Acceder a la aplicación
+npm run dev:services<br>
+
+# Acceder a la aplicación
 Frontend: http://localhost:8080
 Backend API: http://localhost:3000
 pgAdmin: http://localhost:8081
-Redis Commander: http://localhost:8082
-Configuración Manual
-Si prefieres configurar paso a paso:
+Redis Commander: http://localhost:8082<br>
+
 
 ### Configurar variables de entorno
 bash
-cp .env.example .env
----
+cp .env.example .env<br>
+
 ### Editar .env con tus configuraciones
 Levantar base de datos
 bash
@@ -85,9 +87,9 @@ Instalar y ejecutar frontend
 bash
 cd client
 npm install
-npm run dev
----
-📚 Comandos Disponibles
+npm run dev<br>
+
+*📚 Comandos Disponibles.*
 Desarrollo
 bash
 npm run dev              # Levantar todos los servicios
@@ -111,9 +113,11 @@ Testing y Calidad
 bash
 npm run test             # Ejecutar todos los tests
 npm run lint             # Verificar código con ESLint
-npm run build            # Construir para producción
----
-🏗️ Arquitectura del Proyecto
+npm run build            # Construir para producción<br>
+
+
+*🏗️ Arquitectura del Proyecto.*<br>
+
 teamflow/
 ├── 📁 client/                    # Frontend Vue.js
 │   ├── 📁 src/
@@ -137,12 +141,14 @@ teamflow/
 │   └── 📁 scripts/               # Scripts de inicialización
 ├── 📁 nginx/                     # Configuración Nginx
 ├── 📁 docs/                      # Documentación
-└── 📄 docker-compose.yml         # Orquestación de servicios
-🎯 Objetivos del Proyecto
-Objetivo General
-Desarrollar e implementar una plataforma web de gestión de proyectos para equipos remotos, utilizando arquitectura de microservicios y tecnologías de contenedorización.
+└── 📄 docker-compose.yml         # Orquestación de servicios<br>
 
-Objetivos Específicos
+*🎯 Objetivos del Proyecto*<br>
+
+# Objetivo General<br>
+Desarrollar e implementar una plataforma web de gestión de proyectos para equipos remotos, utilizando arquitectura de microservicios y tecnologías de contenedorización.<br>
+
+# Objetivos Específicos<br>
 📊 Seguimiento de Tiempo y Análisis
 Implementar funcionalidad de registro de horas por tarea
 Generar informes visuales de productividad
