@@ -63,7 +63,7 @@ _Proyecto de Tesis - Ingeniería en Sistemas **Francisco Ogando** & **José Luis
 
 ---
 
-## 🚀 Instalación y Configuración
+## ⛷️ Instalación y Configuración
 
 ### Prerrequisitos
 
