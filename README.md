@@ -1,7 +1,7 @@
-# Bienvenidos a 🚀TeamFlow
+# Bienvenidos a TeamFlow🚀🤖
 
 **Tu Plataforma de Gestión de Proyectos para Equipos Remotos**  
-_Proyecto de Tesis - Ingeniería en Sistemas (Francisco Ogando) & (José Luis Galán)_
+_Proyecto de Tesis - Ingeniería en Sistemas **Francisco Ogando** & **José Luis Galán**_
 
 ---
 
@@ -11,7 +11,7 @@ _Proyecto de Tesis - Ingeniería en Sistemas (Francisco Ogando) & (José Luis Ga
 
 ---
 
-## 🎯 Problema que Resuelve
+## 🎯 Problemas que buscamos resolver
 
 - Falta de visibilidad en el progreso de proyectos remotos  
 - Dificultades de coordinación entre equipos distribuidos  
