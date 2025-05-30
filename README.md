@@ -1,4 +1,4 @@
-# Bienvenidos a TeamFlow🚀🤖
+# Bienvenidos a TeamFlow🚀👥
 
 **Tu Plataforma de Gestión de Proyectos para Equipos Remotos**  
 _Proyecto de Tesis - Ingeniería en Sistemas **Francisco Ogando** & **José Luis Galán**_
