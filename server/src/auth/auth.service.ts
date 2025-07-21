@@ -12,11 +12,10 @@ export class AuthService {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-        private readonly jwtService: JwtService, // <-- Inyecta el JwtService
+        private readonly jwtService: JwtService,
     ) { }
 
     async register(registerDto: RegisterAuthDto) {
-        // ... tu método de registro actual ...
         const { email, username, password, fullName } = registerDto;
         const existingUser = await this.userRepository.findOne({ where: [{ email }, { username }] });
         if (existingUser) {
@@ -33,12 +32,27 @@ export class AuthService {
         return result;
     }
 
-    // --- AÑADE ESTE NUEVO MÉTODO ---
     async login(loginDto: LoginAuthDto) {
         const { email, password } = loginDto;
 
         // 1. Buscar usuario por email
-        const user = await this.userRepository.findOne({ where: { email } });
+        const user = await this.userRepository.findOne({
+            where: { email },
+            select: ['id', 'email', 'role', 'password_hash'] // Aseguramos que se seleccione el hash
+        });
+
+        // --- LÍNEAS DE DEPURACIÓN ---
+        console.log('--- INICIO DEPURACIÓN LOGIN ---');
+        if (user) {
+            console.log('Usuario encontrado:', user); // Imprime el objeto de usuario completo
+            console.log('Contraseña recibida (plain):', password);
+            console.log('Hash guardado en la BD:', user.password_hash);
+        } else {
+            console.log('Usuario NO encontrado con email:', email);
+        }
+        console.log('--- FIN DEPURACIÓN LOGIN ---');
+        // -----------------------------
+
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
         }

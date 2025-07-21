@@ -17,10 +17,10 @@ export default defineConfig({
       '@types': resolve(__dirname, 'src/types'),
     }
   },
-  server: {
-    host: '0.0.0.0',
-    port: 8080,
-    proxy: {
+  server: { // <-- REEMPLAZA ESTA SECCIÓN COMPLETA
+    host: true,      // Permite conexiones externas (mejor que '0.0.0.0')
+    port: 5173,      // Debe coincidir con el puerto del Dockerfile
+    proxy: {         // Tu configuración de proxy está bien, la mantenemos
       '/api': {
         target: 'http://backend:3000',
         changeOrigin: true,
@@ -31,6 +31,9 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
       }
+    },
+    watch: {         // <-- AÑADE ESTA SECCIÓN
+      usePolling: true
     }
   },
   build: {

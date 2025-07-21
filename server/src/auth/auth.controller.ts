@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { LoginAuthDto } from './dto/login.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +24,11 @@ export class AuthController {
     testRoute() {
         return 'La ruta de prueba funciona!';
     }
-    // -----------------------------------------
+    @Get('profile')
+    @UseGuards(AuthGuard('jwt'))
+    getProfile() {
+        return "Este es un perfil protegido y solo puedes verlo si estás autenticado.";
+    }
 
 }
 
