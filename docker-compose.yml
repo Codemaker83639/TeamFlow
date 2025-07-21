@@ -34,14 +34,18 @@ services:
       - redis
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgres://teamflow_user:teamflow_password@postgres:5432/teamflow
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=teamflow_user
+      - POSTGRES_PASSWORD=teamflow_password
+      - POSTGRES_DB=teamflow
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=your_super_secret_jwt_key_here_change_in_production
       - JWT_EXPIRES_IN=24h
       - PORT=3000
       - CLIENT_URL=http://localhost:8080
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
       interval: 10s
       timeout: 5s
       retries: 3
