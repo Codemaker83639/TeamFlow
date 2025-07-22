@@ -1,0 +1,15 @@
+{
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "projects": "Proyectos",
+        "boards": "Tableros",
+        "teams": "Equipos",
+        "reports": "Reportes",
+        "settings": "Configuración"
+    },
+    "settings": {
+        "account_settings": "Configuración de la Cuenta",
+        "appearance": "Apariencia",
+        "language": "Idioma"
+    }
+}

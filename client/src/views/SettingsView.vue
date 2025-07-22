@@ -37,8 +37,15 @@
           </div>
 
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <h3 class="text-xl font-bold text-dark-purple dark:text-light mb-4">Apariencia</h3>
-            <ThemeToggle />
+            <h3 class="text-xl font-bold text-dark-purple dark:text-light mb-4">{{ $t('settings.appearance') }}</h3>
+            <div class="space-y-4">
+              <ThemeToggle />
+              <div class="border-t dark:border-gray-700"></div>
+              <div>
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ $t('settings.language') }}</p>
+                <LanguageSwitcher />
+              </div>
+            </div>
           </div>
 
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border-t-4 border-red-500 dark:border-red-700">
@@ -62,7 +69,8 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
 import { useAuthStore } from '@/store/auth.ts';
-import ThemeToggle from '@/components/ThemeToggle.vue'; // <-- SE AÑADIÓ ESTA IMPORTACIÓN
+import ThemeToggle from '@/components/ThemeToggle.vue';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'; // <-- Se añadió esta importación
 
 const router = useRouter();
 const authStore = useAuthStore();

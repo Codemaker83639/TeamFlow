@@ -1,0 +1,15 @@
+{
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "projects": "Projects",
+        "boards": "Boards",
+        "teams": "Teams",
+        "reports": "Reports",
+        "settings": "Settings"
+    },
+    "settings": {
+        "account_settings": "Account Settings",
+        "appearance": "Appearance",
+        "language": "Language"
+    }
+}

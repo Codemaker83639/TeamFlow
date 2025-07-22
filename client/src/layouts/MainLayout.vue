@@ -5,14 +5,15 @@
       <div class="px-8 py-6">
         <h1 class="text-2xl font-bold">TeamFlow</h1>
       </div>
+      
       <nav class="flex-1 px-6">
         <ul>
-          <li class="mb-2"><RouterLink to="/dashboard" class="block py-2 px-4 rounded-lg hover:bg-secondary">⛷️ Dashboard</RouterLink></li>
-          <li class="mb-2"><RouterLink to="/projects" class="block py-2 px-4 rounded-lg hover:bg-secondary">🗂️ Proyectos</RouterLink></li>
-          <li class="mb-2"><RouterLink to="/boards" class="block py-2 px-4 rounded-lg hover:bg-secondary">📊 Tableros</RouterLink></li>
-          <li class="mb-2"><RouterLink to="/teams" class="block py-2 px-4 rounded-lg hover:bg-secondary">👩🏻‍💻 Equipos</RouterLink></li>
-          <li class="mb-2"><RouterLink to="/reports" class="block py-2 px-4 rounded-lg hover:bg-secondary">📜 Reportes</RouterLink></li>
-          <li class="mb-2"><RouterLink to="/settings" class="block py-2 px-4 rounded-lg hover:bg-secondary">⚙️ Configuración</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/dashboard" class="block py-2 px-4 rounded-lg hover:bg-secondary">⛷️ {{ $t('sidebar.dashboard') }}</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/projects" class="block py-2 px-4 rounded-lg hover:bg-secondary">🗂️ {{ $t('sidebar.projects') }}</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/boards" class="block py-2 px-4 rounded-lg hover:bg-secondary">📊 {{ $t('sidebar.boards') }}</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/teams" class="block py-2 px-4 rounded-lg hover:bg-secondary">👩🏻‍💻 {{ $t('sidebar.teams') }}</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/reports" class="block py-2 px-4 rounded-lg hover:bg-secondary">📜 {{ $t('sidebar.reports') }}</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/settings" class="block py-2 px-4 rounded-lg hover:bg-secondary">⚙️ {{ $t('sidebar.settings') }}</RouterLink></li>
         </ul>
       </nav>
     </aside>
