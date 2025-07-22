@@ -4,14 +4,16 @@
       <div class="px-8 py-6">
         <h1 class="text-2xl font-bold">TeamFlow</h1>
       </div>
+      
       <nav class="flex-1 px-6">
         <ul>
-          <li class="mb-2"><a href="#" class="block py-2 px-4 rounded-lg bg-secondary">Dashboard</a></li>
-          <li class="mb-2"><a href="#" class="block py-2 px-4 rounded-lg hover:bg-secondary">Proyectos</a></li>
-          <li class="mb-2"><a href="#" class="block py-2 px-4 rounded-lg hover:bg-secondary">Tableros</a></li>
-          <li class="mb-2"><a href="#" class="block py-2 px-4 rounded-lg hover:bg-secondary">Equipos</a></li>
+          <li class="mb-2"><RouterLink to="/dashboard" class="block py-2 px-4 rounded-lg hover:bg-secondary">Dashboard</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/projects" class="block py-2 px-4 rounded-lg hover:bg-secondary">Proyectos</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/boards" class="block py-2 px-4 rounded-lg hover:bg-secondary">Tableros</RouterLink></li>
+          <li class="mb-2"><RouterLink to="/teams" class="block py-2 px-4 rounded-lg hover:bg-secondary">Equipos</RouterLink></li>
         </ul>
       </nav>
+
     </aside>
 
     <div class="flex-1 flex flex-col overflow-hidden">
@@ -40,5 +42,5 @@
 </template>
 
 <script setup>
-// Lógica del dashboard irá aquí en el futuro
+import { RouterLink } from 'vue-router';
 </script>
