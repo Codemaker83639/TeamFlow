@@ -38,9 +38,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+// --- LÍNEA CORREGIDA ---
+import { useAuthStore } from '@/store/auth.ts'; 
 
 const router = useRouter();
+const authStore = useAuthStore(); 
+
 const email = ref('');
 const password = ref('');
 const message = ref('');
@@ -49,20 +52,13 @@ const isError = ref(false);
 const handleLogin = async () => {
   message.value = '';
   isError.value = false;
-  
-  try {
-    const response = await axios.post('http://localhost:3000/auth/login', {
-      email: email.value,
-      password: password.value,
-    });
 
-    const token = response.data.accessToken;
-    localStorage.setItem('accessToken', token);
-    
+  try {
+    await authStore.login(email.value, password.value);
+
     isError.value = false;
     message.value = '¡Login exitoso! Redirigiendo...';
-    
-    // Redirigir al dashboard después de un login exitoso
+
     setTimeout(() => {
       router.push('/dashboard');
     }, 1000);

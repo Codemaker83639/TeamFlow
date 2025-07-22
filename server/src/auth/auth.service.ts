@@ -38,7 +38,7 @@ export class AuthService {
         // 1. Buscar usuario por email
         const user = await this.userRepository.findOne({
             where: { email },
-            select: ['id', 'email', 'role', 'password_hash'] // Aseguramos que se seleccione el hash
+            select: ['id', 'email', 'role', 'password_hash', 'full_name']
         });
 
         // --- LÍNEAS DE DEPURACIÓN ---
@@ -66,7 +66,8 @@ export class AuthService {
         // 3. Generar y devolver el token
         const payload = { id: user.id, email: user.email, role: user.role };
         const accessToken = this.jwtService.sign(payload);
+        const { password_hash, ...userResult } = user;
 
-        return { accessToken };
+        return { accessToken, user: userResult };
     }
 }

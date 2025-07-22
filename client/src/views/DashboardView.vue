@@ -2,10 +2,10 @@
   <MainLayout>
     <header class="bg-white p-6 flex justify-between items-center shadow">
       <div>
-        <h2 class="text-2xl font-bold text-dark-purple">¡Hola, María! 👋</h2>
+        <h2 class="text-2xl font-bold text-dark-purple">¡Hola, {{ authStore.user?.full_name }}! 👋</h2>
         <p class="text-accent">Tienes 3 proyectos activos y 12 tareas pendientes</p>
       </div>
-      <button class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary">Nuevo Proyecto</button>
+      <UserProfile />
     </header>
 
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-light p-6">
@@ -25,4 +25,8 @@
 
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
+import UserProfile from '@/components/UserProfile.vue';
+import { useAuthStore } from '@/store/auth.ts'; // <-- Ruta corregida aquí también
+
+const authStore = useAuthStore();
 </script>
