@@ -5,6 +5,8 @@ import DashboardView from '../views/DashboardView.vue'
 import ProjectsView from '../views/ProjectsView.vue'
 import BoardsView from '../views/BoardsView.vue'
 import TeamsView from '../views/TeamsView.vue'
+import ReportsView from '../views/ReportsView.vue'
+import SettingsView from '../views/SettingsView.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,7 +29,8 @@ const router = createRouter({
         { path: '/projects', name: 'projects', component: ProjectsView },
         { path: '/boards', name: 'boards', component: BoardsView },
         { path: '/teams', name: 'teams', component: TeamsView },
-
+        { path: '/reports', name: 'reports', component: ReportsView },
+        { path: '/settings', name: 'settings', component: SettingsView }
 
     ]
 })
@@ -44,7 +47,6 @@ router.beforeEach((to, from, next) => {
     if (authRequired && !loggedIn) {
         return next('/login');
     }
-
     // 4. Si todo está bien, permite el acceso
     next();
 });

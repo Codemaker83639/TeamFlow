@@ -1,12 +1,12 @@
 <template>
   <MainLayout>
     <header class="bg-white p-6 shadow">
-      <h2 class="text-2xl font-bold text-dark-purple">Tableros Kanban</h2>
+      <h2 class="text-2xl font-bold text-dark-purple">Configuración</h2>
     </header>
     <main class="flex-1 overflow-y-auto bg-light p-6">
       <div class="bg-white p-6 rounded-lg shadow">
-        <h3 class="text-xl font-bold text-dark-purple mb-4">Vista de Tableros</h3>
-        <p class="text-accent">Aquí se mostrarán los tableros estilo Kanban...</p>
+         <h3 class="text-xl font-bold text-dark-purple mb-4">Ajustes de la Cuenta</h3>
+         <p class="text-accent">Aquí irán las opciones de perfil, notificaciones, etc...</p>
       </div>
     </main>
   </MainLayout>
