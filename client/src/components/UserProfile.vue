@@ -4,8 +4,8 @@
       {{ userInitials }}
     </div>
     <div>
-      <p class="text-sm font-semibold text-dark-purple">{{ user.full_name }}</p>
-      <p class="text-xs text-gray-500">{{ user.email }}</p>
+      <p class="text-sm font-semibold text-dark-purple dark:text-light">{{ user.full_name }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.email }}</p>
     </div>
   </div>
 </template>
@@ -20,7 +20,6 @@ const user = authStore.user;
 const userInitials = computed(() => {
   if (user && user.full_name) {
     const names = user.full_name.split(' ');
-    // Toma la primera letra de las dos primeras partes del nombre
     return names.slice(0, 2).map(n => n[0]).join('').toUpperCase();
   }
   return '';
