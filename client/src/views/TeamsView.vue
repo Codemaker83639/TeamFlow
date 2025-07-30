@@ -1,54 +1,62 @@
 <template>
   <MainLayout>
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow">
-      <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Gestión de Equipos</h2>
-      
-      <button v-if="authStore.user?.role === 'Administrator'" class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300">
-        Crear Nuevo Equipo
-      </button>
+      <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Gestión de Equipos y Miembros</h2>
     </header>
 
     <main class="flex-1 overflow-y-auto bg-light dark:bg-dark-purple p-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-xl font-bold text-dark-purple dark:text-light">Equipo de Desarrollo</h3>
-              <p class="text-sm text-accent dark:text-gray-400">Responsables del backend y frontend.</p>
-            </div>
-            <button v-if="authStore.user?.role === 'Administrator'" class="text-xs font-semibold text-accent dark:text-light-accent">Administrar</button>
+        <div class="lg:col-span-2 space-y-6">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-bold text-dark-purple dark:text-light">Equipos Existentes</h3>
+            <button v-if="authStore.user?.role === 'admin'" @click="showCreateTeamModal = true" class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary text-sm">
+              Crear Equipo
+            </button>
           </div>
-          <div class="mt-4 flex items-center -space-x-2">
-            <div class="w-8 h-8 rounded-full bg-red-200 text-red-800 flex items-center justify-center font-bold border-2 border-white dark:border-gray-800">TA</div>
-            <div class="w-8 h-8 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center font-bold border-2 border-white dark:border-gray-800">MR</div>
-            <div class="w-8 h-8 rounded-full bg-green-200 text-green-800 flex items-center justify-center font-bold border-2 border-white dark:border-gray-800">JG</div>
-            <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-800 flex items-center justify-center font-bold border-2 border-white dark:border-gray-800">+2</div>
+
+          <div v-for="team in teamsStore.teams" :key="team.id" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h4 class="font-bold text-dark-purple dark:text-light">{{ team.name }}</h4>
+            <p class="text-sm text-accent dark:text-gray-400">{{ team.description }}</p>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-           <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-xl font-bold text-dark-purple dark:text-light">Equipo de Diseño UI/UX</h3>
-              <p class="text-sm text-accent dark:text-gray-400">Creación de interfaces y experiencia.</p>
-            </div>
-            <button v-if="authStore.user?.role === 'Administrator'" class="text-xs font-semibold text-accent dark:text-light-accent">Administrar</button>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow self-start">
+          <div class="flex justify-between items-center mb-4">
+             <h3 class="text-xl font-bold text-dark-purple dark:text-light">Usuarios</h3>
+             <button v-if="authStore.user?.role === 'admin'" @click="showCreateUserModal = true" class="bg-secondary text-white font-semibold py-1 px-3 rounded-lg text-sm">
+               Añadir Usuario
+             </button>
           </div>
-          <div class="mt-4 flex items-center -space-x-2">
-            <div class="w-8 h-8 rounded-full bg-purple-200 text-purple-800 flex items-center justify-center font-bold border-2 border-white dark:border-gray-800">LP</div>
-            <div class="w-8 h-8 rounded-full bg-yellow-200 text-yellow-800 flex items-center justify-center font-bold border-2 border-white dark:border-gray-800">CS</div>
-          </div>
+          <p class="text-accent dark:text-gray-400">Aquí se mostrará la lista de usuarios del sistema...</p>
         </div>
 
       </div>
     </main>
-  </MainLayout>
+
+    <CreateUserForm v-if="showCreateUserModal" @close="showCreateUserModal = false" @createUser="handleUserCreation" />
+    </MainLayout>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/MainLayout.vue';
+import CreateUserForm from '@/components/CreateUserForm.vue';
 import { useAuthStore } from '@/store/auth.ts';
+import { useTeamsStore } from '@/store/teams.ts';
 
 const authStore = useAuthStore();
+const teamsStore = useTeamsStore();
+
+const showCreateTeamModal = ref(false);
+const showCreateUserModal = ref(false);
+
+onMounted(() => {
+  teamsStore.fetchTeams();
+});
+
+const handleUserCreation = (userData) => {
+  console.log('Datos del nuevo usuario recibidos en la vista:', userData);
+  showCreateUserModal.value = false;
+};
 </script>
