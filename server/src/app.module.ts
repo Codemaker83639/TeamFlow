@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { TeamsModule } from './teams/teams.module';
 // No necesitas importar un UsersModule separado
 
 @Module({
@@ -18,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true, // Perfecto para desarrollo
     }),
     AuthModule,
+    TeamsModule,
     // Aquí irían los otros módulos como ProjectsModule, TasksModule, etc.
   ],
 })
