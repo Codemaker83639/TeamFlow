@@ -1,9 +1,6 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-
-// --- RUTAS CORREGIDAS ---
-// Subimos un nivel (a src) y luego bajamos a la carpeta 'auth'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -24,5 +21,12 @@ export class UsersController {
     @Roles(UserRole.ADMIN)
     findAll() {
         return this.usersService.findAll();
+    }
+
+    // --- MÉTODO PARA ELIMINAR (CORREGIDO Y EN SU LUGAR CORRECTO) ---
+    @Delete(':id')
+    @Roles(UserRole.ADMIN) // Solo los administradores pueden eliminar
+    remove(@Param('id') id: string) {
+        return this.usersService.remove(id);
     }
 }

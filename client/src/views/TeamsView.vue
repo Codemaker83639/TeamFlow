@@ -37,13 +37,36 @@
             </button>
           </div>
           
-          <ul class="space-y-3">
-            <li v-for="user in users" :key="user.id" class="flex items-center justify-between">
-              <div>
-                <p class="font-semibold text-dark-purple dark:text-light">{{ user.full_name }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+          <ul>
+            <li v-for="user in users" :key="user.id" 
+                class="group py-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+
+              <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3 flex-1 min-w-0">
+                      <div class="flex items-center transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                          <template v-if="authStore.user?.role === 'Administrator' && user.id !== authStore.user?.id">
+                              <button @click="openEditUserModal(user)" 
+                                      class="p-2 rounded-full text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700" 
+                                      title="Editar usuario">
+                                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z" /></svg>
+                              </button>
+                              <button @click="handleDeleteUser(user.id)" 
+                                      class="p-2 rounded-full text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700" 
+                                      title="Eliminar usuario">
+                                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              </button>
+                          </template>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                          <p class="font-semibold text-dark-purple dark:text-light truncate">{{ user.full_name }}</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user.email }}</p>
+                      </div>
+                  </div>
+
+                  <div class="flex-shrink-0 ml-3">
+                      <span class="px-2 py-1 text-xs text-secondary bg-light-accent rounded-full capitalize whitespace-nowrap">{{ user.role }}</span>
+                  </div>
               </div>
-              <span class="px-2 py-1 text-xs text-secondary bg-light-accent rounded-full capitalize">{{ user.role }}</span>
             </li>
           </ul>
         </div>
@@ -60,7 +83,6 @@
 import { ref, onMounted, computed } from 'vue';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateUserForm from '@/components/CreateUserForm.vue';
-// ELIMINAMOS LA IMPORTACIÓN DE CreateTeamForm
 import { useAuthStore } from '@/store/auth.ts';
 import { useTeamsStore } from '@/store/teams.ts';
 import { useUsersStore } from '@/store/users.ts';
@@ -69,10 +91,25 @@ const authStore = useAuthStore();
 const teamsStore = useTeamsStore();
 const usersStore = useUsersStore();
 
-const showCreateTeamModal = ref(false); // Mantenemos esta variable para el futuro
+const showCreateTeamModal = ref(false);
 const showCreateUserModal = ref(false);
 
 const users = computed(() => usersStore.users);
+
+const handleDeleteUser = async (userId) => {
+  if (window.confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.')) {
+    try {
+      await usersStore.deleteUser(userId);
+      alert('Usuario eliminado exitosamente.');
+    } catch (error) {
+      alert('No se pudo eliminar el usuario.');
+    }
+  }
+};
+
+const openEditUserModal = (user) => {
+  alert(`Funcionalidad para editar al usuario: ${user.full_name} (se implementará a continuación).`);
+};
 
 onMounted(() => {
   teamsStore.fetchTeams();
