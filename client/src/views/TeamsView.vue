@@ -3,7 +3,7 @@
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow">
       <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Gestión de Equipos y Miembros</h2>
     </header>
-<main class="flex-1 overflow-y-auto bg-light dark:bg-dark-purple p-6">
+    <main class="flex-1 overflow-y-auto bg-light dark:bg-dark-purple p-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="lg:col-span-2">
@@ -31,10 +31,10 @@
 
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow self-start">
           <div class="flex justify-between items-center mb-4">
-             <h3 class="text-xl font-bold text-dark-purple dark:text-light">Usuarios</h3>
-             <button v-if="authStore.user?.role === 'Administrator'" @click="showCreateUserModal = true" class="bg-secondary text-white font-semibold py-1 px-3 rounded-lg text-sm">
-               Añadir Usuario
-             </button>
+            <h3 class="text-xl font-bold text-dark-purple dark:text-light">Usuarios</h3>
+            <button v-if="authStore.user?.role === 'Administrator'" @click="showCreateUserModal = true" class="bg-secondary text-white font-semibold py-1 px-3 rounded-lg text-sm">
+              Añadir Usuario
+            </button>
           </div>
           
           <ul class="space-y-3">
@@ -57,37 +57,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateUserForm from '@/components/CreateUserForm.vue';
+// ELIMINAMOS LA IMPORTACIÓN DE CreateTeamForm
 import { useAuthStore } from '@/store/auth.ts';
 import { useTeamsStore } from '@/store/teams.ts';
-import axios from 'axios';
+import { useUsersStore } from '@/store/users.ts';
 
 const authStore = useAuthStore();
 const teamsStore = useTeamsStore();
+const usersStore = useUsersStore();
 
-const showCreateTeamModal = ref(false);
+const showCreateTeamModal = ref(false); // Mantenemos esta variable para el futuro
 const showCreateUserModal = ref(false);
-const users = ref([]);
 
-const fetchUsers = async () => {
-  try {
-    const api = axios.create({
-      baseURL: 'http://localhost:3000',
-      headers: { 'Authorization': `Bearer ${authStore.token}` }
-    });
-    const response = await api.get('/users');
-    users.value = response.data;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-  }
-};
+const users = computed(() => usersStore.users);
 
 onMounted(() => {
   teamsStore.fetchTeams();
   if (authStore.user?.role === 'Administrator') {
-    fetchUsers();
+    usersStore.fetchUsers();
   }
 });
 </script>

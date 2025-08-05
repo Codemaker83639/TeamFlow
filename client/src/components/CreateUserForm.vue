@@ -20,21 +20,28 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useUsersStore } from '@/store/users.ts'; // Importamos el store
 
-const emit = defineEmits(['close', 'createUser']);
+const emit = defineEmits(['close']);
+const usersStore = useUsersStore(); // Inicializamos el store
 
 const userData = ref({
   fullName: '',
   username: '',
   email: '',
   password: '',
-  role: 'member' // Por defecto, creamos miembros
+  role: 'team member' // Rol por defecto según tu documento de tesis [cite: 193]
 });
 
-const handleCreateUser = () => {
-  // En el futuro, aquí se llamará al backend. Por ahora, emitimos el evento.
-  console.log('Creando usuario:', userData.value);
-  alert('Funcionalidad para crear usuario desde el frontend lista (sin conexión a backend aún).');
-  emit('createUser', userData.value);
+const handleCreateUser = async () => {
+  try {
+    console.log('Enviando datos de usuario:', userData.value);
+    await usersStore.createUser(userData.value);
+    alert('¡Usuario creado exitosamente!');
+    emit('close'); // Cierra el modal en caso de éxito
+  } catch (error) {
+    console.error('Fallo al crear usuario:', error);
+    alert('No se pudo crear el usuario. Revisa la consola para más detalles.');
+  }
 };
 </script>
