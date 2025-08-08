@@ -3,18 +3,14 @@ import axios from 'axios';
 import { useAuthStore } from './auth';
 
 export interface User {
-    id: string; // Asegúrate que el id sea string si usas UUID
+    id: string;
     full_name: string;
     email: string;
     role: 'Administrator' | 'team member' | 'viewer';
 }
 
-interface CreateUserData {
-    fullName: string;
-    username: string;
-    email: string;
-    password: string;
-    role: string;
+interface UserData {
+    [key: string]: any;
 }
 
 export const useUsersStore = defineStore('users', {
@@ -43,11 +39,10 @@ export const useUsersStore = defineStore('users', {
             }
         },
 
-        async createUser(userData: CreateUserData) {
+        async createUser(userData: UserData) {
             try {
                 const api = this.getApi();
-                const payload = userData;
-                const response = await api.post('/users', payload);
+                const response = await api.post('/users', userData);
                 this.users.push(response.data);
             } catch (error) {
                 console.error('Error creating user:', error);
@@ -55,12 +50,28 @@ export const useUsersStore = defineStore('users', {
             }
         },
 
-        // --- NUEVA ACCIÓN PARA ELIMINAR ---
+        // --- NUEVA ACCIÓN PARA ACTUALIZAR ---
+        async updateUser(userId: string, userData: UserData) {
+            try {
+                const api = this.getApi();
+                const response = await api.patch(`/users/${userId}`, userData);
+
+                // Busca el índice del usuario actualizado en la lista y reemplázalo
+                // para que la interfaz se actualice automáticamente.
+                const index = this.users.findIndex(user => user.id === userId);
+                if (index !== -1) {
+                    this.users[index] = response.data;
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                throw error;
+            }
+        },
+
         async deleteUser(userId: string) {
             try {
                 const api = this.getApi();
                 await api.delete(`/users/${userId}`);
-                // Actualiza el estado local para reflejar el cambio en la UI al instante
                 this.users = this.users.filter(user => user.id !== userId);
             } catch (error) {
                 console.error('Error deleting user:', error);
