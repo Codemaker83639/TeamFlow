@@ -1,8 +1,9 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common'; // Añadimos NotFoundException
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from '../auth/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto'; // Se importa el DTO para actualizar
 
 @Injectable()
 export class UsersService {
@@ -41,20 +42,38 @@ export class UsersService {
         });
     }
 
-    // --- MÉTODO PARA ELIMINAR (AÑADIDO) ---
     async remove(id: string) {
-        // --- PASO DE DEPURACIÓN 1 ---
-        console.log(`--- INTENTANDO ELIMINAR USUARIO CON ID: ${id} ---`);
-        console.log(`--- TIPO DE DATO DEL ID RECIBIDO: ${typeof id} ---`);
-
+        // Se limpiaron los console.log de depuración
         const result = await this.userRepository.delete(id);
-
-        // --- PASO DE DEPURACIÓN 2 ---
-        console.log('--- RESULTADO DE LA OPERACIÓN DELETE DE TYPEORM:', result);
-
         if (result.affected === 0) {
-            // Si affected es 0, significa que no se encontró ninguna fila para eliminar.
             throw new NotFoundException(`Usuario con ID "${id}" no encontrado.`);
+        }
+    }
+
+    // --- NUEVO MÉTODO PARA ACTUALIZAR ---
+    async update(id: string, updateUserDto: UpdateUserDto) {
+        const user = await this.userRepository.findOneBy({ id });
+        if (!user) {
+            throw new NotFoundException(`Usuario con ID "${id}" no encontrado.`);
+        }
+
+        // Mapeamos los campos del DTO a la entidad de forma segura
+        if (updateUserDto.fullName) user.full_name = updateUserDto.fullName;
+        if (updateUserDto.username) user.username = updateUserDto.username;
+        if (updateUserDto.email) user.email = updateUserDto.email;
+        if (updateUserDto.role) user.role = updateUserDto.role;
+        // Si se envía una nueva contraseña, se la pasamos a la entidad para que el hook la hashee
+        if (updateUserDto.password) user.password_hash = updateUserDto.password;
+
+        try {
+            const savedUser = await this.userRepository.save(user);
+            const { password_hash, ...result } = savedUser;
+            return result;
+        } catch (error) {
+            if (error.code === '23505') { // Error de unicidad de PostgreSQL
+                throw new ConflictException('El email o nombre de usuario ya existe.');
+            }
+            throw error;
         }
     }
 }

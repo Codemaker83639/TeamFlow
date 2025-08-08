@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, UseGuards, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Param, Delete, Patch } from '@nestjs/common'; // Se importa Patch
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto'; // Se importa el DTO para actualizar
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -23,10 +24,16 @@ export class UsersController {
         return this.usersService.findAll();
     }
 
-    // --- MÉTODO PARA ELIMINAR (CORREGIDO Y EN SU LUGAR CORRECTO) ---
     @Delete(':id')
-    @Roles(UserRole.ADMIN) // Solo los administradores pueden eliminar
+    @Roles(UserRole.ADMIN)
     remove(@Param('id') id: string) {
         return this.usersService.remove(id);
+    }
+
+    // --- NUEVO ENDPOINT PARA ACTUALIZAR ---
+    @Patch(':id')
+    @Roles(UserRole.ADMIN)
+    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+        return this.usersService.update(id, updateUserDto);
     }
 }
