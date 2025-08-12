@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team } from './entities/team.entity';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { TeamMember } from './entities/team-member.entity';
-import { UpdateTeamDto } from './dto/update-team.dto'; // Se importa el nuevo DTO
+import { UpdateTeamDto } from './dto/update-team.dto';
+import { Project } from '../projects/entities/project.entity'; // Se importa Project
 
 @Injectable()
 export class TeamsService {
@@ -13,6 +14,8 @@ export class TeamsService {
         private readonly teamsRepository: Repository<Team>,
         @InjectRepository(TeamMember)
         private readonly teamMembersRepository: Repository<TeamMember>,
+        @InjectRepository(Project) // Se inyecta el repositorio de Project
+        private readonly projectsRepository: Repository<Project>,
     ) { }
 
     async create(createTeamDto: CreateTeamDto): Promise<Team> {
@@ -36,10 +39,7 @@ export class TeamsService {
         return this.teamsRepository.find();
     }
 
-    // --- NUEVO MÉTODO PARA ACTUALIZAR EQUIPOS ---
     async update(id: string, updateTeamDto: UpdateTeamDto): Promise<Team> {
-        // Usamos preload para buscar el equipo y fusionar los nuevos datos.
-        // Si no lo encuentra, devuelve undefined.
         const team = await this.teamsRepository.preload({
             id: id,
             ...updateTeamDto,
@@ -48,20 +48,25 @@ export class TeamsService {
         if (!team) {
             throw new NotFoundException(`Equipo con ID "${id}" no encontrado.`);
         }
-        // Aquí podríamos añadir lógica para actualizar miembros si el DTO lo permite
         return this.teamsRepository.save(team);
     }
 
-    // --- NUEVO MÉTODO PARA ELIMINAR EQUIPOS ---
+    // --- MÉTODO 'REMOVE' CORREGIDO Y MÁS SEGURO ---
     async remove(id: string): Promise<void> {
-        // Primero eliminamos los miembros asociados a este equipo
-        await this.teamMembersRepository.delete({ team: { id } });
-
-        // Luego eliminamos el equipo
-        const result = await this.teamsRepository.delete(id);
-
-        if (result.affected === 0) {
+        // 1. Verificar si el equipo existe
+        const team = await this.teamsRepository.findOneBy({ id });
+        if (!team) {
             throw new NotFoundException(`Equipo con ID "${id}" no encontrado.`);
         }
+
+        // 2. Verificar si hay proyectos asociados
+        const associatedProjects = await this.projectsRepository.count({ where: { team: { id } } });
+        if (associatedProjects > 0) {
+            throw new ConflictException('No se puede eliminar el equipo porque tiene proyectos asociados.');
+        }
+
+        // 3. Si no hay proyectos, proceder a eliminar miembros y luego el equipo
+        await this.teamMembersRepository.delete({ team: { id } });
+        await this.teamsRepository.delete(id);
     }
 }
