@@ -1,7 +1,7 @@
-import { Controller, Post, Body, UseGuards, Get, Param, Patch, Delete } from '@nestjs/common'; // Se añaden Param, Patch, Delete
+import { Controller, Post, Body, UseGuards, Get, Param, Patch, Delete } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto'; // Se importa el nuevo DTO
+import { UpdateTeamDto } from './dto/update-team.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -23,14 +23,18 @@ export class TeamsController {
         return this.teamsService.findAll();
     }
 
-    // --- NUEVO ENDPOINT PARA ACTUALIZAR EQUIPOS ---
+    // --- NUEVO ENDPOINT PARA OBTENER UN SOLO EQUIPO ---
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.teamsService.findOne(id);
+    }
+
     @Patch(':id')
     @Roles(UserRole.ADMIN)
     update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
         return this.teamsService.update(id, updateTeamDto);
     }
 
-    // --- NUEVO ENDPOINT PARA ELIMINAR EQUIPOS ---
     @Delete(':id')
     @Roles(UserRole.ADMIN)
     remove(@Param('id') id: string) {

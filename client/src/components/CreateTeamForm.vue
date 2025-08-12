@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md">
-      <h3 class="text-2xl font-bold text-dark-purple dark:text-light mb-6">Crear Nuevo Equipo</h3>
+      <h3 class="text-2xl font-bold text-dark-purple dark:text-light mb-6">{{ modalTitle }}</h3>
       
       <form id="teamForm" @submit.prevent="handleSubmit">
         <div class="space-y-4">
@@ -21,10 +21,10 @@
           ></textarea>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Añadir Miembros</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Miembros del Equipo</label>
             <div class="max-h-40 overflow-y-auto border rounded-md p-3 space-y-2 bg-gray-50 dark:bg-gray-900/50 dark:border-gray-600">
-              <div v-if="users.length === 0" class="text-sm text-gray-500">No hay usuarios disponibles.</div>
-              <div v-for="user in users" :key="user.id" class="flex items-center">
+              <div v-if="allUsers.length === 0" class="text-sm text-gray-500">No hay usuarios para añadir.</div>
+              <div v-for="user in allUsers" :key="user.id" class="flex items-center">
                 <input 
                   :id="'user-' + user.id"
                   :value="user.id"
@@ -33,7 +33,7 @@
                   class="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
                 >
                 <label :for="'user-' + user.id" class="ml-3 block text-sm text-gray-900 dark:text-gray-100">
-                  {{ user.full_name }} <span class="text-gray-500">({{ user.email }})</span>
+                  {{ user.full_name }}
                 </label>
               </div>
             </div>
@@ -55,7 +55,7 @@
             form="teamForm"
             class="px-6 py-2 rounded bg-accent text-white font-semibold"
           >
-            Crear Equipo
+            {{ submitButtonText }}
           </button>
       </div>
     </div>
@@ -65,35 +65,63 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useTeamsStore } from '@/store/teams.ts';
-import { useUsersStore } from '@/store/users.ts'; // Importamos el store de usuarios
+import { useUsersStore } from '@/store/users.ts';
+
+// 1. Definimos la prop para recibir el equipo a editar
+const props = defineProps({
+  teamToEdit: {
+    type: Object,
+    default: null
+  }
+});
 
 const emit = defineEmits(['close']);
 const teamsStore = useTeamsStore();
-const usersStore = useUsersStore(); // Inicializamos el store de usuarios
+const usersStore = useUsersStore();
 
-// Obtenemos la lista de usuarios del store
-const users = computed(() => usersStore.users);
+// Obtenemos la lista completa de usuarios para mostrarlos en los checkboxes
+const allUsers = computed(() => usersStore.users);
 
-// Añadimos 'memberIds' a los datos del formulario
 const teamData = ref({
   name: '',
   description: '',
   memberIds: []
 });
 
-// Al montar el componente, pedimos la lista de todos los usuarios
+// 2. Determinamos si estamos en modo edición
+const isEditMode = computed(() => !!props.teamToEdit);
+
+// 3. Textos dinámicos
+const modalTitle = computed(() => isEditMode.value ? 'Editar Equipo' : 'Crear Nuevo Equipo');
+const submitButtonText = computed(() => isEditMode.value ? 'Guardar Cambios' : 'Crear Equipo');
+
 onMounted(() => {
+  // Siempre necesitamos la lista de usuarios para el selector
   usersStore.fetchUsers();
+
+  // 4. Si es modo edición, rellenamos los campos
+  if (isEditMode.value) {
+    teamData.value.name = props.teamToEdit.name;
+    teamData.value.description = props.teamToEdit.description;
+    // Pre-seleccionamos los checkboxes de los miembros actuales
+    teamData.value.memberIds = props.teamToEdit.members.map(member => member.user.id);
+  }
 });
 
+// 5. El submit ahora maneja ambos casos
 const handleSubmit = async () => {
   try {
-    await teamsStore.createTeam(teamData.value);
-    alert('¡Equipo creado exitosamente!');
+    if (isEditMode.value) {
+      await teamsStore.updateTeam(props.teamToEdit.id, teamData.value);
+      alert('¡Equipo actualizado exitosamente!');
+    } else {
+      await teamsStore.createTeam(teamData.value);
+      alert('¡Equipo creado exitosamente!');
+    }
     emit('close');
   } catch (error) {
-    alert('No se pudo crear el equipo. Revisa la consola para más detalles.');
-    console.error('Fallo al crear el equipo:', error);
+    alert('No se pudo guardar el equipo. Revisa la consola para más detalles.');
+    console.error('Fallo al guardar el equipo:', error);
   }
 };
 </script>

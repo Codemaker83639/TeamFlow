@@ -9,22 +9,19 @@
         <div class="lg:col-span-2">
             <h3 class="text-xl font-bold text-dark-purple dark:text-light mb-4">Equipos Existentes</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              <div v-if="authStore.user?.role === 'Administrator'" @click="showCreateTeamModal = true" 
+              <div v-if="authStore.user?.role === 'Administrator'" @click="openCreateTeamModal" 
                    class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors min-h-[150px]">
                 <div class="text-center">
                   <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                   <p class="mt-2 font-semibold">Crear Nuevo Equipo</p>
                 </div>
               </div>
-              
               <div v-for="team in teams" :key="team.id" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow min-h-[150px]">
                 <div class="flex justify-between items-start">
                   <div>
                     <h4 class="font-bold text-dark-purple dark:text-light">{{ team.name }}</h4>
                     <p class="text-sm text-accent dark:text-gray-400 mt-1">{{ team.description }}</p>
                   </div>
-                  
                   <div v-if="authStore.user?.role === 'Administrator'" class="relative">
                     <button @click.stop="toggleMenu(team.id)" class="text-xs font-semibold text-accent dark:text-light-accent hover:underline">
                       Administrar
@@ -37,10 +34,9 @@
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
-              </div>
+            </div>
         </div>
 
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow self-start">
@@ -82,12 +78,11 @@
     </main>
     
     <CreateUserForm v-if="showUserFormModal" :user-to-edit="userToEdit" @close="closeUserFormModal" />
-    <CreateTeamForm v-if="showCreateTeamModal" @close="showCreateTeamModal = false" />
+    <CreateTeamForm v-if="showTeamFormModal" :team-to-edit="teamToEdit" @close="closeTeamFormModal" />
   </MainLayout>
 </template>
 
 <script setup>
-// Se añade 'onUnmounted' para la limpieza de listeners
 import { ref, onMounted, onUnmounted, computed, watchEffect } from 'vue';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateUserForm from '@/components/CreateUserForm.vue';
@@ -100,11 +95,10 @@ const authStore = useAuthStore();
 const teamsStore = useTeamsStore();
 const usersStore = useUsersStore();
 
-const showCreateTeamModal = ref(false);
 const teams = computed(() => teamsStore.teams);
 const users = computed(() => usersStore.users);
 
-// --- LÓGICA DE USUARIOS (INTACTA, TAL COMO LA TENÍAS) ---
+// --- LÓGICA DE USUARIOS (INTACTA Y FUNCIONAL) ---
 const showUserFormModal = ref(false);
 const userToEdit = ref(null);
 
@@ -112,17 +106,14 @@ const openCreateUserModal = () => {
   userToEdit.value = null;
   showUserFormModal.value = true;
 };
-
 const openEditUserModal = (user) => {
   userToEdit.value = user;
   showUserFormModal.value = true;
 };
-
 const closeUserFormModal = () => {
   showUserFormModal.value = false;
   userToEdit.value = null;
 };
-
 const handleDeleteUser = async (userId) => {
   if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
     try {
@@ -133,35 +124,40 @@ const handleDeleteUser = async (userId) => {
     }
   }
 };
-
 const getInitials = (fullName) => {
   if (!fullName) return '';
   const names = fullName.trim().split(' ');
-  if (names.length === 1) {
-    return names[0].charAt(0).toUpperCase();
-  }
+  if (names.length === 1) { return names[0].charAt(0).toUpperCase(); }
   const firstName = names[0].charAt(0).toUpperCase();
   const lastName = names[names.length - 1].charAt(0).toUpperCase();
   return firstName + lastName;
 };
-// --- FIN DE LÓGICA DE USUARIOS ---
 
-
-// --- LÓGICA AÑADIDA PARA EL MENÚ DE EQUIPOS ---
+// --- LÓGICA PARA EQUIPOS (CON EDICIÓN FUNCIONAL) ---
+const showTeamFormModal = ref(false);
+const teamToEdit = ref(null);
 const openMenuId = ref(null);
 
 const toggleMenu = (teamId) => {
-  if (openMenuId.value === teamId) {
-    openMenuId.value = null;
-  } else {
-    openMenuId.value = teamId;
-  }
+  if (openMenuId.value === teamId) { openMenuId.value = null; } 
+  else { openMenuId.value = teamId; }
 };
-
 const closeMenu = () => {
   openMenuId.value = null;
 };
-
+const openCreateTeamModal = () => {
+  teamToEdit.value = null;
+  showTeamFormModal.value = true;
+};
+const openEditTeamModal = (team) => {
+  closeMenu();
+  teamToEdit.value = team;
+  showTeamFormModal.value = true;
+};
+const closeTeamFormModal = () => {
+  showTeamFormModal.value = false;
+  teamToEdit.value = null;
+};
 const handleDeleteTeam = async (teamId) => {
   closeMenu();
   if (window.confirm('¿Estás seguro de que deseas eliminar este equipo? Esta acción es permanente.')) {
@@ -174,23 +170,14 @@ const handleDeleteTeam = async (teamId) => {
   }
 };
 
-const openEditTeamModal = (team) => {
-  closeMenu();
-  alert(`Funcionalidad para editar el equipo: "${team.name}" (se implementará a continuación).`);
-};
-// --- FIN DE LÓGICA DE EQUIPOS ---
-
-
 // --- HOOKS DE CICLO DE VIDA ---
 onMounted(() => {
   teamsStore.fetchTeams();
   document.addEventListener('click', closeMenu);
 });
-
 onUnmounted(() => {
   document.removeEventListener('click', closeMenu);
 });
-
 watchEffect(() => {
   if (authStore.user?.role === 'Administrator') {
     usersStore.fetchUsers();

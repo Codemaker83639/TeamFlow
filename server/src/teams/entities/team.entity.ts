@@ -22,7 +22,10 @@ export class Team {
     @Column({ nullable: true })
     avatar_url: string;
 
-    @OneToMany(() => TeamMember, (teamMember) => teamMember.team)
+    // --- CAMBIO CLAVE ---
+    // 'eager: true' le dice a TypeORM que siempre cargue esta relación (los miembros)
+    // cuando se busque un equipo. Esto nos simplifica el código en el servicio.
+    @OneToMany(() => TeamMember, (teamMember) => teamMember.team, { cascade: true, eager: true })
     members: TeamMember[];
 
     @CreateDateColumn()
