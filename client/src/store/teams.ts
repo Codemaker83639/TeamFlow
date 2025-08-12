@@ -1,46 +1,54 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from './auth';
 
-// 1. Define la interfaz para un objeto de Equipo
+// Definimos la interfaz para un objeto de Equipo
 interface Team {
     id: string;
     name: string;
     description: string;
-    // Añade aquí otras propiedades que esperes del backend
+    // Puedes añadir más propiedades aquí si es necesario
 }
 
-export const useTeamsStore = defineStore('teams', () => {
-    // 2. Especifica que 'teams' es un array de objetos 'Team'
-    const teams = ref<Team[]>([]);
-    const authStore = useAuthStore();
+// Usamos la sintaxis de 'state' y 'actions' para consistencia
+export const useTeamsStore = defineStore('teams', {
+    state: () => ({
+        teams: [] as Team[],
+    }),
+    actions: {
+        // Función auxiliar para obtener una instancia de API con el token más reciente
+        getApi() {
+            const authStore = useAuthStore();
+            return axios.create({
+                baseURL: 'http://localhost:3000',
+                headers: {
+                    'Authorization': `Bearer ${authStore.token}`
+                }
+            });
+        },
 
-    const api = axios.create({
-        baseURL: 'http://localhost:3000',
-        headers: {
-            'Authorization': `Bearer ${authStore.token}`
-        }
-    });
+        async fetchTeams() {
+            try {
+                const api = this.getApi();
+                const response = await api.get('/teams');
+                this.teams = response.data;
+            } catch (error) {
+                console.error("Error fetching teams:", error);
+                this.teams = []; // Limpiamos en caso de error
+            }
+        },
 
-    async function fetchTeams() {
-        try {
-            const response = await api.get('/teams');
-            teams.value = response.data;
-        } catch (error) {
-            console.error("Error fetching teams:", error);
+        async createTeam(teamData: { name: string; description: string }) {
+            try {
+                const api = this.getApi();
+                const response = await api.post('/teams', teamData);
+                // Añadimos el nuevo equipo a la lista para actualizar la UI al instante
+                this.teams.push(response.data);
+            } catch (error) {
+                console.error("Error creating team:", error);
+                // Propagamos el error para que el componente que llama pueda manejarlo
+                throw error;
+            }
         }
     }
-
-    // 3. Añade el tipo al parámetro 'teamData'
-    async function createTeam(teamData: { name: string; description: string }) {
-        try {
-            const response = await api.post('/teams', teamData);
-            teams.value.push(response.data);
-        } catch (error) {
-            console.error("Error creating team:", error);
-        }
-    }
-
-    return { teams, fetchTeams, createTeam };
 });
