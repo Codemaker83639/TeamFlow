@@ -8,15 +8,16 @@ import { CreateTeamDto } from './dto/create-team.dto';
 export class TeamsService {
     constructor(
         @InjectRepository(Team)
-        private readonly teamRepository: Repository<Team>,
+        private readonly teamsRepository: Repository<Team>,
     ) { }
 
     async create(createTeamDto: CreateTeamDto): Promise<Team> {
-        const team = this.teamRepository.create(createTeamDto);
-        return this.teamRepository.save(team);
+        const newTeam = this.teamsRepository.create(createTeamDto);
+        return this.teamsRepository.save(newTeam);
     }
 
+    // --- NUEVO MÉTODO PARA OBTENER TODOS LOS EQUIPOS ---
     async findAll(): Promise<Team[]> {
-        return this.teamRepository.find();
+        return this.teamsRepository.find();
     }
 }

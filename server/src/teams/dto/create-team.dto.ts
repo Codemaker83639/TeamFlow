@@ -1,12 +1,14 @@
-import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 
 export class CreateTeamDto {
     @IsString()
     @IsNotEmpty()
-    @MaxLength(100)
+    @MinLength(3)
+    @MaxLength(50)
     name: string;
 
     @IsString()
     @IsNotEmpty()
+    @MaxLength(255)
     description: string;
 }
