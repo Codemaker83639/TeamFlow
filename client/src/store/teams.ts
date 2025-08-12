@@ -8,11 +8,17 @@ interface Team {
     description: string;
 }
 
-// Interfaz para los datos de creación de un equipo
 interface CreateTeamData {
     name: string;
     description: string;
-    memberIds?: string[]; // Se añade el array opcional de IDs
+    memberIds?: string[];
+}
+
+// Interfaz para los datos de actualización (todos los campos son opcionales)
+interface UpdateTeamData {
+    name?: string;
+    description?: string;
+    memberIds?: string[];
 }
 
 export const useTeamsStore = defineStore('teams', {
@@ -41,7 +47,6 @@ export const useTeamsStore = defineStore('teams', {
             }
         },
 
-        // Se actualiza el tipo de 'teamData' para que coincida con la nueva interfaz
         async createTeam(teamData: CreateTeamData) {
             try {
                 const api = this.getApi();
@@ -49,6 +54,33 @@ export const useTeamsStore = defineStore('teams', {
                 this.teams.push(response.data);
             } catch (error) {
                 console.error("Error creating team:", error);
+                throw error;
+            }
+        },
+
+        // --- NUEVA ACCIÓN PARA ACTUALIZAR EQUIPOS ---
+        async updateTeam(teamId: string, teamData: UpdateTeamData) {
+            try {
+                const api = this.getApi();
+                const response = await api.patch(`/teams/${teamId}`, teamData);
+                const index = this.teams.findIndex(t => t.id === teamId);
+                if (index !== -1) {
+                    this.teams[index] = response.data;
+                }
+            } catch (error) {
+                console.error("Error updating team:", error);
+                throw error;
+            }
+        },
+
+        // --- NUEVA ACCIÓN PARA ELIMINAR EQUIPOS ---
+        async deleteTeam(teamId: string) {
+            try {
+                const api = this.getApi();
+                await api.delete(`/teams/${teamId}`);
+                this.teams = this.teams.filter(t => t.id !== teamId);
+            } catch (error) {
+                console.error("Error deleting team:", error);
                 throw error;
             }
         }
