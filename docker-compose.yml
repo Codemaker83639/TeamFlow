@@ -9,7 +9,9 @@ services:
     ports:
       - "8080:5173"
     volumes:
+      # Esta línea sincroniza tu código fuente
       - ./client:/app
+      # ESTA LÍNEA ES LA SOLUCIÓN: Aísla y protege los node_modules del contenedor
       - /app/node_modules
     depends_on:
       - backend
@@ -29,7 +31,6 @@ services:
       - "3000:3000"
     volumes:
       - ./server:/app
-      - /app/node_modules
     depends_on:
       - postgres
       - redis
@@ -54,6 +55,7 @@ services:
       - teamflow-network
     restart: unless-stopped
 
+  # ... (El resto de tus servicios: postgres, redis, nginx, adminer permanecen exactamente igual)
   # PostgreSQL Database
   postgres:
     image: postgres:14-alpine
@@ -108,14 +110,12 @@ services:
       - teamflow-network
     restart: unless-stopped
 
-# Volumes for data persistence
 volumes:
   postgres_data:
     driver: local
   redis_data:
     driver: local
 
-# Network configuration
 networks:
   teamflow-network:
     driver: bridge
