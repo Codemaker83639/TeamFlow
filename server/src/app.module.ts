@@ -1,32 +1,41 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TeamsModule } from './teams/teams.module';
-import { ProjectsModule } from './projects/projects.module'; // 1. Importa el nuevo ProjectsModule
-import { User } from './auth/entities/user.entity';
-import { Team } from './teams/entities/team.entity';
-import { TeamMember } from './teams/entities/team-member.entity';
-import { Project } from './projects/entities/project.entity'; // Importa la entidad Project
+import { ProjectsModule } from './projects/projects.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.POSTGRES_HOST,
-      port: parseInt(process.env.POSTGRES_PORT, 10),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DB,
-      entities: [User, Team, TeamMember, Project], // 2. Asegúrate de que Project esté en la lista de entidades
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('POSTGRES_HOST'),
+        port: parseInt(configService.get<string>('POSTGRES_PORT') || '5432', 10),
+        username: configService.get<string>('POSTGRES_USER'),
+        password: configService.get<string>('POSTGRES_PASSWORD'),
+        database: configService.get<string>('POSTGRES_DB'),
+
+        // ---- CAMBIOS CLAVE ----
+        // 1. Descubre automáticamente todas tus entidades (User, Team, Project, Task, etc.)
+        autoLoadEntities: true,
+
+        // 2. Desactiva la sincronización para usar el sistema de migraciones que creamos
+        synchronize: false,
+      }),
     }),
     AuthModule,
     UsersModule,
     TeamsModule,
-    ProjectsModule, // 3. Añade ProjectsModule a la lista de imports
+    ProjectsModule,
+    TasksModule,
   ],
   controllers: [],
   providers: [],
