@@ -1,4 +1,11 @@
 // client/src/types/Task.ts
+
+// Una interfaz simple para representar los datos del usuario que nos interesan
+export interface PartialUser {
+    id: string;
+    full_name: string;
+}
+
 export enum TaskStatus {
     BACKLOG = 'backlog',
     TODO = 'todo',
@@ -24,4 +31,7 @@ export interface Task {
     estimated_hours?: number;
     created_at: string;
     updated_at: string;
+    // --- CAMPOS NUEVOS ---
+    created_by: PartialUser;
+    assigned_to: PartialUser | null; // Puede ser un usuario o nulo si no está asignada
 }

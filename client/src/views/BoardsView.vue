@@ -44,8 +44,15 @@
                   >
                     {{ task.priority }}
                   </span>
-                  <div class="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs">TA</div>
-                </div>
+                  
+                  <div 
+                    v-if="task.assigned_to" 
+                    class="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs" 
+                    :title="task.assigned_to.full_name"
+                  >
+                    {{ getInitials(task.assigned_to.full_name) }}
+                  </div>
+                  </div>
               </div>
             </template>
           </draggable>
@@ -58,16 +65,25 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import MainLayout from '@/layouts/MainLayout.vue';
-// CORRECCIÓN CLAVE: La ruta correcta al store usa '@/'
-import { useTaskStore } from '@/store/taskStore';
+import { useTaskStore } from '@/store/taskStore'; // Corregido a 'store' singular
 import type { Task, TaskStatus, TaskPriority } from '@/types/Task';
 import draggable from 'vuedraggable';
-// CORRECCIÓN CLAVE: Ahora TypeScript podrá encontrar esta importación
 import type { SortableEvent } from 'sortablejs';
 
 const taskStore = useTaskStore();
 
+// --- NUEVA FUNCIÓN PARA OBTENER INICIALES ---
+const getInitials = (fullName: string | undefined): string => {
+  if (!fullName) return '';
+  const names = fullName.split(' ');
+  if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
+  // Devuelve la primera letra del primer nombre y la primera del último
+  return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+};
+// -----------------------------------------
+
 const columnTitles: Record<string, string> = {
+  // ... (sin cambios)
   backlog: 'Backlog',
   todo: 'Por Hacer',
   in_progress: 'En Progreso',
@@ -76,6 +92,7 @@ const columnTitles: Record<string, string> = {
 };
 
 const priorityClasses: Record<string, string> = {
+  // ... (sin cambios)
   urgent: 'bg-red-500',
   high: 'bg-yellow-500',
   medium: 'bg-blue-500',
@@ -83,9 +100,10 @@ const priorityClasses: Record<string, string> = {
 };
 
 const handleDragEnd = (event: SortableEvent) => {
+  // ... (sin cambios)
   const item = event.item as HTMLElement;
   const to = event.to as HTMLElement;
-
+  
   const originalStatus = (event.from as HTMLElement).closest('.board-column')?.dataset.status as TaskStatus | undefined;
   const newStatus = to.closest('.board-column')?.dataset.status as TaskStatus | undefined;
   
