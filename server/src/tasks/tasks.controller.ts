@@ -7,30 +7,36 @@ import {
     Param,
     Delete,
     ParseUUIDPipe,
+    UseGuards,
+    Request,
 } from '@nestjs/common';
 import { TasksService, CreateTaskDto, UpdateTaskDto } from './tasks.service';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('tasks') // Todas las rutas de este controlador empezarán con /tasks
+@Controller('tasks')
 export class TasksController {
-    // Inyectamos el servicio para poder usar sus métodos
     constructor(private readonly tasksService: TasksService) { }
 
-    @Post() // Maneja las peticiones POST a /tasks
-    create(@Body() createTaskDto: CreateTaskDto) {
-        return this.tasksService.create(createTaskDto);
+    @Post()
+    @UseGuards(AuthGuard('jwt')) // <-- 1. PROTEGE LA RUTA, requiere un token de autenticación
+    create(@Body() createTaskDto: CreateTaskDto, @Request() req) {
+        // 2. Extraemos el usuario del token (inyectado por el AuthGuard)
+        const creator = req.user;
+        // 3. Pasamos el DTO y el usuario creador al servicio
+        return this.tasksService.create(createTaskDto, creator);
     }
 
-    @Get() // Maneja las peticiones GET a /tasks
+    @Get()
     findAll() {
         return this.tasksService.findAll();
     }
 
-    @Get(':id') // Maneja las peticiones GET a /tasks/:id
+    @Get(':id')
     findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.tasksService.findOne(id);
     }
 
-    @Patch(':id') // Maneja las peticiones PATCH a /tasks/:id
+    @Patch(':id')
     update(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() updateTaskDto: UpdateTaskDto,
@@ -38,7 +44,7 @@ export class TasksController {
         return this.tasksService.update(id, updateTaskDto);
     }
 
-    @Delete(':id') // Maneja las peticiones DELETE a /tasks/:id
+    @Delete(':id')
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.tasksService.remove(id);
     }
