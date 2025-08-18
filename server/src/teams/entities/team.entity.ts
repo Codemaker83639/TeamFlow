@@ -7,12 +7,14 @@ import {
     OneToMany
 } from 'typeorm';
 import { TeamMember } from './team-member.entity';
+import { Project } from '../../projects/entities/project.entity';
 
 @Entity('teams')
 export class Team {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    // ... (columnas name, description, avatar_url y relación members sin cambios)
     @Column()
     name: string;
 
@@ -22,11 +24,12 @@ export class Team {
     @Column({ nullable: true })
     avatar_url: string;
 
-    // --- CAMBIO CLAVE ---
-    // 'eager: true' le dice a TypeORM que siempre cargue esta relación (los miembros)
-    // cuando se busque un equipo. Esto nos simplifica el código en el servicio.
     @OneToMany(() => TeamMember, (teamMember) => teamMember.team, { cascade: true, eager: true })
     members: TeamMember[];
+
+    // --- CAMBIO AQUÍ: Se añade el tipo explícito 'Project' ---
+    @OneToMany(() => Project, (project: Project) => project.team)
+    projects: Project[];
 
     @CreateDateColumn()
     created_at: Date;
