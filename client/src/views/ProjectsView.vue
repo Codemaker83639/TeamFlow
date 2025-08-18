@@ -95,7 +95,7 @@ const statusClasses: Record<ProjectStatus, string> = {
 };
 
 onMounted(() => {
-  const equipoEjemploId = '11ffb2e1-a7f1-43da-a7bb-b14a22589161'; // <-- CAMBIA ESTE ID POR UNO DE TUS EQUIPOS
-  projectStore.fetchProjectsByTeam(equipoEjemploId);
+  // LLAMADA ACTUALIZADA: Ya no necesita un ID de equipo
+  projectStore.fetchAllProjects();
 });
 </script>

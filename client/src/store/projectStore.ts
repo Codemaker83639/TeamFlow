@@ -8,7 +8,6 @@ interface ProjectStoreState {
     isLoading: boolean;
 }
 
-// Definimos el tipo de datos que necesita la función de crear proyecto
 interface CreateProjectPayload {
     name: string;
     description?: string;
@@ -22,37 +21,27 @@ export const useProjectStore = defineStore('projectStore', {
     }),
 
     actions: {
-        /**
-         * Obtiene todos los proyectos de un equipo específico desde la API.
-         * @param teamId El ID del equipo del cual obtener los proyectos.
-         */
-        async fetchProjectsByTeam(teamId: string) {
+        // ACCIÓN ACTUALIZADA: Ahora obtiene todos los proyectos
+        async fetchAllProjects() {
             this.isLoading = true;
             try {
-                const response = await projectService.getProjectsByTeam(teamId);
+                const response = await projectService.getAllProjects();
                 this.projects = response.data;
             } catch (error) {
-                console.error('Error fetching projects:', error);
-                // Aquí podríamos mostrar una notificación de error al usuario
+                console.error('Error fetching all projects:', error);
             } finally {
                 this.isLoading = false;
             }
         },
 
-        /**
-         * Crea un nuevo proyecto y actualiza la lista.
-         * @param payload Los datos del nuevo proyecto.
-         */
         async createProject(payload: CreateProjectPayload) {
             this.isLoading = true;
             try {
                 await projectService.createProject(payload);
-                // Después de crear, volvemos a obtener la lista de proyectos para que se refleje el nuevo.
-                await this.fetchProjectsByTeam(payload.team_id);
+                // Después de crear, actualizamos la lista completa de proyectos
+                await this.fetchAllProjects();
             } catch (error) {
                 console.error('Error creating project:', error);
-                // Re-lanzamos el error para que el componente que llama a esta acción
-                // sepa que algo salió mal y pueda reaccionar (ej: no cerrar un modal).
                 throw error;
             } finally {
                 this.isLoading = false;

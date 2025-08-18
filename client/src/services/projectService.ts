@@ -11,8 +11,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
     (config) => {
-        // --- CORRECCIÓN AQUÍ ---
-        const token = localStorage.getItem('accessToken'); // Usamos la clave correcta
+        const token = localStorage.getItem('accessToken');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -30,8 +29,9 @@ interface CreateProjectPayload {
 }
 
 export default {
-    getProjectsByTeam(teamId: string): Promise<AxiosResponse<Project[]>> {
-        return apiClient.get(`/projects/team/${teamId}`);
+    // FUNCIÓN ACTUALIZADA: Ahora llama al endpoint que devuelve todos los proyectos
+    getAllProjects(): Promise<AxiosResponse<Project[]>> {
+        return apiClient.get('/projects');
     },
 
     createProject(payload: CreateProjectPayload): Promise<AxiosResponse<Project>> {
