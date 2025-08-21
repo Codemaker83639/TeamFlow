@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import taskService, { type CreateTaskPayload } from '@/services/taskService';
+import taskService, { type CreateTaskPayload, type UpdateTaskPayload } from '@/services/taskService';
 import type { Task } from '@/types/Task';
 import { TaskStatus } from '@/types/Task';
 
@@ -35,30 +35,6 @@ export const useTaskStore = defineStore('taskStore', {
     },
 
     actions: {
-        async fetchTasks() {
-            this.isLoading = true;
-            try {
-                const response = await taskService.getTasks();
-                this.tasks = response.data;
-            } catch (error) {
-                console.error('Error fetching tasks:', error);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-
-        async updateTaskStatus(task: Task, newStatus: TaskStatus) {
-            const originalStatus = task.status;
-            task.status = newStatus;
-            try {
-                await taskService.updateTask(task.id, { status: newStatus });
-            } catch (error) {
-                console.error('Error updating task status:', error);
-                task.status = originalStatus;
-                alert('No se pudo actualizar la tarea. Por favor, intenta de nuevo.');
-            }
-        },
-
         async fetchTasksByProject(projectId: string) {
             this.isLoading = true;
             this.tasks = [];
@@ -83,6 +59,29 @@ export const useTaskStore = defineStore('taskStore', {
                 throw error;
             } finally {
                 this.isLoading = false;
+            }
+        },
+
+        async updateTask(taskId: string, projectId: string, payload: UpdateTaskPayload) {
+            try {
+                await taskService.updateTask(taskId, payload);
+                // Refrescamos para asegurar que todos los datos estén actualizados
+                await this.fetchTasksByProject(projectId);
+            } catch (error) {
+                console.error('Error updating task:', error);
+                alert('No se pudo actualizar la tarea.');
+            }
+        },
+
+        async deleteTask(taskId: string, projectId: string) {
+            const confirmed = window.confirm('¿Estás seguro de que quieres eliminar esta tarea?');
+            if (!confirmed) return;
+            try {
+                await taskService.deleteTask(taskId);
+                this.tasks = this.tasks.filter(t => t.id !== taskId);
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                alert('No se pudo eliminar la tarea.');
             }
         }
     }

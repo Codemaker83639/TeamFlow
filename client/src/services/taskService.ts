@@ -29,20 +29,31 @@ export interface CreateTaskPayload {
     assigned_to_id?: string;
 }
 
+// Interfaz para actualizar cualquier campo de la tarea
+export interface UpdateTaskPayload {
+    title?: string;
+    description?: string;
+    status?: TaskStatus;
+    priority?: TaskPriority;
+    due_date?: Date;
+    estimated_hours?: number;
+    assigned_to_id?: string;
+}
+
 export default {
-    getTasks(): Promise<AxiosResponse<Task[]>> {
-        return apiClient.get('/tasks');
-    },
-
-    updateTask(taskId: string, updates: { status?: TaskStatus }): Promise<AxiosResponse<Task>> {
-        return apiClient.patch(`/tasks/${taskId}`, updates);
-    },
-
     getTasksByProject(projectId: string): Promise<AxiosResponse<Task[]>> {
         return apiClient.get(`/tasks/project/${projectId}`);
     },
 
     createTask(payload: CreateTaskPayload): Promise<AxiosResponse<Task>> {
         return apiClient.post('/tasks', payload);
+    },
+
+    updateTask(taskId: string, payload: UpdateTaskPayload): Promise<AxiosResponse<Task>> {
+        return apiClient.patch(`/tasks/${taskId}`, payload);
+    },
+
+    deleteTask(taskId: string): Promise<AxiosResponse<void>> {
+        return apiClient.delete(`/tasks/${taskId}`);
     }
 };

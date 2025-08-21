@@ -8,6 +8,7 @@
         Agregar Tarea
       </button>
     </header>
+
     <main class="flex-1 overflow-x-auto bg-light dark:bg-dark-purple p-6">
       <div v-if="taskStore.isLoading && taskStore.tasks.length === 0" class="text-center text-gray-500">
         Cargando tareas...
@@ -19,11 +20,27 @@
           </div>
           <draggable :list="tasks" group="tasks" item-key="id" class="p-4 space-y-4 h-full min-h-[100px]" @end="handleDragEnd">
             <template #item="{ element: task }">
-              <div :data-task-id="task.id" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow cursor-grab">
-                <p class="font-semibold text-dark-purple dark:text-light">{{ task.title }}</p>
-                <div class="mt-2 flex justify-between items-center">
+              <div :data-task-id="task.id" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col space-y-4">
+                <div class="flex justify-between items-start">
+                  <p class="font-semibold text-dark-purple dark:text-light flex-1 pr-2">{{ task.title }}</p>
+                  <div class="relative flex-shrink-0">
+                    <button @click="toggleTaskMenu(task.id)" class="text-gray-400 hover:text-gray-600">
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                    </button>
+                    <div v-if="openTaskMenuId === task.id" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                      <div class="py-1" @click.stop>
+                        <a href="#" @click.prevent="openEditTaskModal(task)" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm">Editar</a>
+                        <a href="#" @click.prevent="deleteTask(task.id)" class="text-red-600 dark:text-red-400 block px-4 py-2 text-sm">Eliminar</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center">
                   <span v-if="task.priority" :class="priorityClasses[task.priority]" class="px-2 py-1 text-xs font-bold text-white rounded-full">{{ task.priority }}</span>
                   <div v-if="task.assigned_to" class="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs" :title="task.assigned_to.full_name">{{ getInitials(task.assigned_to.full_name) }}</div>
+                </div>
+                <div class="border-t dark:border-gray-700 pt-2">
+                   <button class="text-xs text-gray-500 hover:text-dark-purple dark:hover:text-light">Comentar</button>
                 </div>
               </div>
             </template>
@@ -31,16 +48,12 @@
         </div>
       </div>
     </main>
-    <CreateTaskModal 
-      v-if="isModalOpen && projectStore.currentProject"
-      :project-id="projectStore.currentProject.id"
-      :team-members="projectStore.currentProject.team.members"
-      @close="isModalOpen = false"
-    />
+    <CreateTaskModal v-if="isModalOpen && projectStore.currentProject" :project-id="projectStore.currentProject.id" :team-members="projectStore.currentProject.team.members" @close="isModalOpen = false"/>
   </MainLayout>
 </template>
+
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateTaskModal from '@/components/CreateTaskModal.vue';
@@ -56,12 +69,21 @@ const taskStore = useTaskStore();
 const projectStore = useProjectStore();
 const authStore = useAuthStore();
 const isModalOpen = ref(false);
+const openTaskMenuId = ref<string | null>(null);
 
-const getInitials = (fullName: string | undefined): string => {
-  if (!fullName) return '';
-  const names = fullName.split(' ');
-  if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
-  return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+const toggleTaskMenu = (taskId: string) => {
+  openTaskMenuId.value = openTaskMenuId.value === taskId ? null : taskId;
+};
+
+const openEditTaskModal = (task: Task) => {
+  console.log("Abriendo modal para editar la tarea:", task);
+  openTaskMenuId.value = null;
+};
+
+const deleteTask = (taskId: string) => {
+  const projectId = route.params.projectId as string;
+  taskStore.deleteTask(taskId, projectId);
+  openTaskMenuId.value = null;
 };
 
 const handleDragEnd = (event: SortableEvent) => {
@@ -71,13 +93,19 @@ const handleDragEnd = (event: SortableEvent) => {
   const newStatus = to.closest('.board-column')?.dataset.status as TaskStatus | undefined;
   const originalStatus = from.closest('.board-column')?.dataset.status as TaskStatus | undefined;
   const taskId = item.dataset.taskId;
+  const projectId = route.params.projectId as string;
+
   if (!taskId || !newStatus || !originalStatus || newStatus === originalStatus) {
     return;
   }
-  const task = taskStore.tasks.find(t => t.id === taskId);
-  if (task) {
-    taskStore.updateTaskStatus(task, newStatus);
-  }
+  taskStore.updateTask(taskId, projectId, { status: newStatus });
+};
+
+const getInitials = (fullName: string | undefined): string => {
+  if (!fullName) return '';
+  const names = fullName.split(' ');
+  if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
+  return (names[0][0] + names[names.length - 1][0]).toUpperCase();
 };
 
 const columnTitles: Record<TaskStatus, string> = {
@@ -89,10 +117,10 @@ const columnTitles: Record<TaskStatus, string> = {
 };
 
 const priorityClasses: Record<TaskPriority, string> = {
-    low: 'bg-green-500',
-    medium: 'bg-blue-500',
-    high: 'bg-yellow-500',
-    urgent: 'bg-red-500',
+  low: 'bg-green-500',
+  medium: 'bg-blue-500',
+  high: 'bg-yellow-500',
+  urgent: 'bg-red-500',
 };
 
 onMounted(() => {
