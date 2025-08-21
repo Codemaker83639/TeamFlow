@@ -57,33 +57,41 @@ export class ProjectsService {
                 return { ...project, progress: 0 };
             }
             const totalHours = project.tasks.reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
-            const completedHours = project.tasks
-                .filter(task => task.status === TaskStatus.DONE)
-                .reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
+            const completedHours = project.tasks.filter(task => task.status === TaskStatus.DONE).reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
             const progress = totalHours > 0 ? Math.round((completedHours / totalHours) * 100) : 0;
             return { ...project, progress };
         });
         return projectsWithProgress as Project[];
     }
 
+    async findOne(id: string): Promise<Project> {
+        const project = await this.projectRepository.findOne({
+            where: { id },
+            relations: {
+                team: true,
+            },
+        });
+        if (!project) {
+            throw new NotFoundException(`Project with ID "${id}" not found`);
+        }
+        return project;
+    }
+
     async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
-        const projectToUpdate = await this.projectRepository.findOneBy({ id });
+        const projectToUpdate = await this.projectRepository.findOne({ where: { id }, relations: { team: true } });
         if (!projectToUpdate) {
             throw new NotFoundException(`Project with ID "${id}" not found`);
         }
-
-        if (updateProjectDto.team_id) {
+        if (updateProjectDto.team_id && updateProjectDto.team_id !== projectToUpdate.team.id) {
             const newTeam = await this.teamRepository.findOneBy({ id: updateProjectDto.team_id });
             if (!newTeam) {
                 throw new NotFoundException(`Team with ID "${updateProjectDto.team_id}" not found`);
             }
             projectToUpdate.team = newTeam;
         }
-
         if (updateProjectDto.status === ProjectStatus.COMPLETED && projectToUpdate.status !== ProjectStatus.COMPLETED) {
             updateProjectDto.end_date = new Date();
         }
-
         Object.assign(projectToUpdate, {
             name: updateProjectDto.name,
             description: updateProjectDto.description,
@@ -92,22 +100,7 @@ export class ProjectsService {
             end_date: updateProjectDto.end_date,
         });
         await this.projectRepository.save(projectToUpdate);
-
-        const updatedProjectWithRelations = await this.projectRepository.findOne({
-            where: { id },
-            relations: {
-                team: { members: { user: true } },
-                tasks: true,
-            },
-        });
-
-        const totalHours = updatedProjectWithRelations.tasks.reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
-        const completedHours = updatedProjectWithRelations.tasks
-            .filter(task => task.status === TaskStatus.DONE)
-            .reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
-        const progress = totalHours > 0 ? Math.round((completedHours / totalHours) * 100) : 0;
-
-        return { ...updatedProjectWithRelations, progress } as Project;
+        return this.findOne(id);
     }
 
     async remove(id: string): Promise<void> {

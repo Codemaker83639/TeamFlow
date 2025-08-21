@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import projectService, { type UpdateProjectPayload } from '@/services/projectService';
-import type { Project } from '@/types/Project';
-import { ProjectStatus } from '@/types/Project';
+import type { Project, ProjectStatus } from '@/types/Project';
 
 interface ProjectStoreState {
     projects: Project[];
+    currentProject: Project | null;
     isLoading: boolean;
     statusFilter: ProjectStatus | 'all';
     searchQuery: string;
@@ -19,6 +19,7 @@ interface CreateProjectPayload {
 export const useProjectStore = defineStore('projectStore', {
     state: (): ProjectStoreState => ({
         projects: [],
+        currentProject: null,
         isLoading: false,
         statusFilter: 'all',
         searchQuery: '',
@@ -27,20 +28,13 @@ export const useProjectStore = defineStore('projectStore', {
     getters: {
         filteredProjects(state): Project[] {
             let projectsToFilter = [...state.projects];
-
             if (state.statusFilter !== 'all') {
-                projectsToFilter = projectsToFilter.filter(
-                    (project) => project.status === state.statusFilter
-                );
+                projectsToFilter = projectsToFilter.filter((project) => project.status === state.statusFilter);
             }
-
             if (state.searchQuery) {
                 const query = state.searchQuery.toLowerCase();
-                projectsToFilter = projectsToFilter.filter((project) =>
-                    project.name.toLowerCase().includes(query)
-                );
+                projectsToFilter = projectsToFilter.filter((project) => project.name.toLowerCase().includes(query));
             }
-
             return projectsToFilter;
         }
     },
@@ -60,6 +54,19 @@ export const useProjectStore = defineStore('projectStore', {
             } catch (error) {
                 console.error('Error fetching all projects:', error);
                 this.projects = [];
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async fetchProject(projectId: string) {
+            this.isLoading = true;
+            try {
+                const response = await projectService.getProject(projectId);
+                this.currentProject = response.data;
+            } catch (error) {
+                console.error('Error fetching project:', error);
+                this.currentProject = null;
             } finally {
                 this.isLoading = false;
             }
@@ -96,7 +103,6 @@ export const useProjectStore = defineStore('projectStore', {
         async deleteProject(projectId: string) {
             const confirmed = window.confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.');
             if (!confirmed) return;
-
             try {
                 await projectService.deleteProject(projectId);
                 this.projects = this.projects.filter(p => p.id !== projectId);

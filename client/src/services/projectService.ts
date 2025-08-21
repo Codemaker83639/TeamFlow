@@ -1,24 +1,15 @@
 import axios, { type AxiosResponse } from 'axios';
 import type { Project, ProjectStatus } from '@/types/Project';
 
-const apiClient = axios.create({
-    baseURL: 'http://localhost:3000',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+const apiClient = axios.create({ baseURL: 'http://localhost:3000' });
 
-apiClient.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+apiClient.interceptors.request.use((config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+}, (error) => Promise.reject(error)
 );
 
 export interface CreateProjectPayload {
@@ -47,4 +38,7 @@ export default {
     deleteProject(projectId: string): Promise<AxiosResponse<void>> {
         return apiClient.delete(`/projects/${projectId}`);
     },
+    getProject(projectId: string): Promise<AxiosResponse<Project>> {
+        return apiClient.get(`/projects/${projectId}`);
+    }
 };
