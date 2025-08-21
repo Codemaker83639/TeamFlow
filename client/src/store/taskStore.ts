@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import taskService from '@/services/taskService';
+import taskService, { type CreateTaskPayload } from '@/services/taskService';
 import type { Task } from '@/types/Task';
 import { TaskStatus } from '@/types/Task';
 
@@ -68,6 +68,19 @@ export const useTaskStore = defineStore('taskStore', {
             } catch (error) {
                 console.error(`Error fetching tasks for project ${projectId}:`, error);
                 this.tasks = [];
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async createTask(payload: CreateTaskPayload) {
+            this.isLoading = true;
+            try {
+                await taskService.createTask(payload);
+                await this.fetchTasksByProject(payload.project_id);
+            } catch (error) {
+                console.error('Error creating task:', error);
+                throw error;
             } finally {
                 this.isLoading = false;
             }

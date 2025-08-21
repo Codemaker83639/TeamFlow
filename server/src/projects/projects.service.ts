@@ -68,7 +68,11 @@ export class ProjectsService {
         const project = await this.projectRepository.findOne({
             where: { id },
             relations: {
-                team: true,
+                team: {
+                    members: {
+                        user: true,
+                    },
+                },
             },
         });
         if (!project) {
@@ -96,11 +100,12 @@ export class ProjectsService {
             name: updateProjectDto.name,
             description: updateProjectDto.description,
             status: updateProjectDto.status,
-            start_date: updateProjectDto.start_date,
-            end_date: updateProjectDto.end_date,
         });
         await this.projectRepository.save(projectToUpdate);
-        return this.findOne(id);
+
+        const fullProject = await this.findOne(id);
+        const projectsWithProgress = (await this.findAll()).find(p => p.id === fullProject.id);
+        return projectsWithProgress as Project;
     }
 
     async remove(id: string): Promise<void> {

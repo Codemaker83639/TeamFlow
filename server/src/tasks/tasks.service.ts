@@ -8,12 +8,12 @@ import { TaskStatus, TaskPriority } from './entities/task.enums';
 
 export class CreateTaskDto {
     title: string;
+    project_id: string;
     description?: string;
     priority?: TaskPriority;
     due_date?: Date;
     estimated_hours?: number;
     assigned_to_id?: string;
-    project_id: string;
 }
 
 export class UpdateTaskDto {
@@ -38,10 +38,12 @@ export class TasksService {
 
     async create(createTaskDto: CreateTaskDto, creator: User): Promise<Task> {
         const { assigned_to_id, project_id, ...taskData } = createTaskDto;
+
         const project = await this.projectRepository.findOneBy({ id: project_id });
         if (!project) {
             throw new BadRequestException(`Project with ID "${project_id}" not found.`);
         }
+
         let assignedUser: User | null = null;
         if (assigned_to_id) {
             assignedUser = await this.userRepository.findOneBy({ id: assigned_to_id });
@@ -49,12 +51,15 @@ export class TasksService {
                 throw new BadRequestException(`User with ID "${assigned_to_id}" not found.`);
             }
         }
+
         const newTask = this.taskRepository.create({
             ...taskData,
             project,
             created_by: creator,
             assigned_to: assignedUser,
+            status: TaskStatus.BACKLOG, // Asignación por defecto a 'backlog'
         });
+
         return this.taskRepository.save(newTask);
     }
 
