@@ -19,7 +19,7 @@
                 <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
               </button>
             </div>
-            <div v-if="statusDropdownOpen" @click="statusDropdownOpen = false" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <div v-if="statusDropdownOpen" @click="statusDropdownOpen = false" class="origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
               <div class="py-1">
                 <a href="#" @click.prevent="projectStore.setStatusFilter('all')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm">Todos</a>
                 <a href="#" @click.prevent="projectStore.setStatusFilter('active')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm">Activo</a>
@@ -44,11 +44,30 @@
         <div v-for="project in projectStore.filteredProjects" :key="project.id" class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow flex flex-col justify-between">
           <div class="space-y-4">
             <div class="flex justify-between items-start">
-              <div>
+              <div class="flex-1 pr-2">
                 <h3 class="font-bold text-lg text-dark-purple dark:text-light">{{ project.name }}</h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ project.team?.name }} • {{ project.team?.members?.length || 0 }} miembros</p>
               </div>
-              <span :class="statusClasses[project.status]" class="px-2 py-1 text-xs font-semibold rounded-full">{{ statusTitles[project.status] }}</span>
+              
+              <div class="flex-shrink-0 flex items-center space-x-2">
+                <span :class="statusClasses[project.status]" class="px-2 py-1 text-xs font-semibold rounded-full">{{ statusTitles[project.status] }}</span>
+                <div class="relative">
+                  <button @click="toggleMenu(project.id)" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 p-1 rounded-full focus:outline-none">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                  </button>
+                  <div v-if="openMenuId === project.id" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                    <div class="py-1" @click.stop>
+                      <p class="px-4 py-2 text-xs text-gray-400">Cambiar Estado</p>
+                      <a v-if="project.status !== 'active'" href="#" @click.prevent="changeStatus(project.id, 'active')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm">Marcar como Activo</a>
+                      <a v-if="project.status !== 'completed'" href="#" @click.prevent="changeStatus(project.id, 'completed')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm">Marcar como Completado</a>
+                      <a v-if="project.status !== 'archived'" href="#" @click.prevent="changeStatus(project.id, 'archived')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm">Marcar como Archivado</a>
+                      <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                      <a href="#" @click.prevent="openEditModal(project)" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm">Editar</a>
+                      <a href="#" @click.prevent="deleteProject(project.id)" class="text-red-600 dark:text-red-400 block px-4 py-2 text-sm">Eliminar Proyecto</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
               <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -81,7 +100,7 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import CreateProjectModal from '@/components/CreateProjectModal.vue';
 import { useAuthStore } from '@/store/auth';
 import { useProjectStore } from '@/store/projectStore';
-import type { ProjectStatus } from '@/types/Project';
+import type { Project, ProjectStatus } from '@/types/Project';
 
 const authStore = useAuthStore();
 const projectStore = useProjectStore();
@@ -89,10 +108,26 @@ const projectStore = useProjectStore();
 const isModalOpen = ref(false);
 const searchQuery = ref('');
 const statusDropdownOpen = ref(false);
+const openMenuId = ref<string | null>(null);
 
-watch(searchQuery, (newQuery) => {
-  projectStore.setSearchQuery(newQuery);
-});
+const toggleMenu = (projectId: string) => {
+  openMenuId.value = openMenuId.value === projectId ? null : projectId;
+};
+
+const changeStatus = (projectId: string, status: ProjectStatus) => {
+  projectStore.updateProject(projectId, { status });
+  openMenuId.value = null; 
+};
+
+const openEditModal = (project: Project) => {
+  console.log('Abriendo modal de edición para:', project.name);
+  openMenuId.value = null;
+};
+
+const deleteProject = (projectId: string) => {
+  projectStore.deleteProject(projectId);
+  openMenuId.value = null;
+}
 
 const getInitials = (fullName: string | undefined): string => {
   if (!fullName) return '';
