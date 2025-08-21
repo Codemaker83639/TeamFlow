@@ -35,7 +35,7 @@
                     <div class="flex-1">
                       <div class="inline-flex items-center justify-center w-12 h-12 bg-[#522B5B] rounded-xl shadow-lg mb-3 group-hover:rotate-6 transition-transform duration-300">
                         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 3.5V5.5L15.79 6H8.21L9 5.5V3.5L3 7V9H5V20C5 21.1 5.9 22 7 22H10V20H7V9H17V20H14V22H17C18.1 22 19 21.1 19 20V9H21ZM12 7.5C13.38 7.5 14.5 8.62 14.5 10C14.5 11.38 13.38 12.5 12 12.5C10.62 12.5 9.5 11.38 9.5 10C9.5 8.62 10.62 7.5 12 7.5Z"/>
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
                       </div>
                       <h4 class="font-bold text-xl text-gray-800 dark:text-white mb-2 group-hover:text-[#522B5B] dark:group-hover:text-[#DFB6B2] transition-colors duration-300">{{ team.name }}</h4>
