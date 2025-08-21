@@ -68,11 +68,7 @@ export class ProjectsService {
         const project = await this.projectRepository.findOne({
             where: { id },
             relations: {
-                team: {
-                    members: {
-                        user: true,
-                    },
-                },
+                team: { members: { user: true } },
             },
         });
         if (!project) {
@@ -81,28 +77,32 @@ export class ProjectsService {
         return project;
     }
 
+    // --- MÉTODO UPDATE CORREGIDO ---
     async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
-        const projectToUpdate = await this.projectRepository.findOne({ where: { id }, relations: { team: true } });
+        const projectToUpdate = await this.projectRepository.findOneBy({ id });
         if (!projectToUpdate) {
             throw new NotFoundException(`Project with ID "${id}" not found`);
         }
-        if (updateProjectDto.team_id && updateProjectDto.team_id !== projectToUpdate.team.id) {
+
+        // Si se está cambiando el estado a 'completado', establece la fecha de fin.
+        if (updateProjectDto.status === ProjectStatus.COMPLETED && projectToUpdate.status !== ProjectStatus.COMPLETED) {
+            updateProjectDto.end_date = new Date();
+        }
+
+        // Si se está cambiando el equipo, busca el nuevo equipo y asígnalo.
+        if (updateProjectDto.team_id) {
             const newTeam = await this.teamRepository.findOneBy({ id: updateProjectDto.team_id });
             if (!newTeam) {
                 throw new NotFoundException(`Team with ID "${updateProjectDto.team_id}" not found`);
             }
             projectToUpdate.team = newTeam;
         }
-        if (updateProjectDto.status === ProjectStatus.COMPLETED && projectToUpdate.status !== ProjectStatus.COMPLETED) {
-            updateProjectDto.end_date = new Date();
-        }
-        Object.assign(projectToUpdate, {
-            name: updateProjectDto.name,
-            description: updateProjectDto.description,
-            status: updateProjectDto.status,
-        });
+
+        // Mezcla todos los cambios del DTO en la entidad encontrada
+        Object.assign(projectToUpdate, updateProjectDto);
         await this.projectRepository.save(projectToUpdate);
 
+        // Volvemos a buscar el proyecto para devolverlo con todas sus relaciones y el progreso recalculado
         const fullProject = await this.findOne(id);
         const projectsWithProgress = (await this.findAll()).find(p => p.id === fullProject.id);
         return projectsWithProgress as Project;
