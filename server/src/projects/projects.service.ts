@@ -6,6 +6,7 @@ import { Team } from '../teams/entities/team.entity';
 import { User } from '../auth/entities/user.entity';
 import { TaskStatus } from '../tasks/entities/task.enums';
 
+// DTO simplificado: ya no necesita las fechas
 export class CreateProjectDto {
     name: string;
     description?: string;
@@ -27,10 +28,19 @@ export class ProjectsService {
         if (!team) {
             throw new NotFoundException(`Team with ID "${team_id}" not found`);
         }
-        const newProject = this.projectRepository.create({ name, description, team });
+
+        // Creamos la instancia del proyecto
+        const newProject = this.projectRepository.create({
+            name,
+            description,
+            team,
+            start_date: new Date(), // <-- LÓGICA AUTOMÁTICA DE FECHA DE INICIO
+        });
+
         return this.projectRepository.save(newProject);
     }
 
+    // ... (El método findAll no cambia)
     async findAll(): Promise<Project[]> {
         const projects = await this.projectRepository.find({
             relations: {
@@ -38,8 +48,6 @@ export class ProjectsService {
                 tasks: true,
             },
         });
-
-        // Calculamos el progreso para cada proyecto
         const projectsWithProgress = projects.map(project => {
             if (!project.tasks || project.tasks.length === 0) {
                 return { ...project, progress: 0 };
@@ -51,7 +59,6 @@ export class ProjectsService {
             const progress = totalHours > 0 ? Math.round((completedHours / totalHours) * 100) : 0;
             return { ...project, progress };
         });
-
         return projectsWithProgress as Project[];
     }
 }

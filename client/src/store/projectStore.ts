@@ -2,13 +2,12 @@
 import { defineStore } from 'pinia';
 import projectService from '@/services/projectService';
 import type { Project } from '@/types/Project';
-import { ProjectStatus } from '@/types/Project';
 
 interface ProjectStoreState {
     projects: Project[];
     isLoading: boolean;
-    statusFilter: ProjectStatus | 'all'; // Para el filtro por estado
-    searchQuery: string;                   // Para el filtro por nombre
+    statusFilter: 'all' | 'active' | 'completed' | 'archived';
+    searchQuery: string;
 }
 
 interface CreateProjectPayload {
@@ -21,34 +20,24 @@ export const useProjectStore = defineStore('projectStore', {
     state: (): ProjectStoreState => ({
         projects: [],
         isLoading: false,
-        statusFilter: 'all', // Por defecto, muestra todos
-        searchQuery: '',     // Por defecto, la búsqueda está vacía
+        statusFilter: 'all',
+        searchQuery: '',
     }),
 
     getters: {
-        /**
-         * Devuelve una lista de proyectos filtrada según el estado y la búsqueda.
-         * Este getter es reactivo: se recalculará automáticamente cada vez que
-         * cambie el estado de los filtros o la lista de proyectos.
-         */
         filteredProjects(state): Project[] {
             let projectsToFilter = [...state.projects];
-
-            // 1. Aplicar filtro por estado
             if (state.statusFilter !== 'all') {
                 projectsToFilter = projectsToFilter.filter(
                     (project) => project.status === state.statusFilter
                 );
             }
-
-            // 2. Aplicar filtro por búsqueda de texto
             if (state.searchQuery) {
                 const query = state.searchQuery.toLowerCase();
                 projectsToFilter = projectsToFilter.filter((project) =>
                     project.name.toLowerCase().includes(query)
                 );
             }
-
             return projectsToFilter;
         }
     },
@@ -58,20 +47,42 @@ export const useProjectStore = defineStore('projectStore', {
             this.isLoading = true;
             try {
                 const response = await projectService.getAllProjects();
-                this.projects = response.data;
+
+                // --- LÓGICA DE NORMALIZACIÓN DE DATOS (LA SOLUCIÓN) ---
+                // "Limpiamos" los datos antes de guardarlos en el estado.
+                const cleanedProjects = response.data.map(project => {
+                    // Nos aseguramos de que cada equipo tenga una lista de miembros,
+                    // aunque sea vacía, para prevenir errores en el template.
+                    if (project.team && !project.team.members) {
+                        project.team.members = [];
+                    }
+                    return project;
+                });
+
+                this.projects = cleanedProjects;
+
             } catch (error) {
                 console.error('Error fetching all projects:', error);
+                this.projects = []; // En caso de error, asegurar que sea un array vacío
             } finally {
                 this.isLoading = false;
             }
         },
 
         async createProject(payload: CreateProjectPayload) {
-            // ... (sin cambios)
+            this.isLoading = true;
+            try {
+                await projectService.createProject(payload);
+                await this.fetchAllProjects();
+            } catch (error) {
+                console.error('Error creating project:', error);
+                throw error;
+            } finally {
+                this.isLoading = false;
+            }
         },
 
-        // --- NUEVAS ACCIONES PARA MANEJAR LOS FILTROS ---
-        setStatusFilter(status: ProjectStatus | 'all') {
+        setStatusFilter(status: 'all' | 'active' | 'completed' | 'archived') {
             this.statusFilter = status;
         },
 

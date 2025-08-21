@@ -1,6 +1,6 @@
 // client/src/services/teamService.ts
 import axios, { type AxiosResponse } from 'axios';
-import type { Team } from '@/types/Project'; // Reutilizamos el tipo 'Team'
+import type { Team } from '@/types/Project';
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000',
@@ -18,8 +18,11 @@ apiClient.interceptors.request.use(
 );
 
 export default {
-    // Asumiendo que tienes un endpoint GET /teams/my-teams que devuelve los equipos del usuario
     getUserTeams(): Promise<AxiosResponse<Team[]>> {
         return apiClient.get('/teams/my-teams');
     },
+    // --- NUEVA FUNCIÓN AÑADIDA ---
+    getAllTeams(): Promise<AxiosResponse<Team[]>> {
+        return apiClient.get('/teams');
+    }
 };

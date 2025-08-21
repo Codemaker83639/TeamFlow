@@ -23,7 +23,6 @@ export class TeamsController {
         return this.teamsService.findAll();
     }
 
-    // --- NUEVO ENDPOINT PARA OBTENER UN SOLO EQUIPO ---
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.teamsService.findOne(id);
