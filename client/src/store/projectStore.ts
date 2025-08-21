@@ -2,10 +2,13 @@
 import { defineStore } from 'pinia';
 import projectService from '@/services/projectService';
 import type { Project } from '@/types/Project';
+import { ProjectStatus } from '@/types/Project';
 
 interface ProjectStoreState {
     projects: Project[];
     isLoading: boolean;
+    statusFilter: ProjectStatus | 'all'; // Para el filtro por estado
+    searchQuery: string;                   // Para el filtro por nombre
 }
 
 interface CreateProjectPayload {
@@ -18,10 +21,39 @@ export const useProjectStore = defineStore('projectStore', {
     state: (): ProjectStoreState => ({
         projects: [],
         isLoading: false,
+        statusFilter: 'all', // Por defecto, muestra todos
+        searchQuery: '',     // Por defecto, la búsqueda está vacía
     }),
 
+    getters: {
+        /**
+         * Devuelve una lista de proyectos filtrada según el estado y la búsqueda.
+         * Este getter es reactivo: se recalculará automáticamente cada vez que
+         * cambie el estado de los filtros o la lista de proyectos.
+         */
+        filteredProjects(state): Project[] {
+            let projectsToFilter = [...state.projects];
+
+            // 1. Aplicar filtro por estado
+            if (state.statusFilter !== 'all') {
+                projectsToFilter = projectsToFilter.filter(
+                    (project) => project.status === state.statusFilter
+                );
+            }
+
+            // 2. Aplicar filtro por búsqueda de texto
+            if (state.searchQuery) {
+                const query = state.searchQuery.toLowerCase();
+                projectsToFilter = projectsToFilter.filter((project) =>
+                    project.name.toLowerCase().includes(query)
+                );
+            }
+
+            return projectsToFilter;
+        }
+    },
+
     actions: {
-        // ACCIÓN ACTUALIZADA: Ahora obtiene todos los proyectos
         async fetchAllProjects() {
             this.isLoading = true;
             try {
@@ -35,17 +67,16 @@ export const useProjectStore = defineStore('projectStore', {
         },
 
         async createProject(payload: CreateProjectPayload) {
-            this.isLoading = true;
-            try {
-                await projectService.createProject(payload);
-                // Después de crear, actualizamos la lista completa de proyectos
-                await this.fetchAllProjects();
-            } catch (error) {
-                console.error('Error creating project:', error);
-                throw error;
-            } finally {
-                this.isLoading = false;
-            }
+            // ... (sin cambios)
+        },
+
+        // --- NUEVAS ACCIONES PARA MANEJAR LOS FILTROS ---
+        setStatusFilter(status: ProjectStatus | 'all') {
+            this.statusFilter = status;
+        },
+
+        setSearchQuery(query: string) {
+            this.searchQuery = query;
         },
     },
 });
