@@ -1,16 +1,24 @@
-// client/src/services/projectService.ts
 import axios, { type AxiosResponse } from 'axios';
 import type { Project, ProjectStatus } from '@/types/Project';
 
-const apiClient = axios.create({ baseURL: 'http://localhost:3000' });
+const apiClient = axios.create({
+    baseURL: 'http://localhost:3000',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
 
-apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+apiClient.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
-    return config;
-}, (error) => Promise.reject(error)
 );
 
 export interface CreateProjectPayload {
@@ -19,11 +27,11 @@ export interface CreateProjectPayload {
     team_id: string;
 }
 
-// Interfaz para los datos que se pueden actualizar
 export interface UpdateProjectPayload {
     name?: string;
     description?: string;
     status?: ProjectStatus;
+    team_id?: string;
 }
 
 export default {
@@ -33,7 +41,6 @@ export default {
     createProject(payload: CreateProjectPayload): Promise<AxiosResponse<Project>> {
         return apiClient.post('/projects', payload);
     },
-    // --- NUEVAS FUNCIONES AÑADIDAS ---
     updateProject(projectId: string, payload: UpdateProjectPayload): Promise<AxiosResponse<Project>> {
         return apiClient.patch(`/projects/${projectId}`, payload);
     },

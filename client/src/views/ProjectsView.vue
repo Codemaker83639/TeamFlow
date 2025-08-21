@@ -3,7 +3,7 @@
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow">
       <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Proyectos</h2>
       
-      <button @click="isModalOpen = true" v-if="authStore.user?.role === 'Administrator'" class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300">
+      <button @click="openCreateModal" v-if="authStore.user?.role === 'Administrator'" class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300">
         Crear Nuevo Proyecto
       </button>
     </header>
@@ -90,7 +90,11 @@
       </div>
     </main>
 
-    <CreateProjectModal v-if="isModalOpen" @close="isModalOpen = false" />
+    <CreateProjectModal 
+      v-if="isModalOpen" 
+      :project-to-edit="projectToEdit"
+      @close="closeModal" 
+    />
   </MainLayout>
 </template>
 
@@ -109,6 +113,23 @@ const isModalOpen = ref(false);
 const searchQuery = ref('');
 const statusDropdownOpen = ref(false);
 const openMenuId = ref<string | null>(null);
+const projectToEdit = ref<Project | null>(null);
+
+const openCreateModal = () => {
+  projectToEdit.value = null;
+  isModalOpen.value = true;
+};
+
+const openEditModal = (project: Project) => {
+  projectToEdit.value = project;
+  isModalOpen.value = true;
+  openMenuId.value = null;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  projectToEdit.value = null;
+};
 
 const toggleMenu = (projectId: string) => {
   openMenuId.value = openMenuId.value === projectId ? null : projectId;
@@ -117,11 +138,6 @@ const toggleMenu = (projectId: string) => {
 const changeStatus = (projectId: string, status: ProjectStatus) => {
   projectStore.updateProject(projectId, { status });
   openMenuId.value = null; 
-};
-
-const openEditModal = (project: Project) => {
-  console.log('Abriendo modal de edición para:', project.name);
-  openMenuId.value = null;
 };
 
 const deleteProject = (projectId: string) => {
@@ -150,5 +166,9 @@ const statusClasses: Record<ProjectStatus, string> = {
 
 onMounted(() => {
   projectStore.fetchAllProjects();
+});
+
+watch(searchQuery, (newQuery) => {
+  projectStore.setSearchQuery(newQuery);
 });
 </script>

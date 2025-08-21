@@ -18,6 +18,7 @@ export class UpdateProjectDto {
     status?: ProjectStatus;
     start_date?: Date;
     end_date?: Date;
+    team_id?: string;
 }
 
 @Injectable()
@@ -51,7 +52,6 @@ export class ProjectsService {
                 tasks: true,
             },
         });
-
         const projectsWithProgress = projects.map(project => {
             if (!project.tasks || project.tasks.length === 0) {
                 return { ...project, progress: 0 };
@@ -63,7 +63,6 @@ export class ProjectsService {
             const progress = totalHours > 0 ? Math.round((completedHours / totalHours) * 100) : 0;
             return { ...project, progress };
         });
-
         return projectsWithProgress as Project[];
     }
 
@@ -72,13 +71,29 @@ export class ProjectsService {
         if (!projectToUpdate) {
             throw new NotFoundException(`Project with ID "${id}" not found`);
         }
+
+        if (updateProjectDto.team_id) {
+            const newTeam = await this.teamRepository.findOneBy({ id: updateProjectDto.team_id });
+            if (!newTeam) {
+                throw new NotFoundException(`Team with ID "${updateProjectDto.team_id}" not found`);
+            }
+            projectToUpdate.team = newTeam;
+        }
+
         if (updateProjectDto.status === ProjectStatus.COMPLETED && projectToUpdate.status !== ProjectStatus.COMPLETED) {
             updateProjectDto.end_date = new Date();
         }
-        Object.assign(projectToUpdate, updateProjectDto);
+
+        Object.assign(projectToUpdate, {
+            name: updateProjectDto.name,
+            description: updateProjectDto.description,
+            status: updateProjectDto.status,
+            start_date: updateProjectDto.start_date,
+            end_date: updateProjectDto.end_date,
+        });
         await this.projectRepository.save(projectToUpdate);
 
-        const updatedProject = await this.projectRepository.findOne({
+        const updatedProjectWithRelations = await this.projectRepository.findOne({
             where: { id },
             relations: {
                 team: { members: { user: true } },
@@ -86,16 +101,13 @@ export class ProjectsService {
             },
         });
 
-        if (!updatedProject.tasks || updatedProject.tasks.length === 0) {
-            return { ...updatedProject, progress: 0 } as Project;
-        }
-        const totalHours = updatedProject.tasks.reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
-        const completedHours = updatedProject.tasks
+        const totalHours = updatedProjectWithRelations.tasks.reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
+        const completedHours = updatedProjectWithRelations.tasks
             .filter(task => task.status === TaskStatus.DONE)
             .reduce((acc, task) => acc + (Number(task.estimated_hours) || 0), 0);
         const progress = totalHours > 0 ? Math.round((completedHours / totalHours) * 100) : 0;
 
-        return { ...updatedProject, progress } as Project;
+        return { ...updatedProjectWithRelations, progress } as Project;
     }
 
     async remove(id: string): Promise<void> {
