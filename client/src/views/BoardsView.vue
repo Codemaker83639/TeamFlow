@@ -1,6 +1,5 @@
 <template>
   <MainLayout>
-    <!-- Header mejorado manteniendo los colores originales -->
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow-lg border-b border-gray-200 dark:border-gray-700">
       <div>
         <h2 class="text-2xl font-bold text-dark-purple dark:text-light">
@@ -9,7 +8,6 @@
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Tablero del Proyecto</p>
       </div>
       
-      <!-- Botón mejorado con animaciones manteniendo colores originales -->
       <button 
         @click="isCreateModalOpen = true" 
         class="group relative bg-accent hover:bg-secondary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 flex items-center space-x-2"
@@ -19,13 +17,11 @@
         </svg>
         <span>Agregar Tarea</span>
         
-        <!-- Efecto de brillo -->
         <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12"></div>
       </button>
     </header>
 
     <main class="flex-1 overflow-x-auto bg-light dark:bg-dark-purple p-6">
-      <!-- Estado de carga mejorado -->
       <div v-if="taskStore.isLoading && taskStore.tasks.length === 0" class="flex flex-col items-center justify-center h-64 text-center">
         <div class="relative">
           <div class="w-16 h-16 border-4 border-gray-200 border-t-accent rounded-full animate-spin"></div>
@@ -34,18 +30,15 @@
         <p class="text-gray-600 dark:text-gray-400 mt-4 text-lg">Cargando tareas...</p>
       </div>
       
-      <!-- Tablero principal -->
-      <div v-else class="flex space-x-6 h-full pb-6">
+      <div v-else class="flex space-x-6 h-full">
         <div 
           v-for="(tasks, status) in taskStore.groupedTasks" 
           :key="status" 
           class="flex-shrink-0 w-80 board-column group" 
           :data-status="status"
         >
-          <!-- Columna mejorada manteniendo colores originales -->
           <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-600 h-full flex flex-col transition-all duration-300 hover:shadow-2xl">
             
-            <!-- Header de columna -->
             <div class="p-6 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-750 rounded-t-2xl">
               <div class="flex items-center justify-between">
                 <h3 class="font-bold text-lg text-dark-purple dark:text-light">
@@ -60,27 +53,27 @@
               </div>
             </div>
 
-            <!-- Área de tareas con scroll mejorado -->
             <draggable 
               :list="tasks" 
               group="tasks" 
               item-key="id" 
               class="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar min-h-[200px]" 
               @end="handleDragEnd"
+              animation="300"
+              ghost-class="ghost-card"
+              drag-class="dragging-card"
             >
-              <template #item="{ element: task }">
+            <template #item="{ element: task }">
                 <div 
                   :data-task-id="task.id" 
                   class="group/task bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700 hover:border-accent cursor-pointer"
                 >
                   
-                  <!-- Header de tarea -->
                   <div class="flex justify-between items-start mb-4">
                     <h4 class="font-semibold text-dark-purple dark:text-light flex-1 pr-3 leading-relaxed">
                       {{ task.title }}
                     </h4>
                     
-                    <!-- Menú de opciones mejorado -->
                     <div class="relative flex-shrink-0">
                       <button 
                         @click="toggleTaskMenu(task.id)" 
@@ -91,7 +84,6 @@
                         </svg>
                       </button>
                       
-                      <!-- Menú desplegable mejorado -->
                       <div 
                         v-if="openTaskMenuId === task.id" 
                         class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-2xl bg-white dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-600 z-20 border border-gray-100 dark:border-gray-700"
@@ -122,10 +114,8 @@
                     </div>
                   </div>
                   
-                  <!-- Footer de tarea -->
                   <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-3">
-                      <!-- Prioridad mejorada con colores originales -->
                       <span 
                         v-if="task.priority" 
                         :class="priorityClasses[task.priority]" 
@@ -134,7 +124,6 @@
                         {{ task.priority.toUpperCase() }}
                       </span>
                       
-                      <!-- Botón de comentarios mejorado -->
                       <button class="flex items-center space-x-1 text-xs text-gray-500 hover:text-accent transition-colors duration-200 p-1 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
@@ -143,7 +132,6 @@
                       </button>
                     </div>
                     
-                    <!-- Avatar mejorado manteniendo color accent -->
                     <div 
                       v-if="task.assigned_to" 
                       class="relative group/avatar"
@@ -153,7 +141,6 @@
                         {{ getInitials(task.assigned_to.full_name) }}
                       </div>
                       
-                      <!-- Tooltip mejorado -->
                       <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg px-2 py-1 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
                         {{ task.assigned_to.full_name }}
                         <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
@@ -161,13 +148,11 @@
                     </div>
                   </div>
                   
-                  <!-- Indicador de drag mejorado con color accent -->
-                  <div class="mt-3 h-1 bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 group-hover/task:opacity-100 transition-opacity duration-300 rounded-full"></div>
+
                 </div>
               </template>
             </draggable>
             
-            <!-- Área de drop cuando está vacía -->
             <div v-if="tasks.length === 0" class="flex-1 p-8 flex flex-col items-center justify-center text-center">
               <div class="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mb-4">
                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +168,6 @@
       </div>
     </main>
 
-    <!-- Modales -->
     <CreateTaskModal 
       v-if="isCreateModalOpen && projectStore.currentProject" 
       :project-id="projectStore.currentProject.id" 
@@ -265,7 +249,6 @@ const getInitials = (fullName: string | undefined): string => {
   return (names[0][0] + names[names.length - 1][0]).toUpperCase();
 };
 
-// Función para obtener el color del estado manteniendo colores originales
 const getStatusColor = (status: string): string => {
   const colors: Record<string, string> = {
     backlog: 'bg-gray-400',
@@ -285,7 +268,6 @@ const columnTitles: Record<TaskStatus, string> = {
   done: 'Completado'
 };
 
-// Manteniendo los colores de prioridad originales
 const priorityClasses: Record<TaskPriority, string> = {
   low: 'bg-green-500',
   medium: 'bg-blue-500',
@@ -328,4 +310,22 @@ onMounted(() => {
 .group\/task:hover {
   box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.1), 0 10px 10px -5px rgba(139, 92, 246, 0.04);
 }
+
+/* ****** INICIO DE CAMBIOS ****** */
+
+/* Estilo para el "fantasma" de la tarjeta que se arrastra */
+.ghost-card {
+  opacity: 0.5;
+  background: #f0f0f0;
+  border: 2px dashed var(--color-accent, #8b5cf6);
+  border-radius: 0.75rem; /* 12px */
+}
+
+/* Estilo para la tarjeta mientras se está arrastrando */
+.dragging-card {
+  transform: rotate(3deg) scale(1.05);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  cursor: grabbing;
+}
+
 </style>
