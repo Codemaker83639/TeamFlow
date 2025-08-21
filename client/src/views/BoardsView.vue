@@ -4,7 +4,7 @@
       <h2 class="text-2xl font-bold text-dark-purple dark:text-light">
         Tablero del Proyecto: {{ projectStore.currentProject?.name || 'Cargando...' }}
       </h2>
-      <button @click="isModalOpen = true" class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300">
+      <button @click="isCreateModalOpen = true" class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300">
         Agregar Tarea
       </button>
     </header>
@@ -20,7 +20,8 @@
           </div>
           <draggable :list="tasks" group="tasks" item-key="id" class="p-4 space-y-4 h-full min-h-[100px]" @end="handleDragEnd">
             <template #item="{ element: task }">
-              <div :data-task-id="task.id" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col space-y-4">
+              <div :data-task-id="task.id" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col justify-between min-h-[120px]">
+                
                 <div class="flex justify-between items-start">
                   <p class="font-semibold text-dark-purple dark:text-light flex-1 pr-2">{{ task.title }}</p>
                   <div class="relative flex-shrink-0">
@@ -35,20 +36,29 @@
                     </div>
                   </div>
                 </div>
-                <div class="flex justify-between items-center">
-                  <span v-if="task.priority" :class="priorityClasses[task.priority]" class="px-2 py-1 text-xs font-bold text-white rounded-full">{{ task.priority }}</span>
+                
+                <div class="flex justify-between items-center mt-4">
+                  <div class="flex items-center space-x-2">
+                     <span v-if="task.priority" :class="priorityClasses[task.priority]" class="px-2 py-1 text-xs font-bold text-white rounded-full">{{ task.priority }}</span>
+                     <button class="text-xs text-gray-500 hover:text-dark-purple dark:hover:text-light">Comentar</button>
+                  </div>
                   <div v-if="task.assigned_to" class="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs" :title="task.assigned_to.full_name">{{ getInitials(task.assigned_to.full_name) }}</div>
                 </div>
-                <div class="border-t dark:border-gray-700 pt-2">
-                   <button class="text-xs text-gray-500 hover:text-dark-purple dark:hover:text-light">Comentar</button>
-                </div>
+
               </div>
-            </template>
+              </template>
           </draggable>
         </div>
       </div>
     </main>
-    <CreateTaskModal v-if="isModalOpen && projectStore.currentProject" :project-id="projectStore.currentProject.id" :team-members="projectStore.currentProject.team.members" @close="isModalOpen = false"/>
+    <CreateTaskModal v-if="isCreateModalOpen && projectStore.currentProject" :project-id="projectStore.currentProject.id" :team-members="projectStore.currentProject.team.members" @close="isCreateModalOpen = false"/>
+    <EditTaskModal 
+      v-if="isEditModalOpen && taskToEdit"
+      :project-id="projectStore.currentProject.id"
+      :team-members="projectStore.currentProject.team.members"
+      :task-to-edit="taskToEdit"
+      @close="closeEditModal"
+    />
   </MainLayout>
 </template>
 
@@ -57,6 +67,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateTaskModal from '@/components/CreateTaskModal.vue';
+import EditTaskModal from '@/components/EditTaskModal.vue';
 import { useTaskStore } from '@/store/taskStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useAuthStore } from '@/store/auth';
@@ -68,7 +79,10 @@ const route = useRoute();
 const taskStore = useTaskStore();
 const projectStore = useProjectStore();
 const authStore = useAuthStore();
-const isModalOpen = ref(false);
+
+const isCreateModalOpen = ref(false);
+const isEditModalOpen = ref(false);
+const taskToEdit = ref<Task | null>(null);
 const openTaskMenuId = ref<string | null>(null);
 
 const toggleTaskMenu = (taskId: string) => {
@@ -76,8 +90,14 @@ const toggleTaskMenu = (taskId: string) => {
 };
 
 const openEditTaskModal = (task: Task) => {
-  console.log("Abriendo modal para editar la tarea:", task);
+  taskToEdit.value = task;
+  isEditModalOpen.value = true;
   openTaskMenuId.value = null;
+};
+
+const closeEditModal = () => {
+  isEditModalOpen.value = false;
+  taskToEdit.value = null;
 };
 
 const deleteTask = (taskId: string) => {
@@ -94,7 +114,6 @@ const handleDragEnd = (event: SortableEvent) => {
   const originalStatus = from.closest('.board-column')?.dataset.status as TaskStatus | undefined;
   const taskId = item.dataset.taskId;
   const projectId = route.params.projectId as string;
-
   if (!taskId || !newStatus || !originalStatus || newStatus === originalStatus) {
     return;
   }
@@ -117,10 +136,10 @@ const columnTitles: Record<TaskStatus, string> = {
 };
 
 const priorityClasses: Record<TaskPriority, string> = {
-  low: 'bg-green-500',
-  medium: 'bg-blue-500',
-  high: 'bg-yellow-500',
-  urgent: 'bg-red-500',
+    low: 'bg-green-500',
+    medium: 'bg-blue-500',
+    high: 'bg-yellow-500',
+    urgent: 'bg-red-500',
 };
 
 onMounted(() => {
