@@ -38,12 +38,10 @@ export class TasksService {
 
     async create(createTaskDto: CreateTaskDto, creator: User): Promise<Task> {
         const { assigned_to_id, project_id, ...taskData } = createTaskDto;
-
         const project = await this.projectRepository.findOneBy({ id: project_id });
         if (!project) {
             throw new BadRequestException(`Project with ID "${project_id}" not found.`);
         }
-
         let assignedUser: User | null = null;
         if (assigned_to_id) {
             assignedUser = await this.userRepository.findOneBy({ id: assigned_to_id });
@@ -51,14 +49,12 @@ export class TasksService {
                 throw new BadRequestException(`User with ID "${assigned_to_id}" not found.`);
             }
         }
-
         const newTask = this.taskRepository.create({
             ...taskData,
             project,
             created_by: creator,
             assigned_to: assignedUser,
         });
-
         return this.taskRepository.save(newTask);
     }
 
@@ -79,8 +75,6 @@ export class TasksService {
         return task;
     }
 
-    // --- MÉTODOS RESTAURADOS ---
-
     async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
         const task = await this.taskRepository.preload({
             id: id,
@@ -97,5 +91,18 @@ export class TasksService {
         if (result.affected === 0) {
             throw new NotFoundException(`Task with ID "${id}" not found to delete`);
         }
+    }
+
+    async findAllByProject(projectId: string): Promise<Task[]> {
+        return this.taskRepository.find({
+            where: {
+                project: {
+                    id: projectId,
+                },
+            },
+            relations: {
+                assigned_to: true,
+            },
+        });
     }
 }

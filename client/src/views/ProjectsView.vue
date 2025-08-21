@@ -2,7 +2,6 @@
   <MainLayout>
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow">
       <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Proyectos</h2>
-      
       <button @click="openCreateModal" v-if="authStore.user?.role === 'Administrator'" class="bg-accent text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary transition-colors duration-300">
         Crear Nuevo Proyecto
       </button>
@@ -83,29 +82,29 @@
                 {{ getInitials(member.user?.full_name) }}
               </div>
             </div>
-            <button class="text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-accent dark:text-light-accent py-1 px-3 rounded-md hover:bg-gray-200">Ver Tablero</button>
+            <button @click="goToBoard(project.id)" class="text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-accent dark:text-light-accent py-1 px-3 rounded-md hover:bg-gray-200">
+              Ver Tablero
+            </button>
             <p class="text-xs text-gray-500 dark:text-gray-400"></p>
           </div>
         </div>
       </div>
     </main>
 
-    <CreateProjectModal 
-      v-if="isModalOpen" 
-      :project-to-edit="projectToEdit"
-      @close="closeModal" 
-    />
+    <CreateProjectModal v-if="isModalOpen" :project-to-edit="projectToEdit" @close="closeModal" />
   </MainLayout>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateProjectModal from '@/components/CreateProjectModal.vue';
 import { useAuthStore } from '@/store/auth';
 import { useProjectStore } from '@/store/projectStore';
 import type { Project, ProjectStatus } from '@/types/Project';
 
+const router = useRouter();
 const authStore = useAuthStore();
 const projectStore = useProjectStore();
 
@@ -144,6 +143,10 @@ const deleteProject = (projectId: string) => {
   projectStore.deleteProject(projectId);
   openMenuId.value = null;
 }
+
+const goToBoard = (projectId: string) => {
+  router.push({ name: 'board', params: { projectId } });
+};
 
 const getInitials = (fullName: string | undefined): string => {
   if (!fullName) return '';

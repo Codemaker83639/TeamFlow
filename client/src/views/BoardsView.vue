@@ -1,12 +1,8 @@
 <template>
   <MainLayout>
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow">
-      <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Tableros del Proyecto: Rediseño App</h2>
-      <div class="flex items-center space-x-2">
-        <span class="text-sm text-gray-500">Filtrar por:</span>
-        <button class="bg-gray-200 dark:bg-gray-700 text-dark-purple dark:text-light text-sm font-semibold py-1 px-3 rounded-lg">Prioridad</button>
-      </div>
-    </header>
+      <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Tablero del Proyecto</h2>
+       </header>
 
     <main class="flex-1 overflow-x-auto bg-light dark:bg-dark-purple p-6">
       <div v-if="taskStore.isLoading" class="text-center text-gray-500">
@@ -31,7 +27,7 @@
             group="tasks"
             item-key="id"
             class="p-4 space-y-4 h-full"
-            @end="handleDragEnd"
+            @end="event => handleDragEnd(event, status as TaskStatus)"
           >
             <template #item="{ element: task }">
               <div :data-id="task.id" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow cursor-grab">
@@ -44,7 +40,6 @@
                   >
                     {{ task.priority }}
                   </span>
-                  
                   <div 
                     v-if="task.assigned_to" 
                     class="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs" 
@@ -52,7 +47,7 @@
                   >
                     {{ getInitials(task.assigned_to.full_name) }}
                   </div>
-                  </div>
+                </div>
               </div>
             </template>
           </draggable>
@@ -63,48 +58,30 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
-import { useTaskStore } from '@/store/taskStore'; // Corregido a 'store' singular
+import { useTaskStore } from '@/store/taskStore';
 import type { Task, TaskStatus, TaskPriority } from '@/types/Task';
 import draggable from 'vuedraggable';
 import type { SortableEvent } from 'sortablejs';
 
+const route = useRoute();
 const taskStore = useTaskStore();
 
-// --- NUEVA FUNCIÓN PARA OBTENER INICIALES ---
 const getInitials = (fullName: string | undefined): string => {
   if (!fullName) return '';
   const names = fullName.split(' ');
   if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
-  // Devuelve la primera letra del primer nombre y la primera del último
   return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-};
-// -----------------------------------------
-
-const columnTitles: Record<string, string> = {
-  // ... (sin cambios)
-  backlog: 'Backlog',
-  todo: 'Por Hacer',
-  in_progress: 'En Progreso',
-  review: 'En Revisión',
-  done: 'Completado'
-};
-
-const priorityClasses: Record<string, string> = {
-  // ... (sin cambios)
-  urgent: 'bg-red-500',
-  high: 'bg-yellow-500',
-  medium: 'bg-blue-500',
-  low: 'bg-green-500'
 };
 
 const handleDragEnd = (event: SortableEvent) => {
-  // ... (sin cambios)
   const item = event.item as HTMLElement;
   const to = event.to as HTMLElement;
-  
-  const originalStatus = (event.from as HTMLElement).closest('.board-column')?.dataset.status as TaskStatus | undefined;
+  const from = event.from as HTMLElement;
+
+  const originalStatus = from.closest('.board-column')?.dataset.status as TaskStatus | undefined;
   const newStatus = to.closest('.board-column')?.dataset.status as TaskStatus | undefined;
   
   const taskId = item.dataset.id;
@@ -119,7 +96,29 @@ const handleDragEnd = (event: SortableEvent) => {
   }
 };
 
+const columnTitles: Record<TaskStatus, string> = {
+  backlog: 'Backlog',
+  todo: 'Por Hacer',
+  in_progress: 'En Progreso',
+  review: 'En Revisión',
+  done: 'Completado'
+};
+
+const priorityClasses: Record<TaskPriority, string> = {
+    low: 'bg-green-500',
+    medium: 'bg-blue-500',
+    high: 'bg-yellow-500',
+    urgent: 'bg-red-500',
+};
+
 onMounted(() => {
-  taskStore.fetchTasks();
+  const projectId = route.params.projectId as string;
+  if (projectId) {
+    taskStore.fetchTasksByProject(projectId);
+  } else {
+    // Podríamos limpiar las tareas o mostrar un mensaje si no hay ID de proyecto
+    taskStore.tasks = []; 
+    console.error('Project ID is missing from the route!');
+  }
 });
 </script>
