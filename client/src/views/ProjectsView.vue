@@ -1,8 +1,6 @@
 <template>
   <MainLayout>
-    <!-- Enhanced Header -->
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow-xl relative overflow-hidden">
-      <!-- Background particles -->
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute w-2 h-2 bg-purple-400/20 rounded-full animate-pulse" style="left: 20%; top: 30%;"></div>
         <div class="absolute w-1 h-1 bg-indigo-400/30 rounded-full animate-pulse" style="left: 70%; top: 60%; animation-delay: 2s;"></div>
@@ -16,17 +14,16 @@
       <button 
         @click="openCreateModal" 
         v-if="authStore.user?.role === 'Administrator'" 
-        class="bg-gradient-to-r from-accent to-secondary text-white font-semibold py-3 px-6 rounded-xl hover:from-secondary hover:to-accent transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+        class="bg-accent text-white font-semibold py-3 px-6 rounded-xl hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
       >
         <span class="flex items-center space-x-2">
-          <span>✨</span>
+          <span>+</span>
           <span>Crear Nuevo Proyecto</span>
         </span>
       </button>
     </header>
 
     <main class="flex-1 overflow-y-auto bg-light dark:bg-dark-purple p-6">
-      <!-- Enhanced Filters -->
       <div class="mb-6 flex justify-between items-center">
         <div class="flex items-center space-x-2">
           <span class="text-sm text-gray-500 dark:text-gray-400">Filtrar por:</span>
@@ -59,7 +56,6 @@
         </div>
       </div>
 
-      <!-- Loading state -->
       <div v-if="projectStore.isLoading" class="text-center text-gray-500 dark:text-gray-400 py-20">
         <div class="inline-flex items-center space-x-3">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -67,16 +63,13 @@
         </div>
       </div>
  
-      <!-- Empty state -->
       <div v-else-if="projectStore.filteredProjects.length === 0" class="text-center text-gray-500 dark:text-gray-400 py-20">
         <div class="text-4xl mb-4">🔍</div>
         <p>No se encontraron proyectos que coincidan con tus filtros.</p>
       </div>
       
-      <!-- Enhanced Projects Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <div v-for="project in projectStore.filteredProjects" :key="project.id" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-purple-100/50 dark:border-gray-700/50 flex flex-col justify-between transition-all duration-300 group relative overflow-hidden hover:shadow-2xl hover:scale-105 hover:-translate-y-1">
-          <!-- Shimmer effect -->
           <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-2xl pointer-events-none"></div>
           
           <div class="space-y-4 relative z-10">

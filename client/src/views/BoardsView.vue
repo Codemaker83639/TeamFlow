@@ -10,14 +10,12 @@
       
       <button 
         @click="isCreateModalOpen = true" 
-        class="group relative bg-accent hover:bg-secondary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 flex items-center space-x-2"
+        class="bg-accent hover:bg-opacity-90 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
       >
-        <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        <span>Agregar Tarea</span>
-        
-        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12"></div>
+        <span class="flex items-center space-x-2">
+          <span>+</span>
+          <span>Agregar Tarea</span>
+        </span>
       </button>
     </header>
 
