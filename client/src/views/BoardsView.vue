@@ -39,7 +39,7 @@
         >
           <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-600 h-full flex flex-col transition-all duration-300 hover:shadow-2xl">
             
-            <div class="p-6 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-750 rounded-t-2xl">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-t-2xl">
               <div class="flex items-center justify-between">
                 <h3 class="font-bold text-lg text-dark-purple dark:text-light">
                   {{ columnTitles[status as TaskStatus] }}
@@ -311,8 +311,6 @@ onMounted(() => {
   box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.1), 0 10px 10px -5px rgba(139, 92, 246, 0.04);
 }
 
-/* ****** INICIO DE CAMBIOS ****** */
-
 /* Estilo para el "fantasma" de la tarjeta que se arrastra */
 .ghost-card {
   opacity: 0.5;
@@ -327,5 +325,4 @@ onMounted(() => {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   cursor: grabbing;
 }
-
 </style>
