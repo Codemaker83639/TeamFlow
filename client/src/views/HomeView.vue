@@ -90,14 +90,14 @@
                     <div class="w-3 h-3 bg-secondary rounded-full"></div>
                     <div class="w-3 h-3 bg-light-accent rounded-full"></div>
                   </div>
-                  <div class="text-sm" style="color: #FBE4D8;">TeamFlow Dashboard</div>
+                  <div class="text-sm" style="color: #FBE4D8;">TeamFlow Interface</div>
                 </div>
 
                 <!-- Tarjetas del mockup -->
                 <div class="space-y-4">
                   <div class="bg-dark-purple/50 rounded-xl p-4 border border-accent/10 pulse-card">
                     <div class="flex items-center justify-between mb-2">
-                      <div class="text-sm font-medium" style="color: #FBE4D8;">Proyecto Alpha</div>
+                      <div class="text-sm font-medium" style="color: #FBE4D8;">Implementar CRM</div>
                       <div class="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
                     </div>
                     <div class="w-full bg-dark-purple rounded-full h-2 mb-2">
@@ -108,7 +108,7 @@
 
                   <div class="bg-dark-purple/50 rounded-xl p-4 border border-secondary/10 pulse-card animation-delay-200">
                     <div class="flex items-center justify-between mb-2">
-                      <div class="text-sm font-medium" style="color: #FBE4D8;">Beta Release</div>
+                      <div class="text-sm font-medium" style="color: #FBE4D8;">Depurar Logs</div>
                       <div class="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
                     </div>
                     <div class="w-full bg-dark-purple rounded-full h-2 mb-2">
@@ -119,7 +119,7 @@
 
                   <div class="bg-dark-purple/50 rounded-xl p-4 border border-light-accent/10 pulse-card animation-delay-400">
                     <div class="flex items-center justify-between mb-2">
-                      <div class="text-sm font-medium" style="color: #FBE4D8;">UI Redesign</div>
+                      <div class="text-sm font-medium" style="color: #FBE4D8;">Configurar Servidor</div>
                       <div class="w-2 h-2 bg-light-accent rounded-full animate-pulse"></div>
                     </div>
                     <div class="w-full bg-dark-purple rounded-full h-2 mb-2">
@@ -163,40 +163,39 @@
           <div class="text-center group">
             <div class="relative mb-6">
               <div class="w-24 h-24 bg-accent/10 rounded-3xl mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <div class="text-4xl font-black counter" data-target="77" style="color: #FBE4D8;">0</div>
+                <div class="text-4xl font-black counter" data-target="64" style="color: #FBE4D8;">0</div>
                 <div class="text-xl font-bold ml-1" style="color: #FBE4D8;">%</div>
               </div>
 
             </div>
-            <h3 class="text-xl font-bold mb-3" style="color: #FBE4D8;">Alto Rendimiento</h3>
-            <p class="leading-relaxed" style="color: #FBE4D8;">De los proyectos exitosos utilizan software especializado de gestión</p>
+            <h3 class="text-xl font-bold mb-3" style="color: #FBE4D8;">Proyectos Exitosos</h3>
+            <p class="leading-relaxed" style="color: #FBE4D8;">Los proyectos ágiles tienen una tasa de éxito del 64% vs 49% de metodologías tradicionales</p>
           </div>
 
           <!-- Stat 2 -->
           <div class="text-center group">
             <div class="relative mb-6">
               <div class="w-24 h-24 bg-secondary/10 rounded-3xl mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <div class="text-4xl font-black counter" data-target="28" style="color: #FBE4D8;">0</div>
-                <div class="text-xl font-bold ml-1" style="color: #FBE4D8;">x</div>
+                <div class="text-4xl font-black counter" data-target="13" style="color: #FBE4D8;">0</div>
+                <div class="text-xl font-bold ml-1" style="color: #FBE4D8;">%</div>
               </div>
 
             </div>
-            <h3 class="text-xl font-bold mb-3" style="color: #FBE4D8;">Menos Desperdicio</h3>
-            <p class="leading-relaxed" style="color: #FBE4D8;">Reducción en costos operativos con mejores prácticas de gestión</p>
+            <h3 class="text-xl font-bold mb-3" style="color: #FBE4D8;">Más Productividad</h3>
+            <p class="leading-relaxed" style="color: #FBE4D8;">El trabajo remoto puede aumentar la productividad hasta un 13% según estudios</p>
           </div>
 
           <!-- Stat 3 -->
           <div class="text-center group">
             <div class="relative mb-6">
               <div class="w-24 h-24 bg-light-accent/10 rounded-3xl mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <div class="text-2xl font-bold mr-1" style="color: #FBE4D8;">+</div>
-                <div class="text-4xl font-black counter" data-target="47" style="color: #FBE4D8;">0</div>
+                <div class="text-4xl font-black counter" data-target="94" style="color: #FBE4D8;">0</div>
                 <div class="text-xl font-bold ml-1" style="color: #FBE4D8;">%</div>
               </div>
 
             </div>
-            <h3 class="text-xl font-bold mb-3" style="color: #FBE4D8;">Más Productividad</h3>
-            <p class="leading-relaxed" style="color: #FBE4D8;">Aumento en productividad de equipos remotos bien organizados</p>
+            <h3 class="text-xl font-bold mb-3" style="color: #FBE4D8;">Satisfacción Laboral</h3>
+            <p class="leading-relaxed" style="color: #FBE4D8;">De los empleadores creen que la productividad se mantiene o mejora con trabajo remoto</p>
           </div>
         </div>
       </div>
