@@ -295,10 +295,6 @@ onMounted(() => {
   background: transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-accent, #8b5cf6);
-  border-radius: 3px;
-}
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-secondary, #7c3aed);
