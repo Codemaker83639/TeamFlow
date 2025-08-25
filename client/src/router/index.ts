@@ -15,7 +15,7 @@ const router = createRouter({
         { path: '/login', name: 'login', component: LoginView },
         { path: '/dashboard', name: 'dashboard', component: DashboardView },
         { path: '/projects', name: 'projects', component: ProjectsView },
-        { path: '/projects/:projectId/boards', name: 'board', component: BoardsView }, // Ruta correcta
+        { path: '/projects/:projectId/boards', name: 'board', component: BoardsView },
         { path: '/teams', name: 'teams', component: TeamsView },
         { path: '/reports', name: 'reports', component: ReportsView },
         { path: '/settings', name: 'settings', component: SettingsView }
