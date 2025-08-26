@@ -1,5 +1,6 @@
 import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
-import { UserRole } from '../../auth/entities/user.entity';
+// --- CAMBIO EN LA SIGUIENTE LÍNEA ---
+import { UserRole } from '../../auth/entities/user.enums'; // Apuntamos al nuevo archivo de enums
 
 export class CreateUserDto {
     @IsString()

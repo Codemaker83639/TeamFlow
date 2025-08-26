@@ -6,17 +6,20 @@ import {
     UpdateDateColumn,
     ManyToOne,
     JoinColumn,
+    OneToMany,
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { TaskStatus, TaskPriority } from './task.enums';
 import { Project } from '../../projects/entities/project.entity';
+import { Comment } from './comment.entity';
+import { TaskAttachment } from './task-attachment.entity'; // <--- AÑADIR ESTA LÍNEA
 
 @Entity({ name: 'tasks' })
 export class Task {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    // ... (columnas de task y relaciones con User sin cambios)
+    // ... columnas de tarea sin cambios ...
     @Column({ type: 'varchar', length: 255 })
     title: string;
 
@@ -43,7 +46,7 @@ export class Task {
     @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
     estimated_hours: number;
 
-    // --- CAMBIO AQUÍ: Se añade el tipo explícito 'Project' ---
+    // ... relaciones existentes sin cambios ...
     @ManyToOne(() => Project, (project: Project) => project.tasks)
     @JoinColumn({ name: 'project_id' })
     project: Project;
@@ -61,4 +64,13 @@ export class Task {
 
     @UpdateDateColumn({ type: 'timestamp' })
     updated_at: Date;
+
+    // --- Relaciones ---
+    @OneToMany(() => Comment, (comment) => comment.task)
+    comments: Comment[];
+
+    // --- NUEVA RELACIÓN PARA ADJUNTOS ---
+    @OneToMany(() => TaskAttachment, (attachment) => attachment.task)
+    attachments: TaskAttachment[];
+    // ------------------------------------
 }

@@ -5,8 +5,9 @@ import {
     ManyToOne,
     JoinColumn
 } from 'typeorm';
-import { User, UserRole } from '../../auth/entities/user.entity';
+import { User } from '../../auth/entities/user.entity';
 import { Team } from './team.entity';
+import { UserRole } from '../../auth/entities/user.enums'; // <--- CAMBIO AQUÍ: Importamos desde el nuevo archivo
 
 @Entity('team_members')
 export class TeamMember {
@@ -24,7 +25,7 @@ export class TeamMember {
     @Column({
         type: 'enum',
         enum: UserRole,
-        default: UserRole.MEMBER,
+        default: UserRole.MEMBER, // Este error ahora está solucionado
     })
     role: UserRole;
 }

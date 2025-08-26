@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 
-// Versión final apuntando a los archivos de TypeScript en 'src'
 export default new DataSource({
   type: 'postgres',
   host: 'localhost',
@@ -9,9 +8,9 @@ export default new DataSource({
   password: 'teamflow_password',
   database: 'teamflow',
 
-  // Apuntamos a los archivos fuente (.ts)
-  entities: ['src/**/*.entity.ts'],
-  migrations: ['src/database/migrations/*.ts'],
+  // Apuntamos a todos los archivos de entidad y migración dentro de 'src'
+  entities: ["src/**/*.entity.ts"],
+  migrations: ["src/database/migrations/**/*.ts"],
 
   synchronize: false,
 });

@@ -1,8 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-// --- RUTA CORREGIDA ---
-import { UserRole } from '../../auth/entities/user.entity';
+// --- CAMBIO EN LA SIGUIENTE LÍNEA ---
+import { UserRole } from '../entities/user.enums'; // Apuntamos al nuevo archivo de enums
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -17,8 +17,6 @@ export class RolesGuard implements CanActivate {
             return true;
         }
         const { user } = context.switchToHttp().getRequest();
-        // Tu 'user.entity' ya define el rol como UserRole, así que esto funciona directamente.
-        // El payload de tu JWT debe contener la propiedad 'role'.
         return requiredRoles.some((role) => user.role?.includes(role));
     }
 }

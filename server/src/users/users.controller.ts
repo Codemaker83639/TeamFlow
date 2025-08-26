@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, UseGuards, Param, Delete, Patch } from '@nestjs/common'; // Se importa Patch
+import { Controller, Get, Post, Body, UseGuards, Param, Delete, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto'; // Se importa el DTO para actualizar
+import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../auth/entities/user.entity';
+// --- CAMBIO EN LA SIGUIENTE LÍNEA ---
+import { UserRole } from '../auth/entities/user.enums'; // Apuntamos al nuevo archivo de enums
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,7 +31,6 @@ export class UsersController {
         return this.usersService.remove(id);
     }
 
-    // --- NUEVO ENDPOINT PARA ACTUALIZAR ---
     @Patch(':id')
     @Roles(UserRole.ADMIN)
     update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

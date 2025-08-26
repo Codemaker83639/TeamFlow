@@ -1,7 +1,8 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from '../auth/entities/user.entity';
+import { User } from '../auth/entities/user.entity';
+import { UserRole } from '../auth/entities/user.enums';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto'; // Se importa el DTO para actualizar
 

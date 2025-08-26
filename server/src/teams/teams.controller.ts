@@ -5,7 +5,8 @@ import { UpdateTeamDto } from './dto/update-team.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../auth/entities/user.entity';
+// --- CAMBIO EN LA SIGUIENTE LÍNEA ---
+import { UserRole } from '../auth/entities/user.enums'; // Apuntamos al nuevo archivo de enums
 
 @Controller('teams')
 @UseGuards(JwtAuthGuard, RolesGuard)

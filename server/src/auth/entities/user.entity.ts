@@ -5,17 +5,16 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     BeforeInsert,
+    OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-
-export enum UserRole {
-    ADMIN = 'Administrator',
-    MEMBER = 'team member',
-    VIEWER = 'viewer',
-}
+import { Comment } from '../../tasks/entities/comment.entity';
+import { TaskAttachment } from '../../tasks/entities/task-attachment.entity';
+import { UserRole } from './user.enums'; // <--- CAMBIO AQUÍ: Importamos desde el nuevo archivo
 
 @Entity('users')
 export class User {
+    // ... (El resto del archivo no cambia)
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -33,7 +32,7 @@ export class User {
 
     @Column({
         type: 'enum',
-        enum: UserRole,
+        enum: UserRole, // Esto ahora funciona correctamente
         default: UserRole.MEMBER,
     })
     role: UserRole;
@@ -46,6 +45,12 @@ export class User {
 
     @UpdateDateColumn()
     updated_at: Date;
+
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments: Comment[];
+
+    @OneToMany(() => TaskAttachment, (attachment) => attachment.uploaded_by)
+    attachments: TaskAttachment[];
 
     @BeforeInsert()
     async hashPassword() {
