@@ -11,7 +11,7 @@ import {
 import { User } from '../../auth/entities/user.entity';
 import { TaskStatus, TaskPriority } from './task.enums';
 import { Project } from '../../projects/entities/project.entity';
-import { Comment } from './comment.entity';
+import { Comment } from '../../comments/entities/comment.entity';
 import { TaskAttachment } from './task-attachment.entity'; // <--- AÑADIR ESTA LÍNEA
 
 @Entity({ name: 'tasks' })

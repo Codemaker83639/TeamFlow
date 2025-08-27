@@ -8,7 +8,7 @@ import {
     OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { Comment } from '../../tasks/entities/comment.entity';
+import { Comment } from '../../comments/entities/comment.entity';
 import { TaskAttachment } from '../../tasks/entities/task-attachment.entity';
 import { UserRole } from './user.enums'; // <--- CAMBIO AQUÍ: Importamos desde el nuevo archivo
 
