@@ -35,3 +35,14 @@ export interface Task {
     created_by: PartialUser;
     assigned_to: PartialUser | null; // Puede ser un usuario o nulo si no está asignada
 }
+
+export interface Comment {
+    id: number;
+    content: string;
+    created_at: string;
+    user: {
+        id: string;
+        full_name: string;
+        avatar_url?: string;
+    };
+}

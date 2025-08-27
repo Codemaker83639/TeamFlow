@@ -1,5 +1,6 @@
 import axios, { type AxiosResponse } from 'axios';
-import type { Task, TaskStatus, TaskPriority } from '@/types/Task';
+// --- 1. IMPORTAMOS EL TIPO Comment ---
+import type { Task, TaskStatus, TaskPriority, Comment } from '@/types/Task';
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000',
@@ -29,7 +30,6 @@ export interface CreateTaskPayload {
     assigned_to_id?: string;
 }
 
-// Interfaz para actualizar cualquier campo de la tarea
 export interface UpdateTaskPayload {
     title?: string;
     description?: string;
@@ -39,6 +39,12 @@ export interface UpdateTaskPayload {
     estimated_hours?: number;
     assigned_to_id?: string;
 }
+
+// --- 2. DEFINIMOS EL PAYLOAD PARA CREAR UN COMENTARIO ---
+export interface AddCommentPayload {
+    content: string;
+}
+
 
 export default {
     getTasksByProject(projectId: string): Promise<AxiosResponse<Task[]>> {
@@ -55,5 +61,25 @@ export default {
 
     deleteTask(taskId: string): Promise<AxiosResponse<void>> {
         return apiClient.delete(`/tasks/${taskId}`);
+    },
+
+    // --- 👇 NUEVAS FUNCIONES PARA COMENTARIOS 👇 ---
+
+    /**
+     * Obtiene todos los comentarios de una tarea específica.
+     * @param taskId El ID de la tarea.
+     */
+    getComments(taskId: string): Promise<AxiosResponse<Comment[]>> {
+        // La ruta coincide con la que definimos en el controller de NestJS
+        return apiClient.get(`/tasks/${taskId}/comments`);
+    },
+
+    /**
+     * Añade un nuevo comentario a una tarea.
+     * @param taskId El ID de la tarea a la que se añade el comentario.
+     * @param payload El contenido del comentario.
+     */
+    addComment(taskId: string, payload: AddCommentPayload): Promise<AxiosResponse<Comment>> {
+        return apiClient.post(`/tasks/${taskId}/comments`, payload);
     }
 };

@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
 import taskService, { type CreateTaskPayload, type UpdateTaskPayload } from '@/services/taskService';
-import type { Task } from '@/types/Task';
+import type { Task, Comment } from '@/types/Task'; // Asumimos que el tipo Comment estará en Task types
 import { TaskStatus } from '@/types/Task';
 
 interface TaskStoreState {
     tasks: Task[];
     isLoading: boolean;
+    // --- NUEVA PROPIEDAD EN EL ESTADO ---
+    currentTaskComments: Comment[]; // Almacenará los comentarios de la tarea activa
 }
 
 type GroupedTasks = Record<TaskStatus, Task[]>;
@@ -14,6 +16,8 @@ export const useTaskStore = defineStore('taskStore', {
     state: (): TaskStoreState => ({
         tasks: [],
         isLoading: false,
+        // --- VALOR INICIAL PARA LA NUEVA PROPIEDAD ---
+        currentTaskComments: [],
     }),
 
     getters: {
@@ -65,7 +69,6 @@ export const useTaskStore = defineStore('taskStore', {
         async updateTask(taskId: string, projectId: string, payload: UpdateTaskPayload) {
             try {
                 await taskService.updateTask(taskId, payload);
-                // Refrescamos para asegurar que todos los datos estén actualizados
                 await this.fetchTasksByProject(projectId);
             } catch (error) {
                 console.error('Error updating task:', error);
@@ -82,6 +85,38 @@ export const useTaskStore = defineStore('taskStore', {
             } catch (error) {
                 console.error('Error deleting task:', error);
                 alert('No se pudo eliminar la tarea.');
+            }
+        },
+
+        // --- 👇 NUEVAS ACCIONES PARA COMENTARIOS 👇 ---
+
+        /**
+         * Obtiene los comentarios de una tarea específica y los guarda en el estado.
+         */
+        async fetchCommentsForTask(taskId: string) {
+            this.isLoading = true;
+            this.currentTaskComments = [];
+            try {
+                const response = await taskService.getComments(taskId);
+                this.currentTaskComments = response.data;
+            } catch (error) {
+                console.error(`Error fetching comments for task ${taskId}:`, error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        /**
+         * Añade un nuevo comentario a una tarea.
+         */
+        async addCommentToTask(taskId: string, content: string) {
+            try {
+                const response = await taskService.addComment(taskId, { content });
+                // Añadimos el nuevo comentario a la lista local para no tener que recargar todo
+                this.currentTaskComments.push(response.data);
+            } catch (error) {
+                console.error(`Error adding comment to task ${taskId}:`, error);
+                alert('No se pudo añadir el comentario.');
             }
         }
     }
