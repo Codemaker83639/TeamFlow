@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Comment } from '../../comments/entities/comment.entity';
-import { TaskAttachment } from '../../tasks/entities/task-attachment.entity';
-import { UserRole } from './user.enums'; // <--- CAMBIO AQUÍ: Importamos desde el nuevo archivo
+import { TaskAttachment } from '../../attachments/entities/task-attachment.entity';
+import { UserRole } from './user.enums';
 
 @Entity('users')
 export class User {

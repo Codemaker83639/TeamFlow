@@ -7,7 +7,7 @@ import { User } from '../auth/entities/user.entity';
 import { Project } from '../projects/entities/project.entity';
 // --- 1. IMPORTAR LAS NUEVAS ENTIDADES ---
 import { Comment } from '../comments/entities/comment.entity';
-import { TaskAttachment } from './entities/task-attachment.entity';
+import { TaskAttachment } from '../attachments/entities/task-attachment.entity';
 
 @Module({
   // --- 2. AÑADIR LAS ENTIDADES AL ARRAY ---

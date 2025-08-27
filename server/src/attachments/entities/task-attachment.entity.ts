@@ -1,5 +1,6 @@
 import { User } from '../../auth/entities/user.entity';
-import { Task } from './task.entity';
+// --- CAMBIO EN LA SIGUIENTE LÍNEA ---
+import { Task } from '../../tasks/entities/task.entity';
 import {
     Column,
     CreateDateColumn,

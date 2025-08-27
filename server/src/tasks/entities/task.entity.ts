@@ -12,7 +12,7 @@ import { User } from '../../auth/entities/user.entity';
 import { TaskStatus, TaskPriority } from './task.enums';
 import { Project } from '../../projects/entities/project.entity';
 import { Comment } from '../../comments/entities/comment.entity';
-import { TaskAttachment } from './task-attachment.entity'; // <--- AÑADIR ESTA LÍNEA
+import { TaskAttachment } from '../../attachments/entities/task-attachment.entity';
 
 @Entity({ name: 'tasks' })
 export class Task {
