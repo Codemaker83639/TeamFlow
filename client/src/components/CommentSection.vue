@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="mt-4">
+    <div v-if="!isViewOnly" class="mt-4">
       <form @submit.prevent="handlePostComment">
         <textarea
           v-model="newComment"
@@ -54,6 +54,8 @@ import { es } from 'date-fns/locale';
 
 const props = defineProps<{
   taskId: string;
+  // Añadimos la prop para controlar la visibilidad del formulario
+  isViewOnly: boolean;
 }>();
 
 const taskStore = useTaskStore();
@@ -82,7 +84,7 @@ const handlePostComment = async () => {
 </script>
 
 <style scoped>
-/* Estilos para el scrollbar (puedes copiarlos de tu BoardsView.vue) */
+/* Estilos para el scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }

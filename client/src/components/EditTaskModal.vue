@@ -62,18 +62,27 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, type PropType } from 'vue'; // 1. Importar PropType
 import { useTaskStore } from '@/store/taskStore';
 import type { TeamMember } from '@/types/Project';
 import type { Task, TaskPriority } from '@/types/Task';
-// 4. IMPORTAMOS EL NUEVO COMPONENTE
 import CommentSection from './CommentSection.vue';
 
-const props = defineProps<{
-  taskToEdit: Task;
-  teamMembers: TeamMember[];
-  projectId: string;
-}>();
+// 2. Usar una forma más explícita para definir las props
+const props = defineProps({
+  taskToEdit: {
+    type: Object as PropType<Task>,
+    required: true
+  },
+  teamMembers: {
+    type: Array as PropType<TeamMember[]>,
+    required: true
+  },
+  projectId: {
+    type: String,
+    required: true
+  }
+});
 
 const emit = defineEmits(['close']);
 
@@ -96,7 +105,6 @@ onMounted(() => {
     form.due_date = props.taskToEdit.due_date ? new Date(props.taskToEdit.due_date).toISOString().split('T')[0] : '';
     form.estimated_hours = props.taskToEdit.estimated_hours || null;
 
-    // 5. LLAMAMOS A LA ACCIÓN PARA OBTENER LOS COMENTARIOS CUANDO EL MODAL SE MONTA
     taskStore.fetchCommentsForTask(props.taskToEdit.id);
 });
 

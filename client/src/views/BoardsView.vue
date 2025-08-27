@@ -64,7 +64,7 @@
             <template #item="{ element: task }">
                 <div 
                   :data-task-id="task.id" 
-                  class="group/task bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700 hover:border-accent cursor-pointer"
+                  class="group/task bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700 cursor-grab"
                 >
                   
                   <div class="flex justify-between items-start mb-4">
@@ -122,12 +122,28 @@
                         {{ task.priority.toUpperCase() }}
                       </span>
                       
-                      <button class="flex items-center space-x-1 text-xs text-gray-500 hover:text-accent transition-colors duration-200 p-1 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <span>Comentar</span>
-                      </button>
+                      <div class="flex items-center space-x-1">
+                        <button 
+                          @click="openDetailModal(task, false)" 
+                          class="flex items-center space-x-1 text-xs text-gray-500 hover:text-accent transition-colors duration-200 p-1 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700" 
+                          title="Añadir un comentario"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                          </svg>
+                          <span>Comentar</span>
+                        </button>
+                        <button 
+                          @click="openDetailModal(task, true)" 
+                          class="flex items-center space-x-1 text-xs text-gray-500 hover:text-accent transition-colors duration-200 p-1 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700" 
+                          title="Ver detalles y comentarios"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     
                     <div 
@@ -135,18 +151,11 @@
                       class="relative group/avatar"
                       :title="task.assigned_to.full_name"
                     >
-                      <div class="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold shadow-md ring-2 ring-white dark:ring-gray-800 transition-transform duration-200 group-hover/avatar:scale-110">
+                      <div class="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold shadow-md ring-2 ring-white dark:ring-gray-800">
                         {{ getInitials(task.assigned_to.full_name) }}
-                      </div>
-                      
-                      <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg px-2 py-1 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                        {{ task.assigned_to.full_name }}
-                        <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
                       </div>
                     </div>
                   </div>
-                  
-
                 </div>
               </template>
             </draggable>
@@ -179,6 +188,14 @@
       :task-to-edit="taskToEdit"
       @close="closeEditModal"
     />
+    
+    <TaskDetailModal
+      v-if="isDetailModalOpen && taskToView"
+      :task="taskToView"
+      :is-view-only="isViewOnlyMode"
+      @close="closeDetailModal"
+    />
+
   </MainLayout>
 </template>
 
@@ -188,6 +205,7 @@ import { useRoute } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateTaskModal from '@/components/CreateTaskModal.vue';
 import EditTaskModal from '@/components/EditTaskModal.vue';
+import TaskDetailModal from '@/components/TaskDetailModal.vue'; 
 import { useTaskStore } from '@/store/taskStore';
 import { useProjectStore } from '@/store/projectStore';
 import { useAuthStore } from '@/store/auth';
@@ -201,8 +219,14 @@ const projectStore = useProjectStore();
 const authStore = useAuthStore();
 
 const isCreateModalOpen = ref(false);
+
 const isEditModalOpen = ref(false);
 const taskToEdit = ref<Task | null>(null);
+
+const isDetailModalOpen = ref(false);
+const taskToView = ref<Task | null>(null);
+const isViewOnlyMode = ref(false);
+
 const openTaskMenuId = ref<string | null>(null);
 
 const toggleTaskMenu = (taskId: string) => {
@@ -218,6 +242,17 @@ const openEditTaskModal = (task: Task) => {
 const closeEditModal = () => {
   isEditModalOpen.value = false;
   taskToEdit.value = null;
+};
+
+const openDetailModal = (task: Task, isViewOnly: boolean) => {
+  taskToView.value = task;
+  isViewOnlyMode.value = isViewOnly;
+  isDetailModalOpen.value = true;
+};
+
+const closeDetailModal = () => {
+  isDetailModalOpen.value = false;
+  taskToView.value = null;
 };
 
 const deleteTask = (taskId: string) => {
@@ -294,7 +329,6 @@ onMounted(() => {
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
-
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-secondary, #7c3aed);
