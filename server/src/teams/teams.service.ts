@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Team } from './entities/team.entity';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { TeamMember } from './entities/team-member.entity';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { Project } from '../projects/entities/project.entity';
-// --- 1. IMPORTAR EL GATEWAY ---
 import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class TeamsService {
@@ -18,7 +18,8 @@ export class TeamsService {
         private readonly teamMembersRepository: Repository<TeamMember>,
         @InjectRepository(Project)
         private readonly projectsRepository: Repository<Project>,
-        // --- 2. INYECTAR EL GATEWAY ---
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
         private readonly notificationsGateway: NotificationsGateway,
     ) { }
 
@@ -36,12 +37,12 @@ export class TeamsService {
             });
             await this.teamMembersRepository.save(members);
 
-            // --- 3. LÓGICA DE NOTIFICACIÓN AL CREAR ---
-            for (const userId of memberIds) {
+            const usersToNotify = await this.userRepository.findBy({ id: In(memberIds) });
+            for (const user of usersToNotify) {
                 const payload = {
                     message: `Has sido añadido al equipo: "${newTeam.name}"`,
                 };
-                this.notificationsGateway.sendNotificationToUser(userId, payload);
+                this.notificationsGateway.sendNotificationToUser(user, payload);
             }
         }
         return newTeam;
@@ -63,7 +64,6 @@ export class TeamsService {
         const { memberIds, ...teamDataToUpdate } = updateTeamDto;
         const team = await this.findOne(id);
 
-        // Guardamos los IDs de los miembros actuales para compararlos después
         const oldMemberIds = new Set(team.members.map(m => m.user.id));
 
         Object.assign(team, teamDataToUpdate);
@@ -72,23 +72,22 @@ export class TeamsService {
         if (memberIds) {
             await this.teamMembersRepository.delete({ team: { id } });
 
-            const members = memberIds.map(userId =>
+            const newMembers = memberIds.map(userId =>
                 this.teamMembersRepository.create({
                     team: team,
                     user: { id: userId },
                 })
             );
-            await this.teamMembersRepository.save(members);
+            await this.teamMembersRepository.save(newMembers);
 
-            // --- 4. LÓGICA DE NOTIFICACIÓN AL ACTUALIZAR ---
-            for (const userId of memberIds) {
-                // Si el nuevo ID de miembro no estaba en la lista de antiguos...
-                if (!oldMemberIds.has(userId)) {
+            const newUsersToNotifyIds = memberIds.filter(id => !oldMemberIds.has(id));
+            if (newUsersToNotifyIds.length > 0) {
+                const newUsersToNotify = await this.userRepository.findBy({ id: In(newUsersToNotifyIds) });
+                for (const user of newUsersToNotify) {
                     const payload = {
                         message: `Has sido añadido al equipo: "${team.name}"`,
                     };
-                    // ...le enviamos una notificación.
-                    this.notificationsGateway.sendNotificationToUser(userId, payload);
+                    this.notificationsGateway.sendNotificationToUser(user, payload);
                 }
             }
         }

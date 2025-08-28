@@ -69,7 +69,7 @@ export class TasksService {
                 message: `${creator.full_name} te ha asignado una nueva tarea: "${savedTask.title}"`,
                 taskId: savedTask.id,
             };
-            this.notificationsGateway.sendNotificationToUser(savedTask.assigned_to.id, payload);
+            this.notificationsGateway.sendNotificationToUser(savedTask.assigned_to, payload);
         }
         // --- FIN DE LA LÓGICA ---
 
@@ -118,7 +118,7 @@ export class TasksService {
                 message: `Se te ha asignado la tarea: "${updatedTask.title}"`,
                 taskId: updatedTask.id,
             };
-            this.notificationsGateway.sendNotificationToUser(newAssignedToId, payload);
+            this.notificationsGateway.sendNotificationToUser(updatedTask.assigned_to, payload);
         }
         // --- FIN DE LA LÓGICA ---
 

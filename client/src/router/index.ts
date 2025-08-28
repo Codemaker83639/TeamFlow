@@ -7,6 +7,8 @@ import BoardsView from '../views/BoardsView.vue'
 import TeamsView from '../views/TeamsView.vue'
 import ReportsView from '../views/ReportsView.vue'
 import SettingsView from '../views/SettingsView.vue'
+// --- 1. IMPORTAMOS NUESTRA NUEVA VISTA DE NOTIFICACIONES ---
+import NotificationsView from '../views/NotificationsView.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,7 +20,13 @@ const router = createRouter({
         { path: '/projects/:projectId/boards', name: 'board', component: BoardsView },
         { path: '/teams', name: 'teams', component: TeamsView },
         { path: '/reports', name: 'reports', component: ReportsView },
-        { path: '/settings', name: 'settings', component: SettingsView }
+        { path: '/settings', name: 'settings', component: SettingsView },
+        // --- 2. AÑADIMOS LA NUEVA RUTA AQUÍ ---
+        {
+            path: '/notifications',
+            name: 'notifications',
+            component: NotificationsView
+        }
     ]
 })
 

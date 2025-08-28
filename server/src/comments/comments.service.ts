@@ -6,7 +6,6 @@ import { User } from '../auth/entities/user.entity';
 import { Task } from '../tasks/entities/task.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-// --- 1. IMPORTAMOS NUESTRO GATEWAY ---
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
@@ -18,7 +17,6 @@ export class CommentsService {
     private readonly taskRepository: Repository<Task>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    // --- 2. INYECTAMOS EL GATEWAY ---
     private readonly notificationsGateway: NotificationsGateway,
   ) { }
 
@@ -28,10 +26,9 @@ export class CommentsService {
     taskId: string,
   ): Promise<Comment> {
     const user = await this.userRepository.findOneBy({ id: userId });
-    // --- 3. Cargamos la tarea con la relación 'assigned_to' para saber a quién notificar ---
     const task = await this.taskRepository.findOne({
       where: { id: taskId },
-      relations: ['assigned_to'],
+      relations: ['assigned_to'], // Cargamos la relación completa del usuario asignado
     });
 
     if (!user || !task) {
@@ -46,25 +43,23 @@ export class CommentsService {
 
     const savedComment = await this.commentRepository.save(newComment);
 
-    // --- 4. LÓGICA DE NOTIFICACIÓN ---
-    // Si la tarea tiene un usuario asignado Y no es el mismo usuario que está comentando...
+    // --- CORRECCIÓN AQUÍ ---
     if (task.assigned_to && task.assigned_to.id !== user.id) {
       const notificationPayload = {
         message: `${user.full_name} ha comentado en tu tarea: "${task.title}"`,
         taskId: task.id,
       };
-      // ...le enviamos una notificación.
+      // Le pasamos el objeto de usuario completo (task.assigned_to)
       this.notificationsGateway.sendNotificationToUser(
-        task.assigned_to.id,
+        task.assigned_to,
         notificationPayload,
       );
     }
-    // --- FIN DE LA LÓGICA ---
+    // --- FIN DE LA CORRECCIÓN ---
 
     return savedComment;
   }
 
-  // ... (El resto del servicio no cambia)
   async findAllByTaskId(taskId: string): Promise<Comment[]> {
     return this.commentRepository.find({
       where: { task: { id: taskId } },

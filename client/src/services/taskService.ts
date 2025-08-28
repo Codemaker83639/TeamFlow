@@ -1,23 +1,8 @@
-import axios, { type AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import apiClient from '@/services/apiClient'; // <-- AHORA LO IMPORTAMOS
 import type { Task, TaskStatus, TaskPriority, Comment, TaskAttachment } from '@/types/Task';
 
-const apiClient = axios.create({
-    baseURL: 'http://localhost:3000',
-    headers: { 'Content-Type': 'application/json' }
-});
-
-apiClient.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+// Ya no necesitamos definir apiClient aquí
 
 export interface CreateTaskPayload {
     title: string;
@@ -77,7 +62,6 @@ export default {
         const formData = new FormData();
         formData.append('file', file);
 
-        // --- CORRECCIÓN FINAL EN LA URL DE LA SIGUIENTE LÍNEA ---
         return apiClient.post(`/tasks/${taskId}/attachments/upload`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',

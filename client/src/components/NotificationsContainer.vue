@@ -3,7 +3,7 @@
     <div class="relative space-y-3">
       <TransitionGroup name="list" tag="div">
         <div 
-          v-for="notification in notificationStore.notifications" 
+          v-for="notification in notificationStore.toastNotifications" 
           :key="notification.id"
           class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-4 flex items-start space-x-3 border-l-4"
           :class="notificationTypeClass(notification.type)"
@@ -33,6 +33,7 @@ import { useNotificationStore, type Notification } from '@/store/notificationSto
 const notificationStore = useNotificationStore();
 
 const close = (id: number) => {
+  // Esta acción ahora solo afecta a los toasts, lo cual es correcto.
   notificationStore.removeNotification(id);
 };
 
@@ -58,8 +59,8 @@ const notificationIconColor = (type: Notification['type']) => {
 </script>
 
 <style scoped>
-/* Transiciones para que las notificaciones aparezcan y desaparezcan suavemente */
-.list-move, /* aplicar transiciones al mover elementos */
+/* Transiciones */
+.list-move,
 .list-enter-active,
 .list-leave-active {
   transition: all 0.5s ease;
@@ -71,7 +72,6 @@ const notificationIconColor = (type: Notification['type']) => {
   transform: translateX(30px);
 }
 
-/* asegurar que los elementos que salen ocupen espacio para que la animación de movimiento funcione */
 .list-leave-active {
   position: absolute;
 }

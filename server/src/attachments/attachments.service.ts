@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { TaskAttachment } from './entities/task-attachment.entity';
 import { User } from '../auth/entities/user.entity';
 import { Task } from '../tasks/entities/task.entity';
-// --- 1. IMPORTAMOS NUESTRO GATEWAY ---
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
@@ -16,7 +15,6 @@ export class AttachmentsService {
     private readonly taskRepository: Repository<Task>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    // --- 2. INYECTAMOS EL GATEWAY ---
     private readonly notificationsGateway: NotificationsGateway,
   ) { }
 
@@ -30,10 +28,9 @@ export class AttachmentsService {
     }
 
     const user = await this.userRepository.findOneBy({ id: userId });
-    // --- 3. Cargamos la tarea con la relación 'assigned_to' ---
     const task = await this.taskRepository.findOne({
       where: { id: taskId },
-      relations: ['assigned_to'],
+      relations: ['assigned_to'], // Cargamos la relación completa
     });
 
     if (!task || !user) {
@@ -53,23 +50,23 @@ export class AttachmentsService {
 
     const savedAttachment = await this.attachmentRepository.save(newAttachment);
 
-    // --- 4. LÓGICA DE NOTIFICACIÓN ---
+    // --- CORRECCIÓN AQUÍ ---
     if (task.assigned_to && task.assigned_to.id !== user.id) {
       const notificationPayload = {
         message: `${user.full_name} ha añadido un archivo a tu tarea: "${task.title}"`,
         taskId: task.id,
       };
+      // Le pasamos el objeto de usuario completo (task.assigned_to)
       this.notificationsGateway.sendNotificationToUser(
-        task.assigned_to.id,
+        task.assigned_to,
         notificationPayload,
       );
     }
-    // --- FIN DE LA LÓGICA ---
+    // --- FIN DE LA CORRECCIÓN ---
 
     return savedAttachment;
   }
 
-  // ... (El resto del servicio no cambia)
   async findAllByTask(taskId: string): Promise<TaskAttachment[]> {
     return this.attachmentRepository.find({
       where: { task: { id: taskId } },

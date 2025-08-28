@@ -5,7 +5,6 @@ import { Project, ProjectStatus } from './entities/project.entity';
 import { Team } from '../teams/entities/team.entity';
 import { User } from '../auth/entities/user.entity';
 import { TaskStatus } from '../tasks/entities/task.enums';
-// --- 1. IMPORTAR EL GATEWAY ---
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 export class CreateProjectDto {
@@ -30,13 +29,11 @@ export class ProjectsService {
         private readonly projectRepository: Repository<Project>,
         @InjectRepository(Team)
         private readonly teamRepository: Repository<Team>,
-        // --- 2. INYECTAR EL GATEWAY ---
         private readonly notificationsGateway: NotificationsGateway,
     ) { }
 
     async create(createProjectDto: CreateProjectDto, user: User): Promise<Project> {
         const { team_id, name, description } = createProjectDto;
-        // Cargamos el equipo con sus miembros para poder notificarlos
         const team = await this.teamRepository.findOne({ where: { id: team_id }, relations: ['members', 'members.user'] });
         if (!team) {
             throw new NotFoundException(`Team with ID "${team_id}" not found`);
@@ -49,20 +46,19 @@ export class ProjectsService {
         });
         const savedProject = await this.projectRepository.save(newProject);
 
-        // --- 3. LÓGICA DE NOTIFICACIÓN AL CREAR ---
         for (const member of team.members) {
-            const payload = {
-                message: `Tu equipo "${team.name}" ha sido asignado al nuevo proyecto: "${savedProject.name}"`,
-            };
-            this.notificationsGateway.sendNotificationToUser(member.user.id, payload);
+            if (member.user) { // Asegurarse que el usuario existe
+                const payload = {
+                    message: `Tu equipo "${team.name}" ha sido asignado al nuevo proyecto: "${savedProject.name}"`,
+                };
+                this.notificationsGateway.sendNotificationToUser(member.user, payload);
+            }
         }
-        // --- FIN DE LA LÓGICA ---
 
         return savedProject;
     }
 
     async findAll(): Promise<Project[]> {
-        // (Sin cambios en este método)
         const projects = await this.projectRepository.find({
             relations: {
                 team: { members: { user: true } },
@@ -82,7 +78,6 @@ export class ProjectsService {
     }
 
     async findOne(id: string): Promise<Project> {
-        // (Sin cambios en este método)
         const project = await this.projectRepository.findOne({
             where: { id },
             relations: {
@@ -114,14 +109,14 @@ export class ProjectsService {
             }
             projectToUpdate.team = newTeam;
 
-            // --- 4. LÓGICA DE NOTIFICACIÓN AL ACTUALIZAR EQUIPO ---
             for (const member of newTeam.members) {
-                const payload = {
-                    message: `Tu equipo "${newTeam.name}" ha sido reasignado al proyecto: "${projectToUpdate.name}"`,
-                };
-                this.notificationsGateway.sendNotificationToUser(member.user.id, payload);
+                if (member.user) {
+                    const payload = {
+                        message: `Tu equipo "${newTeam.name}" ha sido reasignado al proyecto: "${projectToUpdate.name}"`,
+                    };
+                    this.notificationsGateway.sendNotificationToUser(member.user, payload);
+                }
             }
-            // --- FIN DE LA LÓGICA ---
         }
 
         Object.assign(projectToUpdate, updateProjectDto);
@@ -133,7 +128,6 @@ export class ProjectsService {
     }
 
     async remove(id: string): Promise<void> {
-        // (Sin cambios en este método)
         const result = await this.projectRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Project with ID "${id}" not found`);
