@@ -6,6 +6,8 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { TeamMember } from './entities/team-member.entity';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { Project } from '../projects/entities/project.entity';
+// --- 1. IMPORTAR EL GATEWAY ---
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class TeamsService {
@@ -16,6 +18,8 @@ export class TeamsService {
         private readonly teamMembersRepository: Repository<TeamMember>,
         @InjectRepository(Project)
         private readonly projectsRepository: Repository<Project>,
+        // --- 2. INYECTAR EL GATEWAY ---
+        private readonly notificationsGateway: NotificationsGateway,
     ) { }
 
     async create(createTeamDto: CreateTeamDto): Promise<Team> {
@@ -31,42 +35,43 @@ export class TeamsService {
                 });
             });
             await this.teamMembersRepository.save(members);
+
+            // --- 3. LÓGICA DE NOTIFICACIÓN AL CREAR ---
+            for (const userId of memberIds) {
+                const payload = {
+                    message: `Has sido añadido al equipo: "${newTeam.name}"`,
+                };
+                this.notificationsGateway.sendNotificationToUser(userId, payload);
+            }
         }
         return newTeam;
     }
 
     async findAll(): Promise<Team[]> {
-        return this.teamsRepository.find();
+        return this.teamsRepository.find({ relations: ['members', 'members.user'] });
     }
 
     async findOne(id: string): Promise<Team> {
-        const team = await this.teamsRepository.findOneBy({ id });
+        const team = await this.teamsRepository.findOne({ where: { id }, relations: ['members', 'members.user'] });
         if (!team) {
             throw new NotFoundException(`Equipo con ID "${id}" no encontrado.`);
         }
         return team;
     }
 
-    // --- MÉTODO 'UPDATE' REESCRITO PARA MAYOR ROBUSTEZ ---
     async update(id: string, updateTeamDto: UpdateTeamDto): Promise<Team> {
         const { memberIds, ...teamDataToUpdate } = updateTeamDto;
-
-        // 1. Buscamos el equipo para asegurarnos de que existe.
         const team = await this.findOne(id);
 
-        // 2. Actualizamos las propiedades del equipo con los nuevos datos.
-        //    Object.assign fusiona los datos del DTO en la entidad encontrada.
-        Object.assign(team, teamDataToUpdate);
+        // Guardamos los IDs de los miembros actuales para compararlos después
+        const oldMemberIds = new Set(team.members.map(m => m.user.id));
 
-        // 3. Guardamos los cambios básicos del equipo (nombre, descripción).
+        Object.assign(team, teamDataToUpdate);
         await this.teamsRepository.save(team);
 
-        // 4. Si se envió una nueva lista de miembros, la sincronizamos.
         if (memberIds) {
-            // Eliminamos las membresías anteriores
             await this.teamMembersRepository.delete({ team: { id } });
 
-            // Creamos las nuevas membresías
             const members = memberIds.map(userId =>
                 this.teamMembersRepository.create({
                     team: team,
@@ -74,9 +79,20 @@ export class TeamsService {
                 })
             );
             await this.teamMembersRepository.save(members);
+
+            // --- 4. LÓGICA DE NOTIFICACIÓN AL ACTUALIZAR ---
+            for (const userId of memberIds) {
+                // Si el nuevo ID de miembro no estaba en la lista de antiguos...
+                if (!oldMemberIds.has(userId)) {
+                    const payload = {
+                        message: `Has sido añadido al equipo: "${team.name}"`,
+                    };
+                    // ...le enviamos una notificación.
+                    this.notificationsGateway.sendNotificationToUser(userId, payload);
+                }
+            }
         }
 
-        // 5. Devolvemos el equipo actualizado con todas sus relaciones.
         return this.findOne(id);
     }
 

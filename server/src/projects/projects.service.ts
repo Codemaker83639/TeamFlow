@@ -5,6 +5,8 @@ import { Project, ProjectStatus } from './entities/project.entity';
 import { Team } from '../teams/entities/team.entity';
 import { User } from '../auth/entities/user.entity';
 import { TaskStatus } from '../tasks/entities/task.enums';
+// --- 1. IMPORTAR EL GATEWAY ---
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 export class CreateProjectDto {
     name: string;
@@ -28,11 +30,14 @@ export class ProjectsService {
         private readonly projectRepository: Repository<Project>,
         @InjectRepository(Team)
         private readonly teamRepository: Repository<Team>,
+        // --- 2. INYECTAR EL GATEWAY ---
+        private readonly notificationsGateway: NotificationsGateway,
     ) { }
 
     async create(createProjectDto: CreateProjectDto, user: User): Promise<Project> {
         const { team_id, name, description } = createProjectDto;
-        const team = await this.teamRepository.findOneBy({ id: team_id });
+        // Cargamos el equipo con sus miembros para poder notificarlos
+        const team = await this.teamRepository.findOne({ where: { id: team_id }, relations: ['members', 'members.user'] });
         if (!team) {
             throw new NotFoundException(`Team with ID "${team_id}" not found`);
         }
@@ -42,10 +47,22 @@ export class ProjectsService {
             team,
             start_date: new Date(),
         });
-        return this.projectRepository.save(newProject);
+        const savedProject = await this.projectRepository.save(newProject);
+
+        // --- 3. LÓGICA DE NOTIFICACIÓN AL CREAR ---
+        for (const member of team.members) {
+            const payload = {
+                message: `Tu equipo "${team.name}" ha sido asignado al nuevo proyecto: "${savedProject.name}"`,
+            };
+            this.notificationsGateway.sendNotificationToUser(member.user.id, payload);
+        }
+        // --- FIN DE LA LÓGICA ---
+
+        return savedProject;
     }
 
     async findAll(): Promise<Project[]> {
+        // (Sin cambios en este método)
         const projects = await this.projectRepository.find({
             relations: {
                 team: { members: { user: true } },
@@ -65,6 +82,7 @@ export class ProjectsService {
     }
 
     async findOne(id: string): Promise<Project> {
+        // (Sin cambios en este método)
         const project = await this.projectRepository.findOne({
             where: { id },
             relations: {
@@ -77,38 +95,45 @@ export class ProjectsService {
         return project;
     }
 
-    // --- MÉTODO UPDATE CORREGIDO ---
     async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
-        const projectToUpdate = await this.projectRepository.findOneBy({ id });
+        const projectToUpdate = await this.projectRepository.findOne({ where: { id }, relations: ['team'] });
         if (!projectToUpdate) {
             throw new NotFoundException(`Project with ID "${id}" not found`);
         }
 
-        // Si se está cambiando el estado a 'completado', establece la fecha de fin.
+        const oldTeamId = projectToUpdate.team?.id;
+
         if (updateProjectDto.status === ProjectStatus.COMPLETED && projectToUpdate.status !== ProjectStatus.COMPLETED) {
             updateProjectDto.end_date = new Date();
         }
 
-        // Si se está cambiando el equipo, busca el nuevo equipo y asígnalo.
-        if (updateProjectDto.team_id) {
-            const newTeam = await this.teamRepository.findOneBy({ id: updateProjectDto.team_id });
+        if (updateProjectDto.team_id && updateProjectDto.team_id !== oldTeamId) {
+            const newTeam = await this.teamRepository.findOne({ where: { id: updateProjectDto.team_id }, relations: ['members', 'members.user'] });
             if (!newTeam) {
                 throw new NotFoundException(`Team with ID "${updateProjectDto.team_id}" not found`);
             }
             projectToUpdate.team = newTeam;
+
+            // --- 4. LÓGICA DE NOTIFICACIÓN AL ACTUALIZAR EQUIPO ---
+            for (const member of newTeam.members) {
+                const payload = {
+                    message: `Tu equipo "${newTeam.name}" ha sido reasignado al proyecto: "${projectToUpdate.name}"`,
+                };
+                this.notificationsGateway.sendNotificationToUser(member.user.id, payload);
+            }
+            // --- FIN DE LA LÓGICA ---
         }
 
-        // Mezcla todos los cambios del DTO en la entidad encontrada
         Object.assign(projectToUpdate, updateProjectDto);
         await this.projectRepository.save(projectToUpdate);
 
-        // Volvemos a buscar el proyecto para devolverlo con todas sus relaciones y el progreso recalculado
         const fullProject = await this.findOne(id);
         const projectsWithProgress = (await this.findAll()).find(p => p.id === fullProject.id);
         return projectsWithProgress as Project;
     }
 
     async remove(id: string): Promise<void> {
+        // (Sin cambios en este método)
         const result = await this.projectRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Project with ID "${id}" not found`);
