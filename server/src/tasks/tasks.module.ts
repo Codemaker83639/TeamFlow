@@ -5,13 +5,17 @@ import { TasksController } from './tasks.controller';
 import { Task } from './entities/task.entity';
 import { User } from '../auth/entities/user.entity';
 import { Project } from '../projects/entities/project.entity';
-// --- 1. IMPORTAR LAS NUEVAS ENTIDADES ---
 import { Comment } from '../comments/entities/comment.entity';
 import { TaskAttachment } from '../attachments/entities/task-attachment.entity';
+// --- 1. IMPORTAMOS EL MÓDULO DE NOTIFICACIONES ---
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  // --- 2. AÑADIR LAS ENTIDADES AL ARRAY ---
-  imports: [TypeOrmModule.forFeature([Task, User, Project, Comment, TaskAttachment])],
+  // --- 2. AÑADIMOS NotificationsModule A LA LISTA DE IMPORTS ---
+  imports: [
+    TypeOrmModule.forFeature([Task, User, Project, Comment, TaskAttachment]),
+    NotificationsModule,
+  ],
   controllers: [TasksController],
   providers: [TasksService],
 })

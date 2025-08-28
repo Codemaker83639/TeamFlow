@@ -5,7 +5,9 @@ import { Task } from './entities/task.entity';
 import { User } from '../auth/entities/user.entity';
 import { Project } from '../projects/entities/project.entity';
 import { TaskStatus, TaskPriority } from './entities/task.enums';
+import { NotificationsGateway } from '../notifications/notifications.gateway'; // <-- 1. IMPORTAR
 
+// DTOs (se mantienen igual)
 export class CreateTaskDto {
     title: string;
     project_id: string;
@@ -16,7 +18,6 @@ export class CreateTaskDto {
     assigned_to_id?: string;
 }
 
-// DTO de actualización debe incluir el assigned_to_id
 export class UpdateTaskDto {
     title?: string;
     description?: string;
@@ -36,6 +37,7 @@ export class TasksService {
         private readonly userRepository: Repository<User>,
         @InjectRepository(Project)
         private readonly projectRepository: Repository<Project>,
+        private readonly notificationsGateway: NotificationsGateway, // <-- 2. INYECTAR
     ) { }
 
     async create(createTaskDto: CreateTaskDto, creator: User): Promise<Task> {
@@ -58,7 +60,20 @@ export class TasksService {
             assigned_to: assignedUser,
             status: TaskStatus.BACKLOG,
         });
-        return this.taskRepository.save(newTask);
+
+        const savedTask = await this.taskRepository.save(newTask);
+
+        // --- 3. LÓGICA DE NOTIFICACIÓN AL CREAR ---
+        if (savedTask.assigned_to && savedTask.assigned_to.id !== creator.id) {
+            const payload = {
+                message: `${creator.full_name} te ha asignado una nueva tarea: "${savedTask.title}"`,
+                taskId: savedTask.id,
+            };
+            this.notificationsGateway.sendNotificationToUser(savedTask.assigned_to.id, payload);
+        }
+        // --- FIN DE LA LÓGICA ---
+
+        return savedTask;
     }
 
     async findAllByProject(projectId: string): Promise<Task[]> {
@@ -68,35 +83,46 @@ export class TasksService {
         });
     }
 
-    // --- MÉTODO UPDATE 100% CORREGIDO ---
     async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
-        // Usamos findOne para cargar la relación 'assigned_to' existente
         const task = await this.taskRepository.findOne({ where: { id }, relations: ['assigned_to'] });
         if (!task) {
             throw new NotFoundException(`Task with ID "${id}" not found`);
         }
 
-        // Extraemos el assigned_to_id del resto de los datos a actualizar
+        // Guardamos el ID del usuario asignado ANTES de cualquier cambio
+        const oldAssignedToId = task.assigned_to?.id;
+
         const { assigned_to_id, ...taskData } = updateTaskDto;
 
-        // Si se proporcionó un assigned_to_id en la petición...
         if (assigned_to_id !== undefined) {
             if (assigned_to_id === null || assigned_to_id === '') {
-                task.assigned_to = null; // Si es nulo o vacío, desasignamos el usuario
+                task.assigned_to = null;
             } else {
                 const assignedUser = await this.userRepository.findOneBy({ id: assigned_to_id });
                 if (!assignedUser) {
                     throw new NotFoundException(`User with ID "${assigned_to_id}" not found to assign.`);
                 }
-                task.assigned_to = assignedUser; // Asignamos la nueva entidad de usuario
+                task.assigned_to = assignedUser;
             }
         }
 
-        // Aplicamos el resto de los cambios (título, descripción, etc.)
         Object.assign(task, taskData);
 
-        // Guardamos la entidad 'task' completa con la nueva relación de usuario
-        return this.taskRepository.save(task);
+        const updatedTask = await this.taskRepository.save(task);
+
+        // --- 4. LÓGICA DE NOTIFICACIÓN AL ACTUALIZAR ---
+        const newAssignedToId = updatedTask.assigned_to?.id;
+        // Si hay un nuevo asignado Y es diferente al anterior...
+        if (newAssignedToId && newAssignedToId !== oldAssignedToId) {
+            const payload = {
+                message: `Se te ha asignado la tarea: "${updatedTask.title}"`,
+                taskId: updatedTask.id,
+            };
+            this.notificationsGateway.sendNotificationToUser(newAssignedToId, payload);
+        }
+        // --- FIN DE LA LÓGICA ---
+
+        return updatedTask;
     }
 
     async remove(id: string): Promise<void> {
