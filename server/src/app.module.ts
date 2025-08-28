@@ -8,6 +8,8 @@ import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
+// --- 1. IMPORTAMOS NUESTRO NUEVO MÓDULO ---
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -35,8 +37,11 @@ import { AttachmentsModule } from './attachments/attachments.module';
     TasksModule,
     CommentsModule,
     AttachmentsModule,
+    // --- 2. AÑADIMOS EL MÓDULO A LA LISTA DE IMPORTS ---
+    NotificationsModule,
   ],
   controllers: [],
+  // --- 3. LIMPIAMOS EL ARRAY DE PROVIDERS ---
   providers: [],
 })
 export class AppModule { }
