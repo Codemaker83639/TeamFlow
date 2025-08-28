@@ -1,24 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { User } from '../auth/entities/user.entity';
 import { Task } from '../tasks/entities/task.entity';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
+// --- 1. IMPORTAMOS NUESTRO GATEWAY ---
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class CommentsService {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
-
-    // Inyectamos los repositorios de Task y User para verificar que existan
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
-
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    // --- 2. INYECTAMOS EL GATEWAY ---
+    private readonly notificationsGateway: NotificationsGateway,
   ) { }
 
   async create(
@@ -26,9 +27,12 @@ export class CommentsService {
     userId: string,
     taskId: string,
   ): Promise<Comment> {
-    // Verificamos que la tarea y el usuario existan
     const user = await this.userRepository.findOneBy({ id: userId });
-    const task = await this.taskRepository.findOneBy({ id: taskId });
+    // --- 3. Cargamos la tarea con la relación 'assigned_to' para saber a quién notificar ---
+    const task = await this.taskRepository.findOne({
+      where: { id: taskId },
+      relations: ['assigned_to'],
+    });
 
     if (!user || !task) {
       throw new NotFoundException('User or Task not found');
@@ -36,14 +40,31 @@ export class CommentsService {
 
     const newComment = this.commentRepository.create({
       content: createCommentDto.content,
-      user, // Asociamos la entidad completa
-      task, // Asociamos la entidad completa
+      user,
+      task,
     });
 
-    return this.commentRepository.save(newComment);
+    const savedComment = await this.commentRepository.save(newComment);
+
+    // --- 4. LÓGICA DE NOTIFICACIÓN ---
+    // Si la tarea tiene un usuario asignado Y no es el mismo usuario que está comentando...
+    if (task.assigned_to && task.assigned_to.id !== user.id) {
+      const notificationPayload = {
+        message: `${user.full_name} ha comentado en tu tarea: "${task.title}"`,
+        taskId: task.id,
+      };
+      // ...le enviamos una notificación.
+      this.notificationsGateway.sendNotificationToUser(
+        task.assigned_to.id,
+        notificationPayload,
+      );
+    }
+    // --- FIN DE LA LÓGICA ---
+
+    return savedComment;
   }
 
-  // ... (El resto de los métodos: findAllByTaskId, update, remove, findOne no cambian)
+  // ... (El resto del servicio no cambia)
   async findAllByTaskId(taskId: string): Promise<Comment[]> {
     return this.commentRepository.find({
       where: { task: { id: taskId } },

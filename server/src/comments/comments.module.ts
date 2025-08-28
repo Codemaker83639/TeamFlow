@@ -3,11 +3,14 @@ import { CommentsService } from './comments.service';
 import { CommentsController } from './comments.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Comment } from './entities/comment.entity';
-import { Task } from '../tasks/entities/task.entity'; // <-- AÑADIR
-import { User } from '../auth/entities/user.entity'; // <-- AÑADIR
+import { Task } from '../tasks/entities/task.entity';
+import { User } from '../auth/entities/user.entity';
+// --- 1. IMPORTAMOS EL MÓDULO DE NOTIFICACIONES ---
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Task, User])], // <-- AÑADIR Task y User aquí
+  // --- 2. AÑADIMOS NotificationsModule A LA LISTA DE IMPORTS ---
+  imports: [TypeOrmModule.forFeature([Comment, Task, User]), NotificationsModule],
   controllers: [CommentsController],
   providers: [CommentsService],
 })

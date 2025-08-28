@@ -2,7 +2,6 @@
   <div class="flex h-screen bg-light dark:bg-dark-purple">
     
     <aside class="w-64 bg-primary dark:bg-gray-900 text-light flex flex-col">
-      <!-- Header con logo -->
       <div class="px-8 py-6">
         <div class="flex items-center space-x-3">
           <img src="/src/assets/logo-teamflow.png" alt="TeamFlow Logo" class="w-8 h-8" />
@@ -10,7 +9,6 @@
         </div>
       </div>
       
-      <!-- Navigation -->
       <nav class="flex-1 px-6">
         <ul>
           <li class="mb-2">
@@ -96,45 +94,53 @@
       </nav>
     </aside>
 
-    <!-- Contenido principal -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <slot>
         <router-view />
       </slot>
     </div>
+
+    <NotificationsContainer />
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { RouterLink, RouterView, useRoute } from 'vue-router';
+import { socketService } from '@/services/socketService';
+import { useAuthStore } from '@/store/auth';
+import NotificationsContainer from '@/components/NotificationsContainer.vue';
 
-// Mantiene el ID del último proyecto visitado
 const lastVisitedProjectId = ref<string | null>(null);
 const route = useRoute();
+const authStore = useAuthStore();
 
-// Genera el enlace para el botón "Tableros"
 const boardLink = computed(() => {
-  // Si tenemos un ID guardado, crea el enlace. Si no, devuelve un objeto vacío para deshabilitarlo.
   return lastVisitedProjectId.value 
     ? { name: 'board', params: { projectId: lastVisitedProjectId.value } }
     : {};
 });
 
-// Cuando el componente se monta por primera vez, intentamos leer el ID del localStorage
 onMounted(() => {
   lastVisitedProjectId.value = localStorage.getItem('lastVisitedProjectId');
+  
+  if (authStore.isAuthenticated) {
+    socketService.connect();
+  }
 });
 
-// Observamos la ruta. Si navegamos a un tablero nuevo (o a cualquier ruta con projectId),
-// actualizamos y guardamos el ID.
+onUnmounted(() => {
+  socketService.disconnect();
+});
+
 watch(() => route.params, (newParams) => {
     if (newParams.projectId) {
         const newProjectId = newParams.projectId as string;
         lastVisitedProjectId.value = newProjectId;
         localStorage.setItem('lastVisitedProjectId', newProjectId);
     }
-}, { immediate: true }); // 'immediate: true' corre el watch al cargar el componente
+}, { immediate: true });
 </script>
 
 <style scoped>
