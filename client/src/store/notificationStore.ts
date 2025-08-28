@@ -1,21 +1,19 @@
 import { defineStore } from 'pinia';
 import notificationService from '@/services/notificationService';
 
-// La interfaz Notification ahora necesita reflejar los datos del backend
 export interface Notification {
     id: number;
     message: string;
     is_read: boolean;
     created_at: string;
-    // Hacemos 'type' opcional para el historial, ya que viene del WebSocket sin él
     type?: 'info' | 'success' | 'warning' | 'error';
 }
 
 interface NotificationStoreState {
-    toastNotifications: Notification[]; // Para las notificaciones emergentes
-    notificationHistory: Notification[]; // Para el historial del dashboard
+    toastNotifications: Notification[];
+    notificationHistory: Notification[];
     isLoadingHistory: boolean;
-    nextId: number;
+    nextToastId: number; // Renombramos para mayor claridad
 }
 
 export const useNotificationStore = defineStore('notificationStore', {
@@ -23,27 +21,27 @@ export const useNotificationStore = defineStore('notificationStore', {
         toastNotifications: [],
         notificationHistory: [],
         isLoadingHistory: false,
-        nextId: 1,
+        nextToastId: 1,
     }),
 
     actions: {
-        // Esta acción es para los TOASTS (notificaciones emergentes)
-        addNotification(notification: { message: string, type: 'info' | 'success' | 'warning' | 'error' }) {
-            const newNotification: Notification = {
-                id: this.nextId++,
+        // Esta acción AÑADE un toast a la pantalla
+        addToastNotification(notification: { message: string, type: 'info' | 'success' | 'warning' | 'error' }) {
+            const newToast: Notification = {
+                id: this.nextToastId++, // Usa su propio ID, ya que no viene de la BD
                 is_read: false,
                 created_at: new Date().toISOString(),
                 ...notification,
             };
-            this.toastNotifications.push(newNotification);
+            this.toastNotifications.push(newToast);
         },
 
-        // Esta acción elimina un TOAST de la pantalla (cuando el usuario hace clic en la 'X')
-        removeNotification(id: number) {
+        // Esta acción ELIMINA un toast de la pantalla
+        removeToastNotification(id: number) {
             this.toastNotifications = this.toastNotifications.filter(n => n.id !== id);
         },
 
-        // Esta acción obtiene el historial para el dashboard
+        // Esta acción OBTIENE el historial desde la API
         async fetchNotificationHistory() {
             this.isLoadingHistory = true;
             try {
@@ -56,21 +54,32 @@ export const useNotificationStore = defineStore('notificationStore', {
                 this.isLoadingHistory = false;
             }
         },
+
+        // --- ¡NUEVA ACCIÓN CLAVE! ---
+        // Esta acción maneja una notificación que llega en tiempo real
+        handleIncomingNotification(notificationFromServer: { message: string }) {
+            // 1. La mostramos como un "toast" emergente
+            this.addToastNotification({
+                message: notificationFromServer.message,
+                type: 'info',
+            });
+
+            // 2. La añadimos al principio del historial del dashboard
+            // Creamos un objeto temporal hasta que recarguemos la página
+            const newHistoryItem: Notification = {
+                id: Date.now(), // ID temporal para el v-for
+                message: notificationFromServer.message,
+                is_read: false,
+                created_at: new Date().toISOString(),
+            };
+            this.notificationHistory.unshift(newHistoryItem);
+        },
     },
 
-    // --- 👇 NUEVA SECCIÓN DE GETTERS 👇 ---
     getters: {
-        /**
-         * Devuelve las 3 notificaciones más recientes del historial.
-         * El historial ya viene ordenado del más reciente al más antiguo desde el backend.
-         */
         recentNotifications(state): Notification[] {
             return state.notificationHistory.slice(0, 3);
         },
-
-        /**
-         * Devuelve el número total de notificaciones en el historial.
-         */
         hasMoreNotifications(state): boolean {
             return state.notificationHistory.length > 3;
         }

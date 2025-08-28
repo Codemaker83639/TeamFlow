@@ -3,7 +3,10 @@
     <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow">
       <div>
         <h2 class="text-2xl font-bold text-dark-purple dark:text-light">¡Hola, {{ authStore.user?.full_name }}! 👋</h2>
-        <p class="text-accent dark:text-gray-400">Tienes 3 proyectos activos y 12 tareas pendientes</p>
+        <p v-if="!dashboardStore.isLoading" class="text-accent dark:text-gray-400">
+          Tienes {{ dashboardStore.stats?.activeProjects || 0 }} proyectos activos y {{ dashboardStore.stats?.completedTasks || 0 }} tareas completadas.
+        </p>
+        <p v-else class="text-accent dark:text-gray-400">Cargando tus estadísticas...</p>
       </div>
       <UserProfile />
     </header>
@@ -11,21 +14,25 @@
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-light dark:bg-dark-purple p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <p class="text-sm text-accent dark:text-gray-400">PROYECTOS ACTIVOS</p>
-            <p class="text-3xl font-bold text-dark-purple dark:text-light">3</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <p class="text-sm text-accent dark:text-gray-400">TAREAS COMPLETADAS</p>
-            <p class="text-3xl font-bold text-dark-purple dark:text-light">47</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <p class="text-sm text-accent dark:text-gray-400">HORAS TRABAJADAS</p>
-            <p class="text-3xl font-bold text-dark-purple dark:text-light">156</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <p class="text-sm text-accent dark:text-gray-400">MIEMBROS DEL EQUIPO</p>
-            <p class="text-3xl font-bold text-dark-purple dark:text-light">12</p>
-        </div>
+            <p class="text-sm text-accent dark:text-gray-400">PROYECTOS ACTIVOS</p>
+            <p v-if="!dashboardStore.isLoading" class="text-3xl font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.activeProjects || 0 }}</p>
+            <p v-else class="text-3xl font-bold text-gray-400 animate-pulse">...</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <p class="text-sm text-accent dark:text-gray-400">TAREAS COMPLETADAS</p>
+            <p v-if="!dashboardStore.isLoading" class="text-3xl font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.completedTasks || 0 }}</p>
+            <p v-else class="text-3xl font-bold text-gray-400 animate-pulse">...</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <p class="text-sm text-accent dark:text-gray-400">HORAS TRABAJADAS</p>
+            <p v-if="!dashboardStore.isLoading" class="text-3xl font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.workedHours || 0 }}</p>
+            <p v-else class="text-3xl font-bold text-gray-400 animate-pulse">...</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <p class="text-sm text-accent dark:text-gray-400">COMPAÑEROS DE EQUIPO</p>
+            <p v-if="!dashboardStore.isLoading" class="text-3xl font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.teamMembers || 0 }}</p>
+            <p v-else class="text-3xl font-bold text-gray-400 animate-pulse">...</p>
+        </div>
       </div>
       
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -73,13 +80,16 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import UserProfile from '@/components/UserProfile.vue';
 import { useAuthStore } from '@/store/auth';
 import { useNotificationStore } from '@/store/notificationStore';
+import { useDashboardStore } from '@/store/dashboardStore';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
+const dashboardStore = useDashboardStore();
 
 onMounted(() => {
   notificationStore.fetchNotificationHistory();
+  dashboardStore.fetchDashboardStats();
 });
 </script>

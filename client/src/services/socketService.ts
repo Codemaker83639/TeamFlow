@@ -1,6 +1,5 @@
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '@/store/auth';
-// --- 1. IMPORTAMOS NUESTRA NUEVA TIENDA DE NOTIFICACIONES ---
 import { useNotificationStore } from '@/store/notificationStore';
 
 class SocketService {
@@ -19,8 +18,6 @@ class SocketService {
             return;
         }
 
-        console.log(`Attempting to connect WebSocket for user: ${user.id}`);
-
         this.socket = io('http://localhost:3000', {
             query: {
                 userId: user.id,
@@ -35,18 +32,12 @@ class SocketService {
             console.log('Disconnected from WebSocket server.');
         });
 
-        // --- 2. MODIFICAMOS EL OYENTE DEL EVENTO 'notification' ---
+        // --- CORRECCIÓN AQUÍ ---
         this.socket.on('notification', (payload: { message: string }) => {
             console.log('New notification received:', payload);
-
-            // Obtenemos una instancia de nuestra tienda de notificaciones
             const notificationStore = useNotificationStore();
-
-            // Llamamos a la acción para añadir la nueva notificación
-            notificationStore.addNotification({
-                message: payload.message,
-                type: 'info', // Por ahora, todas serán de tipo 'info'
-            });
+            // Llamamos a la nueva acción que actualiza tanto los toasts como el historial
+            notificationStore.handleIncomingNotification(payload);
         });
     }
 
