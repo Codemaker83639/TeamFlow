@@ -1,6 +1,5 @@
 import axios, { type AxiosResponse } from 'axios';
-// --- 1. IMPORTAMOS EL TIPO Comment ---
-import type { Task, TaskStatus, TaskPriority, Comment } from '@/types/Task';
+import type { Task, TaskStatus, TaskPriority, Comment, TaskAttachment } from '@/types/Task';
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000',
@@ -40,7 +39,6 @@ export interface UpdateTaskPayload {
     assigned_to_id?: string;
 }
 
-// --- 2. DEFINIMOS EL PAYLOAD PARA CREAR UN COMENTARIO ---
 export interface AddCommentPayload {
     content: string;
 }
@@ -63,23 +61,27 @@ export default {
         return apiClient.delete(`/tasks/${taskId}`);
     },
 
-    // --- 👇 NUEVAS FUNCIONES PARA COMENTARIOS 👇 ---
-
-    /**
-     * Obtiene todos los comentarios de una tarea específica.
-     * @param taskId El ID de la tarea.
-     */
     getComments(taskId: string): Promise<AxiosResponse<Comment[]>> {
-        // La ruta coincide con la que definimos en el controller de NestJS
         return apiClient.get(`/tasks/${taskId}/comments`);
     },
 
-    /**
-     * Añade un nuevo comentario a una tarea.
-     * @param taskId El ID de la tarea a la que se añade el comentario.
-     * @param payload El contenido del comentario.
-     */
     addComment(taskId: string, payload: AddCommentPayload): Promise<AxiosResponse<Comment>> {
         return apiClient.post(`/tasks/${taskId}/comments`, payload);
+    },
+
+    getAttachments(taskId: string): Promise<AxiosResponse<TaskAttachment[]>> {
+        return apiClient.get(`/tasks/${taskId}/attachments`);
+    },
+
+    uploadAttachment(taskId: string, file: File): Promise<AxiosResponse<TaskAttachment>> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // --- CORRECCIÓN FINAL EN LA URL DE LA SIGUIENTE LÍNEA ---
+        return apiClient.post(`/tasks/${taskId}/attachments/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
     }
 };

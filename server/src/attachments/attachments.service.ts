@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaskAttachment } from './entities/task-attachment.entity';
@@ -11,7 +11,6 @@ export class AttachmentsService {
     @InjectRepository(TaskAttachment)
     private readonly attachmentRepository: Repository<TaskAttachment>,
 
-    // Necesitamos verificar que la tarea y el usuario existen
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
 
@@ -19,19 +18,13 @@ export class AttachmentsService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  /**
-   * Crea un registro de un archivo adjunto en la base de datos.
-   * @param file La información del archivo subido por Multer.
-   * @param taskId El ID de la tarea a la que se adjunta el archivo.
-   * @param userId El ID del usuario que sube el archivo.
-   */
   async create(
     file: Express.Multer.File,
     taskId: string,
     userId: string,
   ): Promise<TaskAttachment> {
     if (!file) {
-      throw new NotFoundException('File not provided');
+      throw new BadRequestException('File is required');
     }
 
     const task = await this.taskRepository.findOneBy({ id: taskId });
@@ -41,37 +34,30 @@ export class AttachmentsService {
       throw new NotFoundException('Task or User not found');
     }
 
+    // --- CORRECCIÓN DEFINITIVA ---
+    // Guardamos solo el nombre del archivo, que es más robusto.
     const newAttachment = this.attachmentRepository.create({
       file_name: file.originalname,
-      file_path: file.path, // La ruta donde Multer guardó el archivo
+      file_path: file.filename, // Usamos file.filename en lugar de file.path
       mime_type: file.mimetype,
       file_size_kb: Math.round(file.size / 1024),
       task: task,
       uploaded_by: user,
     });
+    // ----------------------------
 
     return this.attachmentRepository.save(newAttachment);
   }
 
-  /**
-   * Obtiene todos los adjuntos de una tarea específica.
-   * @param taskId El ID de la tarea.
-   */
   async findAllByTask(taskId: string): Promise<TaskAttachment[]> {
     return this.attachmentRepository.find({
       where: { task: { id: taskId } },
-      relations: ['uploaded_by'], // Carga la info del usuario que lo subió
+      relations: ['uploaded_by'],
       order: { created_at: 'ASC' },
     });
   }
 
-  /**
-   * Elimina un archivo adjunto.
-   * @param id El ID del registro del adjunto.
-   */
   async remove(id: number): Promise<void> {
-    // Aquí también deberíamos añadir la lógica para borrar el archivo físico del servidor,
-    // pero por ahora nos enfocaremos en borrar el registro de la BD.
     const result = await this.attachmentRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Attachment with ID #${id} not found`);

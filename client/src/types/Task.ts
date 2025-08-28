@@ -46,3 +46,16 @@ export interface Comment {
         avatar_url?: string;
     };
 }
+
+export interface TaskAttachment {
+    id: number;
+    file_name: string;
+    file_path: string;
+    mime_type: string;
+    file_size_kb: number;
+    created_at: string;
+    uploaded_by: {
+        id: string;
+        full_name: string;
+    };
+}

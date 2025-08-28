@@ -16,7 +16,9 @@
             <h4 class="text-sm font-medium text-gray-500">Descripción</h4>
             <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ task.description }}</p>
           </div>
-          </div>
+        </div>
+
+        <AttachmentSection :task-id="task.id" :is-view-only="isViewOnly" />
 
         <CommentSection :task-id="task.id" :is-view-only="isViewOnly" />
       </div>
@@ -29,16 +31,16 @@ import { onMounted, type PropType } from 'vue';
 import type { Task } from '@/types/Task';
 import { useTaskStore } from '@/store/taskStore';
 import CommentSection from './CommentSection.vue';
+import AttachmentSection from './AttachmentSection.vue';
 
 const props = defineProps({
   task: {
     type: Object as PropType<Task>,
     required: true,
   },
-  // Añadimos la nueva prop para controlar la visibilidad del formulario de comentarios
   isViewOnly: {
     type: Boolean,
-    default: false, // Por defecto, no es solo vista, permite comentar
+    default: false,
   },
 });
 
@@ -46,14 +48,14 @@ defineEmits(['close']);
 
 const taskStore = useTaskStore();
 
-// Cuando el modal se monta, buscamos los comentarios de esta tarea
 onMounted(() => {
   taskStore.fetchCommentsForTask(props.task.id);
+  taskStore.fetchAttachmentsForTask(props.task.id);
 });
 </script>
 
 <style scoped>
-/* Estilos para el scrollbar (puedes copiarlos de tus otros modales) */
+/* Estilos para el scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }

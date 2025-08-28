@@ -1,13 +1,16 @@
 import { defineStore } from 'pinia';
 import taskService, { type CreateTaskPayload, type UpdateTaskPayload } from '@/services/taskService';
-import type { Task, Comment } from '@/types/Task'; // Asumimos que el tipo Comment estará en Task types
+import type { Task, Comment, TaskAttachment } from '@/types/Task';
 import { TaskStatus } from '@/types/Task';
 
 interface TaskStoreState {
     tasks: Task[];
     isLoading: boolean;
-    // --- NUEVA PROPIEDAD EN EL ESTADO ---
-    currentTaskComments: Comment[]; // Almacenará los comentarios de la tarea activa
+    // Estados de carga específicos
+    isLoadingComments: boolean;
+    isLoadingAttachments: boolean;
+    currentTaskComments: Comment[];
+    currentTaskAttachments: TaskAttachment[];
 }
 
 type GroupedTasks = Record<TaskStatus, Task[]>;
@@ -15,9 +18,11 @@ type GroupedTasks = Record<TaskStatus, Task[]>;
 export const useTaskStore = defineStore('taskStore', {
     state: (): TaskStoreState => ({
         tasks: [],
-        isLoading: false,
-        // --- VALOR INICIAL PARA LA NUEVA PROPIEDAD ---
+        isLoading: false, // Para la carga principal de tareas
+        isLoadingComments: false,
+        isLoadingAttachments: false,
         currentTaskComments: [],
+        currentTaskAttachments: [],
     }),
 
     getters: {
@@ -88,13 +93,8 @@ export const useTaskStore = defineStore('taskStore', {
             }
         },
 
-        // --- 👇 NUEVAS ACCIONES PARA COMENTARIOS 👇 ---
-
-        /**
-         * Obtiene los comentarios de una tarea específica y los guarda en el estado.
-         */
         async fetchCommentsForTask(taskId: string) {
-            this.isLoading = true;
+            this.isLoadingComments = true;
             this.currentTaskComments = [];
             try {
                 const response = await taskService.getComments(taskId);
@@ -102,21 +102,44 @@ export const useTaskStore = defineStore('taskStore', {
             } catch (error) {
                 console.error(`Error fetching comments for task ${taskId}:`, error);
             } finally {
-                this.isLoading = false;
+                this.isLoadingComments = false;
             }
         },
 
-        /**
-         * Añade un nuevo comentario a una tarea.
-         */
         async addCommentToTask(taskId: string, content: string) {
             try {
                 const response = await taskService.addComment(taskId, { content });
-                // Añadimos el nuevo comentario a la lista local para no tener que recargar todo
                 this.currentTaskComments.push(response.data);
             } catch (error) {
                 console.error(`Error adding comment to task ${taskId}:`, error);
                 alert('No se pudo añadir el comentario.');
+            }
+        },
+
+        async fetchAttachmentsForTask(taskId: string) {
+            this.isLoadingAttachments = true;
+            this.currentTaskAttachments = [];
+            try {
+                const response = await taskService.getAttachments(taskId);
+                this.currentTaskAttachments = response.data;
+            } catch (error) {
+                console.error(`Error fetching attachments for task ${taskId}:`, error);
+            } finally {
+                this.isLoadingAttachments = false;
+            }
+        },
+
+        async uploadAttachmentForTask(taskId: string, file: File) {
+            this.isLoadingAttachments = true;
+            try {
+                const response = await taskService.uploadAttachment(taskId, file);
+                this.currentTaskAttachments.push(response.data);
+            } catch (error) {
+                console.error(`Error uploading attachment for task ${taskId}:`, error);
+                alert('No se pudo subir el archivo.');
+                throw error;
+            } finally {
+                this.isLoadingAttachments = false;
             }
         }
     }

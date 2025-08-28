@@ -3,7 +3,7 @@
     <h4 class="text-md font-semibold mb-4 text-dark-purple dark:text-light">Comentarios</h4>
 
     <div class="space-y-4 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-      <div v-if="taskStore.isLoading && taskStore.currentTaskComments.length === 0">
+      <div v-if="taskStore.isLoadingComments && taskStore.currentTaskComments.length === 0">
         <p class="text-gray-500 text-sm">Cargando comentarios...</p>
       </div>
       <div v-else-if="taskStore.currentTaskComments.length === 0">
@@ -54,7 +54,6 @@ import { es } from 'date-fns/locale';
 
 const props = defineProps<{
   taskId: string;
-  // Añadimos la prop para controlar la visibilidad del formulario
   isViewOnly: boolean;
 }>();
 
@@ -74,7 +73,7 @@ const handlePostComment = async () => {
   isSubmitting.value = true;
   try {
     await taskStore.addCommentToTask(props.taskId, newComment.value);
-    newComment.value = ''; // Limpiar el textarea después de enviar
+    newComment.value = '';
   } catch (error) {
     console.error("Failed to post comment:", error);
   } finally {
