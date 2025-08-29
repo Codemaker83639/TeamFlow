@@ -7,13 +7,13 @@
       <div class="relative z-10">
         <!-- Eliminé el avatar circular y reorganicé el contenido -->
         <div class="mb-2">
-          <h2 class="text-3xl font-bold text-purple-800 dark:text-purple-200">
+          <h2 class="text-3xl font-bold text-black dark:text-purple-200">
             ¡Hola, {{ authStore.user?.full_name }}! 👋
           </h2>
         </div>
         
         <div class="flex items-center space-x-2">
-          <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <p v-if="!dashboardStore.isLoading" class="text-accent dark:text-gray-400 font-medium">
             Tienes <span class="font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.activeProjects || 0 }} proyectos activos</span> y 
             <span class="font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.completedTasks || 0 }} tareas completadas</span>.
@@ -136,8 +136,9 @@
           <div class="relative p-6" style="background-color: #854F6C;">
             <div class="relative flex items-center space-x-3">
               <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <!-- ÍCONO DE MENSAJE/CHAT PARA NOTIFICACIONES -->
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5V17z M10.828 14.828a4 4 0 005.656 0M9 10a5 5 0 1110 0l-5 5-5-5z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                 </svg>
               </div>
               <h3 class="text-xl font-bold text-white">Notificaciones</h3>
