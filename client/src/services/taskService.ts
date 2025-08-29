@@ -1,8 +1,6 @@
 import type { AxiosResponse } from 'axios';
-import apiClient from '@/services/apiClient'; // <-- AHORA LO IMPORTAMOS
+import apiClient from '@/services/apiClient';
 import type { Task, TaskStatus, TaskPriority, Comment, TaskAttachment } from '@/types/Task';
-
-// Ya no necesitamos definir apiClient aquí
 
 export interface CreateTaskPayload {
     title: string;
@@ -27,7 +25,6 @@ export interface UpdateTaskPayload {
 export interface AddCommentPayload {
     content: string;
 }
-
 
 export default {
     getTasksByProject(projectId: string): Promise<AxiosResponse<Task[]>> {
@@ -67,5 +64,23 @@ export default {
                 'Content-Type': 'multipart/form-data',
             },
         });
+    },
+
+    // --- 👇 NUEVAS FUNCIONES PARA EL CRONÓMETRO 👇 ---
+
+    /**
+     * Envía la señal para iniciar el cronómetro de una tarea.
+     * @param taskId El ID de la tarea.
+     */
+    startTaskTimer(taskId: string): Promise<AxiosResponse<void>> {
+        return apiClient.post(`/tasks/${taskId}/timer/start`);
+    },
+
+    /**
+     * Envía la señal para detener el cronómetro de una tarea.
+     * @param taskId El ID de la tarea.
+     */
+    stopTaskTimer(taskId: string): Promise<AxiosResponse<void>> {
+        return apiClient.post(`/tasks/${taskId}/timer/stop`);
     }
 };

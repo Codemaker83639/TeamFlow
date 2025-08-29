@@ -11,6 +11,8 @@ interface TaskStoreState {
     isLoadingAttachments: boolean;
     currentTaskComments: Comment[];
     currentTaskAttachments: TaskAttachment[];
+    // Nueva propiedad para el cronómetro
+    activeTimerTaskId: string | null;
 }
 
 type GroupedTasks = Record<TaskStatus, Task[]>;
@@ -23,6 +25,7 @@ export const useTaskStore = defineStore('taskStore', {
         isLoadingAttachments: false,
         currentTaskComments: [],
         currentTaskAttachments: [],
+        activeTimerTaskId: null, // Valor inicial para el cronómetro
     }),
 
     getters: {
@@ -40,6 +43,10 @@ export const useTaskStore = defineStore('taskStore', {
                 }
                 return groups;
             }, initialGroups);
+        },
+        // Getter de ayuda para saber si un cronómetro está activo para una tarea específica
+        isTimerActiveForTask: (state) => {
+            return (taskId: string) => state.activeTimerTaskId === taskId;
         }
     },
 
@@ -141,6 +148,28 @@ export const useTaskStore = defineStore('taskStore', {
             } finally {
                 this.isLoadingAttachments = false;
             }
-        }
+        },
+
+        // --- NUEVAS ACCIONES PARA EL CRONÓMETRO ---
+
+        async startTimer(taskId: string) {
+            try {
+                await taskService.startTaskTimer(taskId);
+                this.activeTimerTaskId = taskId;
+            } catch (error) {
+                console.error(`Error starting timer for task ${taskId}:`, error);
+                alert('No se pudo iniciar el cronómetro. Es posible que ya haya uno activo.');
+            }
+        },
+
+        async stopTimer(taskId: string) {
+            try {
+                await taskService.stopTaskTimer(taskId);
+                this.activeTimerTaskId = null;
+            } catch (error) {
+                console.error(`Error stopping timer for task ${taskId}:`, error);
+                alert('No se pudo detener el cronómetro. Es posible que no hubiera uno activo.');
+            }
+        },
     }
 });

@@ -10,6 +10,7 @@ import { CommentsModule } from './comments/comments.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { TimeTrackingModule } from './time-tracking/time-tracking.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     AttachmentsModule,
     NotificationsModule,
     DashboardModule,
+    TimeTrackingModule,
   ],
   controllers: [],
   providers: [],
