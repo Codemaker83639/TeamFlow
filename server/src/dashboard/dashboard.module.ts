@@ -6,10 +6,12 @@ import { Project } from '../projects/entities/project.entity';
 import { Task } from '../tasks/entities/task.entity';
 import { Team } from '../teams/entities/team.entity';
 import { TeamMember } from '../teams/entities/team-member.entity';
+// --- 1. IMPORTAMOS LA NUEVA ENTIDAD ---
+import { TimeEntry } from '../time-tracking/entities/time-entry.entity';
 
 @Module({
-  // Importamos TypeOrmModule con todas las entidades que necesitamos para los cálculos
-  imports: [TypeOrmModule.forFeature([Project, Task, Team, TeamMember])],
+  // --- 2. AÑADIMOS TimeEntry A LA LISTA ---
+  imports: [TypeOrmModule.forFeature([Project, Task, Team, TeamMember, TimeEntry])],
   controllers: [DashboardController],
   providers: [DashboardService],
 })

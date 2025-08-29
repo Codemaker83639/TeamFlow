@@ -66,21 +66,20 @@ export default {
         });
     },
 
-    // --- 👇 NUEVAS FUNCIONES PARA EL CRONÓMETRO 👇 ---
-
-    /**
-     * Envía la señal para iniciar el cronómetro de una tarea.
-     * @param taskId El ID de la tarea.
-     */
     startTaskTimer(taskId: string): Promise<AxiosResponse<void>> {
         return apiClient.post(`/tasks/${taskId}/timer/start`);
     },
 
-    /**
-     * Envía la señal para detener el cronómetro de una tarea.
-     * @param taskId El ID de la tarea.
-     */
     stopTaskTimer(taskId: string): Promise<AxiosResponse<void>> {
         return apiClient.post(`/tasks/${taskId}/timer/stop`);
+    },
+
+    // --- 👇 FUNCIÓN FINAL AÑADIDA AQUÍ 👇 ---
+    /**
+     * Envía la señal para descartar (eliminar) el cronómetro activo de una tarea.
+     * @param taskId El ID de la tarea.
+     */
+    discardTaskTimer(taskId: string): Promise<AxiosResponse<void>> {
+        return apiClient.post(`/tasks/${taskId}/timer/discard`);
     }
 };

@@ -102,6 +102,8 @@
 
     <NotificationsContainer />
 
+    <AbandonedTimerModal v-if="taskStore.abandonedTimerInfo" />
+
   </div>
 </template>
 
@@ -110,11 +112,14 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { RouterLink, RouterView, useRoute } from 'vue-router';
 import { socketService } from '@/services/socketService';
 import { useAuthStore } from '@/store/auth';
+import { useTaskStore } from '@/store/taskStore';
 import NotificationsContainer from '@/components/NotificationsContainer.vue';
+import AbandonedTimerModal from '@/components/AbandonedTimerModal.vue';
 
 const lastVisitedProjectId = ref<string | null>(null);
 const route = useRoute();
 const authStore = useAuthStore();
+const taskStore = useTaskStore();
 
 const boardLink = computed(() => {
   return lastVisitedProjectId.value 

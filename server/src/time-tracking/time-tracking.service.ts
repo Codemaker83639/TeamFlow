@@ -16,9 +16,6 @@ export class TimeTrackingService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  /**
-   * Inicia un cronómetro para una tarea y un usuario específicos.
-   */
   async startTimer(taskId: string, userId: string): Promise<TimeEntry> {
     const task = await this.taskRepository.findOneBy({ id: taskId });
     const user = await this.userRepository.findOneBy({ id: userId });
@@ -27,12 +24,11 @@ export class TimeTrackingService {
       throw new NotFoundException('Task or User not found');
     }
 
-    // Verificamos si ya existe un cronómetro activo para esta tarea y este usuario
     const existingEntry = await this.timeEntryRepository.findOne({
       where: {
         task: { id: taskId },
         user: { id: userId },
-        end_time: IsNull(), // Buscamos una entrada que no tenga fecha de fin
+        end_time: IsNull(),
       },
     });
 
@@ -49,11 +45,7 @@ export class TimeTrackingService {
     return this.timeEntryRepository.save(newTimeEntry);
   }
 
-  /**
-   * Detiene el cronómetro activo para una tarea y un usuario.
-   */
   async stopTimer(taskId: string, userId: string): Promise<TimeEntry> {
-    // Buscamos la entrada de tiempo activa (sin fecha de fin)
     const timeEntry = await this.timeEntryRepository.findOne({
       where: {
         task: { id: taskId },
@@ -69,7 +61,6 @@ export class TimeTrackingService {
     const endTime = new Date();
     const startTime = timeEntry.start_time;
 
-    // Calculamos la diferencia en milisegundos y la convertimos a minutos
     const durationMs = endTime.getTime() - startTime.getTime();
     const durationMinutes = Math.round(durationMs / 60000);
 
@@ -77,5 +68,21 @@ export class TimeTrackingService {
     timeEntry.duration_minutes = durationMinutes;
 
     return this.timeEntryRepository.save(timeEntry);
+  }
+
+  // --- 👇 NUEVO MÉTODO PARA DESCARTAR EL TIEMPO 👇 ---
+  /**
+   * Busca y elimina una entrada de tiempo activa (sin finalizar).
+   */
+  async discardTimer(taskId: string, userId: string): Promise<void> {
+    const result = await this.timeEntryRepository.delete({
+      task: { id: taskId },
+      user: { id: userId },
+      end_time: IsNull(),
+    });
+
+    if (result.affected === 0) {
+      throw new NotFoundException('No active timer found to discard.');
+    }
   }
 }

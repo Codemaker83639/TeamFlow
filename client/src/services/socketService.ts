@@ -1,6 +1,15 @@
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '@/store/auth';
 import { useNotificationStore } from '@/store/notificationStore';
+// --- 1. IMPORTAMOS LA TIENDA DE TAREAS ---
+import { useTaskStore } from '@/store/taskStore';
+
+// Definimos el tipo de datos que esperamos para un cronómetro activo
+interface ActiveTimerPayload {
+    taskId: string;
+    taskTitle: string;
+    startTime: string;
+}
 
 class SocketService {
     socket: Socket | null = null;
@@ -32,12 +41,18 @@ class SocketService {
             console.log('Disconnected from WebSocket server.');
         });
 
-        // --- CORRECCIÓN AQUÍ ---
         this.socket.on('notification', (payload: { message: string }) => {
             console.log('New notification received:', payload);
             const notificationStore = useNotificationStore();
-            // Llamamos a la nueva acción que actualiza tanto los toasts como el historial
             notificationStore.handleIncomingNotification(payload);
+        });
+
+        // --- 2. NUEVO OYENTE PARA CRONÓMETROS ABANDONADOS ---
+        this.socket.on('active_timer_found', (payload: ActiveTimerPayload) => {
+            console.log('Active timer found:', payload);
+            const taskStore = useTaskStore();
+            // Llamamos a una acción en el taskStore para que sepa que debe mostrar el modal
+            taskStore.setAbandonedTimer(payload);
         });
     }
 

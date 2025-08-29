@@ -5,9 +5,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-// --- 1. IMPORTAMOS EL SERVICIO DE NOTIFICACIONES ---
 import { NotificationsService } from './notifications.service';
 import { User } from '../auth/entities/user.entity';
+// --- 1. IMPORTAMOS HERRAMIENTAS ADICIONALES ---
+import { InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { TimeEntry } from '../time-tracking/entities/time-entry.entity';
 
 @WebSocketGateway({
   cors: {
@@ -21,16 +24,42 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer()
   server: Server;
 
-  // --- 2. INYECTAMOS EL SERVICIO EN EL CONSTRUCTOR ---
-  constructor(private readonly notificationsService: NotificationsService) { }
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    // --- 2. INYECTAMOS EL REPOSITORIO DE TimeEntry ---
+    @InjectRepository(TimeEntry)
+    private readonly timeEntryRepository: Repository<TimeEntry>,
+  ) { }
 
   private connectedUsers: Map<string, string> = new Map();
 
-  handleConnection(client: Socket) {
+  // --- 3. MODIFICAMOS handleConnection PARA QUE SEA ASÍNCRONO ---
+  async handleConnection(client: Socket) {
     const userId = client.handshake.query.userId as string;
     if (userId) {
       console.log(`User connected: ${userId} with socket ID: ${client.id}`);
       this.connectedUsers.set(userId, client.id);
+
+      // --- 4. LÓGICA DE DETECCIÓN DE CRONÓMETRO ABANDONADO ---
+      const activeTimer = await this.timeEntryRepository.findOne({
+        where: {
+          user: { id: userId },
+          end_time: IsNull(),
+        },
+        relations: ['task'], // Cargamos la información de la tarea asociada
+      });
+
+      // Si se encuentra un cronómetro activo...
+      if (activeTimer) {
+        console.log(`Active timer found for user ${userId} on task "${activeTimer.task.title}"`);
+        // ...le enviamos un evento privado solo a él.
+        this.server.to(client.id).emit('active_timer_found', {
+          taskId: activeTimer.task.id,
+          taskTitle: activeTimer.task.title,
+          startTime: activeTimer.start_time,
+        });
+      }
+      // --- FIN DE LA LÓGICA ---
     }
   }
 
@@ -44,23 +73,14 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     }
   }
 
-  /**
-   * Envía una notificación en tiempo real a un usuario y la guarda en la base de datos.
-   * @param recipient El usuario que recibirá la notificación.
-   * @param payload El contenido del mensaje y los datos adicionales.
-   */
-  async sendNotificationToUser(recipient: User, payload: { message: string, taskId?: string }) {
-    // --- 3. GUARDAMOS LA NOTIFICACIÓN EN LA BASE DE DATOS ---
+  async sendNotificationToUser(recipient: User, payload: { message: string; taskId?: string }) {
     await this.notificationsService.create({
       recipient: recipient,
       message: payload.message,
-      // Aquí podrías añadir la lógica para guardar task, project, etc.
     });
-    // --------------------------------------------------------
 
     const socketId = this.connectedUsers.get(recipient.id);
     if (socketId) {
-      // El payload que se envía al frontend es el mismo que recibimos
       this.server.to(socketId).emit('notification', payload);
       console.log(`Sent notification to user ${recipient.id}`);
     } else {

@@ -4,11 +4,14 @@ import { NotificationsController } from './notifications.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
 import { NotificationsGateway } from './notifications.gateway';
+// --- 1. IMPORTAMOS LAS ENTIDADES NECESARIAS ---
+import { TimeEntry } from '../time-tracking/entities/time-entry.entity';
+import { Task } from '../tasks/entities/task.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notification])],
+  // --- 2. AÑADIMOS LAS ENTIDADES AL ARRAY DE IMPORTS ---
+  imports: [TypeOrmModule.forFeature([Notification, TimeEntry, Task])],
   controllers: [NotificationsController],
-  // Declaramos y exportamos tanto el Servicio como el Gateway
   providers: [NotificationsService, NotificationsGateway],
   exports: [NotificationsService, NotificationsGateway],
 })

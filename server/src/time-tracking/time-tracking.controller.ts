@@ -4,31 +4,36 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../auth/entities/user.entity';
 
-// 1. Anidamos todas las rutas de este controlador bajo la ruta de una tarea específica
 @Controller('tasks/:taskId/timer')
-@UseGuards(JwtAuthGuard) // 2. Protegemos todos los endpoints
+@UseGuards(JwtAuthGuard)
 export class TimeTrackingController {
   constructor(private readonly timeTrackingService: TimeTrackingService) { }
 
-  /**
-   * Endpoint para iniciar el cronómetro de una tarea.
-   */
-  @Post('start') // La ruta final será: POST /tasks/:taskId/timer/start
+  @Post('start')
   startTimer(
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @GetUser() user: User, // 3. Obtenemos el usuario que está iniciando el cronómetro
+    @GetUser() user: User,
   ) {
     return this.timeTrackingService.startTimer(taskId, user.id);
   }
 
-  /**
-   * Endpoint para detener el cronómetro de una tarea.
-   */
-  @Post('stop') // La ruta final será: POST /tasks/:taskId/timer/stop
+  @Post('stop')
   stopTimer(
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @GetUser() user: User, // 4. Obtenemos el usuario que está deteniendo el cronómetro
+    @GetUser() user: User,
   ) {
     return this.timeTrackingService.stopTimer(taskId, user.id);
+  }
+
+  // --- 👇 NUEVO ENDPOINT PARA DESCARTAR EL TIEMPO 👇 ---
+  /**
+   * Endpoint para descartar (eliminar) el cronómetro activo de una tarea.
+   */
+  @Post('discard') // La ruta final será: POST /tasks/:taskId/timer/discard
+  discardTimer(
+    @Param('taskId', ParseUUIDPipe) taskId: string,
+    @GetUser() user: User,
+  ) {
+    return this.timeTrackingService.discardTimer(taskId, user.id);
   }
 }

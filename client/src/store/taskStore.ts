@@ -3,16 +3,22 @@ import taskService, { type CreateTaskPayload, type UpdateTaskPayload } from '@/s
 import type { Task, Comment, TaskAttachment } from '@/types/Task';
 import { TaskStatus } from '@/types/Task';
 
+interface AbandonedTimerInfo {
+    taskId: string;
+    taskTitle: string;
+    startTime: string;
+}
+
 interface TaskStoreState {
     tasks: Task[];
     isLoading: boolean;
-    // Estados de carga específicos
     isLoadingComments: boolean;
     isLoadingAttachments: boolean;
     currentTaskComments: Comment[];
     currentTaskAttachments: TaskAttachment[];
-    // Nueva propiedad para el cronómetro
     activeTimerTaskId: string | null;
+    abandonedTimerInfo: AbandonedTimerInfo | null;
+    hasBeenNotifiedOfAbandonedTimer: boolean;
 }
 
 type GroupedTasks = Record<TaskStatus, Task[]>;
@@ -20,51 +26,50 @@ type GroupedTasks = Record<TaskStatus, Task[]>;
 export const useTaskStore = defineStore('taskStore', {
     state: (): TaskStoreState => ({
         tasks: [],
-        isLoading: false, // Para la carga principal de tareas
+        isLoading: false,
         isLoadingComments: false,
         isLoadingAttachments: false,
         currentTaskComments: [],
         currentTaskAttachments: [],
-        activeTimerTaskId: null, // Valor inicial para el cronómetro
+        activeTimerTaskId: null,
+        abandonedTimerInfo: null,
+        hasBeenNotifiedOfAbandonedTimer: false,
     }),
-
     getters: {
         groupedTasks(state): GroupedTasks {
-            const initialGroups: GroupedTasks = {
-                [TaskStatus.BACKLOG]: [],
-                [TaskStatus.TODO]: [],
-                [TaskStatus.IN_PROGRESS]: [],
-                [TaskStatus.REVIEW]: [],
-                [TaskStatus.DONE]: [],
-            };
+            const initialGroups: GroupedTasks = { [TaskStatus.BACKLOG]: [], [TaskStatus.TODO]: [], [TaskStatus.IN_PROGRESS]: [], [TaskStatus.REVIEW]: [], [TaskStatus.DONE]: [] };
             return state.tasks.reduce((groups, task) => {
-                if (groups[task.status]) {
-                    groups[task.status].push(task);
-                }
+                if (groups[task.status]) { groups[task.status].push(task); }
                 return groups;
             }, initialGroups);
         },
-        // Getter de ayuda para saber si un cronómetro está activo para una tarea específica
-        isTimerActiveForTask: (state) => {
-            return (taskId: string) => state.activeTimerTaskId === taskId;
-        }
+        isTimerActiveForTask: (state) => (taskId: string) => state.activeTimerTaskId === taskId,
     },
-
     actions: {
+        // --- 👇 ACCIÓN FINAL AÑADIDA AQUÍ 👇 ---
+        async discardTimer(taskId: string) {
+            try {
+                await taskService.discardTaskTimer(taskId);
+                // Si se descarta un timer activo, actualizamos el estado
+                if (this.activeTimerTaskId === taskId) {
+                    this.activeTimerTaskId = null;
+                }
+            } catch (error) {
+                console.error(`Error discarding timer for task ${taskId}:`, error);
+                alert('No se pudo descartar el cronómetro.');
+            }
+        },
         async fetchTasksByProject(projectId: string) {
             this.isLoading = true;
-            this.tasks = [];
             try {
                 const response = await taskService.getTasksByProject(projectId);
                 this.tasks = response.data;
             } catch (error) {
                 console.error(`Error fetching tasks for project ${projectId}:`, error);
-                this.tasks = [];
             } finally {
                 this.isLoading = false;
             }
         },
-
         async createTask(payload: CreateTaskPayload) {
             this.isLoading = true;
             try {
@@ -77,32 +82,25 @@ export const useTaskStore = defineStore('taskStore', {
                 this.isLoading = false;
             }
         },
-
         async updateTask(taskId: string, projectId: string, payload: UpdateTaskPayload) {
             try {
                 await taskService.updateTask(taskId, payload);
                 await this.fetchTasksByProject(projectId);
             } catch (error) {
                 console.error('Error updating task:', error);
-                alert('No se pudo actualizar la tarea.');
             }
         },
-
         async deleteTask(taskId: string, projectId: string) {
-            const confirmed = window.confirm('¿Estás seguro de que quieres eliminar esta tarea?');
-            if (!confirmed) return;
+            if (!window.confirm('¿Estás seguro?')) return;
             try {
                 await taskService.deleteTask(taskId);
                 this.tasks = this.tasks.filter(t => t.id !== taskId);
             } catch (error) {
                 console.error('Error deleting task:', error);
-                alert('No se pudo eliminar la tarea.');
             }
         },
-
         async fetchCommentsForTask(taskId: string) {
             this.isLoadingComments = true;
-            this.currentTaskComments = [];
             try {
                 const response = await taskService.getComments(taskId);
                 this.currentTaskComments = response.data;
@@ -112,20 +110,16 @@ export const useTaskStore = defineStore('taskStore', {
                 this.isLoadingComments = false;
             }
         },
-
         async addCommentToTask(taskId: string, content: string) {
             try {
                 const response = await taskService.addComment(taskId, { content });
                 this.currentTaskComments.push(response.data);
             } catch (error) {
                 console.error(`Error adding comment to task ${taskId}:`, error);
-                alert('No se pudo añadir el comentario.');
             }
         },
-
         async fetchAttachmentsForTask(taskId: string) {
             this.isLoadingAttachments = true;
-            this.currentTaskAttachments = [];
             try {
                 const response = await taskService.getAttachments(taskId);
                 this.currentTaskAttachments = response.data;
@@ -135,7 +129,6 @@ export const useTaskStore = defineStore('taskStore', {
                 this.isLoadingAttachments = false;
             }
         },
-
         async uploadAttachmentForTask(taskId: string, file: File) {
             this.isLoadingAttachments = true;
             try {
@@ -143,33 +136,38 @@ export const useTaskStore = defineStore('taskStore', {
                 this.currentTaskAttachments.push(response.data);
             } catch (error) {
                 console.error(`Error uploading attachment for task ${taskId}:`, error);
-                alert('No se pudo subir el archivo.');
                 throw error;
             } finally {
                 this.isLoadingAttachments = false;
             }
         },
-
-        // --- NUEVAS ACCIONES PARA EL CRONÓMETRO ---
-
         async startTimer(taskId: string) {
             try {
                 await taskService.startTaskTimer(taskId);
                 this.activeTimerTaskId = taskId;
             } catch (error) {
                 console.error(`Error starting timer for task ${taskId}:`, error);
-                alert('No se pudo iniciar el cronómetro. Es posible que ya haya uno activo.');
             }
         },
-
         async stopTimer(taskId: string) {
             try {
                 await taskService.stopTaskTimer(taskId);
                 this.activeTimerTaskId = null;
             } catch (error) {
                 console.error(`Error stopping timer for task ${taskId}:`, error);
-                alert('No se pudo detener el cronómetro. Es posible que no hubiera uno activo.');
             }
+        },
+        setAbandonedTimer(payload: AbandonedTimerInfo) {
+            if (this.hasBeenNotifiedOfAbandonedTimer) return;
+            this.abandonedTimerInfo = payload;
+            this.hasBeenNotifiedOfAbandonedTimer = true;
+        },
+        clearAbandonedTimer() {
+            this.abandonedTimerInfo = null;
+        },
+        resetAbandonedTimerNotification() {
+            this.abandonedTimerInfo = null;
+            this.hasBeenNotifiedOfAbandonedTimer = false;
         },
     }
 });
