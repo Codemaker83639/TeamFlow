@@ -30,39 +30,37 @@ export class AttachmentsService {
     const user = await this.userRepository.findOneBy({ id: userId });
     const task = await this.taskRepository.findOne({
       where: { id: taskId },
-      relations: ['assigned_to'], // Cargamos la relación completa
+      relations: ['assigned_to'],
     });
 
     if (!task || !user) {
       throw new NotFoundException('Task or User not found');
     }
 
-    const filePath = file.path.replace(/\\/g, '/');
-
+    // --- LA CORRECCIÓN DEFINITIVA ESTÁ AQUÍ ---
+    // Guardamos ÚNICAMENTE el nombre del archivo generado por Multer.
     const newAttachment = this.attachmentRepository.create({
       file_name: file.originalname,
-      file_path: filePath,
+      file_path: file.filename, // Usamos file.filename, NO file.path
       mime_type: file.mimetype,
       file_size_kb: Math.round(file.size / 1024),
       task: task,
       uploaded_by: user,
     });
+    // ------------------------------------------
 
     const savedAttachment = await this.attachmentRepository.save(newAttachment);
 
-    // --- CORRECCIÓN AQUÍ ---
     if (task.assigned_to && task.assigned_to.id !== user.id) {
       const notificationPayload = {
         message: `${user.full_name} ha añadido un archivo a tu tarea: "${task.title}"`,
         taskId: task.id,
       };
-      // Le pasamos el objeto de usuario completo (task.assigned_to)
       this.notificationsGateway.sendNotificationToUser(
         task.assigned_to,
         notificationPayload,
       );
     }
-    // --- FIN DE LA CORRECCIÓN ---
 
     return savedAttachment;
   }

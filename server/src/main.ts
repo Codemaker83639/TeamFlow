@@ -8,8 +8,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // --- LA ÚNICA LÍNEA QUE IMPORTA ---
-  // Orden directa: "Cualquier petición que empiece con /uploads, sírvela desde la carpeta 'uploads' que está en la raíz".
-  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
+  // Orden directa: "Cualquier petición que empiece con /uploads, sírvela desde la carpeta 'uploads' que está en la raíz del proyecto".
+  // Esta es la configuración correcta y definitiva para Docker.
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
   // ------------------------------------
 
   app.enableCors({
