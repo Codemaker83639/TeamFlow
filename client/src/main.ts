@@ -2,10 +2,10 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
 import App from './App.vue'
-import router from './router' // <-- 1. Importa el router
+import router from './router'
 import { i18n } from './i18n'
 
-import './assets/main.css' // Asumiendo que tienes este archivo para estilos
+import './assets/main.css'
 import './assets/main.css'
 
 const app = createApp(App)
