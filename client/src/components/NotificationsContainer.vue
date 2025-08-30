@@ -33,8 +33,9 @@ import { useNotificationStore, type Notification } from '@/store/notificationSto
 const notificationStore = useNotificationStore();
 
 const close = (id: number) => {
-  // Esta acción ahora solo afecta a los toasts, lo cual es correcto.
-  notificationStore.removeNotification(id);
+  // --- CORRECCIÓN ---
+  // Se llama a la acción con el nombre correcto del store: "removeToastNotification"
+  notificationStore.removeToastNotification(id);
 };
 
 const notificationTypeClass = (type: Notification['type']) => {
