@@ -178,10 +178,10 @@
 
             <!-- Botones de acción -->
             <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <RouterLink to="/">
+              <RouterLink to="/login">
                 <button class="group bg-accent hover:bg-accent/90 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-accent/25">
                   <span class="flex items-center justify-center gap-2">
-                    Volver al Inicio
+                    Iniciar Sesión
                     <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-300">
                       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -191,13 +191,13 @@
                 </button>
               </RouterLink>
 
-              <RouterLink to="/login">
+              <RouterLink to="/">
                 <button class="group border-2 border-secondary hover:bg-secondary font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300" style="color: #FBE4D8;">
                   <span class="flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                     </svg>
-                    Iniciar Sesión
+                    Volver a Inicio
                   </span>
                 </button>
               </RouterLink>
