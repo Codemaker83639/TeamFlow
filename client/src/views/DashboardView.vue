@@ -3,18 +3,18 @@
     <header class="relative bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow-lg border-b border-gray-200 dark:border-gray-700">
       <div class="relative z-10">
         <div class="mb-2">
-          <h2 class="text-3xl font-bold text-black dark:text-purple-200">
+          <h2 class="text-3xl font-bold text-black dark:text-orange-100">
             ¡Hola, {{ authStore.user?.full_name }}! 👋
           </h2>
         </div>
         
         <div class="flex items-center space-x-2">
           <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <p v-if="!dashboardStore.isLoading" class="text-accent dark:text-gray-400 font-medium">
-            Tienes <span class="font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.activeProjects || 0 }} proyectos activos</span> y 
-            <span class="font-bold text-dark-purple dark:text-light">{{ dashboardStore.stats?.completedTasks || 0 }} tareas completadas</span>.
+          <p v-if="!dashboardStore.isLoading" class="text-black dark:text-orange-100 font-medium">
+            Tienes <span class="font-bold text-black dark:text-orange-100">{{ dashboardStore.stats?.activeProjects || 0 }} proyectos activos</span> y 
+            <span class="font-bold text-black dark:text-orange-100">{{ dashboardStore.stats?.completedTasks || 0 }} tareas completadas</span>.
           </p>
-          <p v-else class="text-accent dark:text-gray-400 flex items-center space-x-2">
+          <p v-else class="text-black dark:text-orange-100 flex items-center space-x-2">
             <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -28,7 +28,7 @@
       </div>
     </header>
 
-    <main class="flex-1 overflow-x-hidden overflow-y-auto p-6" style="background-color: #FBE4D8;">
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-[#FBE4D8] dark:bg-[#190019]">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="group relative bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 overflow-hidden hover:scale-105">
           <div class="absolute top-0 right-0 w-20 h-20 rounded-full -translate-y-6 translate-x-6 group-hover:scale-150 transition-transform duration-300" style="background-color: rgba(133, 79, 108, 0.1);"></div>
@@ -41,8 +41,8 @@
             </div>
           </div>
           
-          <p class="text-xs font-semibold text-accent dark:text-gray-400 uppercase tracking-wider mb-2">PROYECTOS ACTIVOS</p>
-          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-dark-purple dark:text-light mb-1 transition-colors" style="color: #854F6C;">
+          <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider mb-2">PROYECTOS ACTIVOS</p>
+          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-black dark:text-orange-100 mb-1 transition-colors" style="color: #854F6C;">
             {{ dashboardStore.stats?.activeProjects || 0 }}
           </p>
           <p v-else class="text-4xl font-bold text-gray-400 animate-pulse">...</p>
@@ -60,8 +60,8 @@
             </div>
           </div>
           
-          <p class="text-xs font-semibold text-accent dark:text-gray-400 uppercase tracking-wider mb-2">TAREAS COMPLETADAS</p>
-          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-dark-purple dark:text-light mb-1 transition-colors" style="color: #854F6C;">
+          <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider mb-2">TAREAS COMPLETADAS</p>
+          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-black dark:text-orange-100 mb-1 transition-colors" style="color: #854F6C;">
             {{ dashboardStore.stats?.completedTasks || 0 }}
           </p>
           <p v-else class="text-4xl font-bold text-gray-400 animate-pulse">...</p>
@@ -79,9 +79,9 @@
             </div>
           </div>
           
-          <p class="text-xs font-semibold text-accent dark:text-gray-400 uppercase tracking-wider mb-2">HORAS TRABAJADAS</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">(Últimos 7 días)</p>
-          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold transition-colors" style="color: #854F6C;">
+          <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider mb-2">HORAS TRABAJADAS</p>
+          <p class="text-xs text-black dark:text-orange-200 mb-1">(Últimos 7 días)</p>
+          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-black dark:text-orange-100 transition-colors" style="color: #854F6C;">
             {{ dashboardStore.stats?.workedHours || 0 }}
           </p>
           <p v-else class="text-4xl font-bold text-gray-400 animate-pulse">...</p>
@@ -99,8 +99,8 @@
             </div>
           </div>
           
-          <p class="text-xs font-semibold text-accent dark:text-gray-400 uppercase tracking-wider mb-2">COMPAÑEROS DE EQUIPO</p>
-          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold transition-colors" style="color: #854F6C;">
+          <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider mb-2">COMPAÑEROS DE EQUIPO</p>
+          <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-black dark:text-orange-100 transition-colors" style="color: #854F6C;">
             {{ dashboardStore.stats?.teamMembers || 0 }}
           </p>
           <p v-else class="text-4xl font-bold text-gray-400 animate-pulse">...</p>
@@ -125,7 +125,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
                       </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Progreso General</h3>
+                    <h3 class="text-2xl font-bold text-black dark:text-orange-100">Progreso General</h3>
                   </div>
                 </div>
                 
@@ -155,20 +155,20 @@
                     <div class="space-y-4">
                       <div class="flex items-center space-x-4">
                         <div class="w-5 h-5 rounded-full" style="background-color: #854F6C;"></div>
-                        <span class="text-base text-gray-600 dark:text-gray-400 font-medium">Tareas Completadas:</span>
+                        <span class="text-base text-black dark:text-orange-100 font-medium">Tareas Completadas:</span>
                         <span class="text-xl font-bold" style="color: #854F6C;">{{ dashboardStore.stats?.completedTasks || 0 }}</span>
                       </div>
                       <div class="flex items-center space-x-4">
                         <div class="w-5 h-5 rounded-full bg-gray-400"></div>
-                        <span class="text-base text-gray-600 dark:text-gray-400 font-medium">Proyectos Activos:</span>
-                        <span class="text-xl font-bold text-gray-700 dark:text-gray-300">{{ dashboardStore.stats?.activeProjects || 0 }}</span>
+                        <span class="text-base text-black dark:text-orange-100 font-medium">Proyectos Activos:</span>
+                        <span class="text-xl font-bold text-black dark:text-orange-100">{{ dashboardStore.stats?.activeProjects || 0 }}</span>
                       </div>
                     </div>
                   </div>
                   
                   <div class="text-right">
-                    <p class="text-base text-gray-600 dark:text-gray-400 font-medium">Estado del progreso</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                    <p class="text-base text-black dark:text-orange-100 font-medium">Estado del progreso</p>
+                    <p class="text-sm text-black dark:text-orange-200 mt-2">
                       {{ ((dashboardStore.stats?.completedTasks || 0) / ((dashboardStore.stats?.completedTasks || 0) + (dashboardStore.stats?.activeProjects || 0)) * 100) >= 70 ? '¡Excelente progreso!' : ((dashboardStore.stats?.completedTasks || 0) / ((dashboardStore.stats?.completedTasks || 0) + (dashboardStore.stats?.activeProjects || 0)) * 100) >= 50 ? 'Buen avance' : 'Sigue trabajando' }}
                     </p>
                   </div>
@@ -179,7 +179,7 @@
                     <svg class="w-6 h-6 animate-spin text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
-                    <span class="text-sm text-gray-500">Cargando estadísticas de progreso...</span>
+                    <span class="text-sm text-black dark:text-orange-100">Cargando estadísticas de progreso...</span>
                   </div>
                 </div>
               </div>
@@ -202,21 +202,21 @@
           <div class="p-6 min-h-[300px] flex flex-col">
             <div v-if="notificationStore.isLoadingHistory" class="text-center py-8 flex-1 flex flex-col items-center justify-center">
               <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-accent dark:text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-black dark:text-orange-100 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
               </div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Cargando notificaciones...</p>
+              <p class="text-sm text-black dark:text-orange-100">Cargando notificaciones...</p>
             </div>
             
             <div v-else-if="notificationStore.notificationHistory.length === 0" class="text-center py-8 flex-1 flex flex-col items-center justify-center">
               <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700/50 rounded-full flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-accent dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-8 h-8 text-black dark:text-orange-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">¡Todo al día!</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">No tienes notificaciones pendientes.</p>
+              <p class="text-sm font-medium text-black dark:text-orange-100 mb-1">¡Todo al día!</p>
+              <p class="text-xs text-black dark:text-orange-200">No tienes notificaciones pendientes.</p>
             </div>
             
             <div v-else class="flex-1 flex flex-col justify-between">
@@ -229,8 +229,8 @@
                     </svg>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-dark-purple dark:text-light leading-relaxed">{{ notification.message }}</p>
-                    <p class="text-xs text-accent dark:text-gray-400 mt-1 flex items-center space-x-1">
+                    <p class="text-sm font-medium text-black dark:text-orange-100 leading-relaxed">{{ notification.message }}</p>
+                    <p class="text-xs text-black dark:text-orange-200 mt-1 flex items-center space-x-1">
                       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                       </svg>
@@ -242,7 +242,7 @@
               
               <div v-if="notificationStore.hasMoreNotifications" class="mt-6 text-center">
                 <RouterLink to="/notifications" 
-                            class="inline-flex items-center space-x-2 text-sm font-semibold text-accent hover:text-dark-purple dark:text-gray-400 dark:hover:text-light hover:underline transition-colors group">
+                            class="inline-flex items-center space-x-2 text-sm font-semibold text-black hover:text-gray-700 dark:text-orange-100 dark:hover:text-orange-200 hover:underline transition-colors group">
                   <span>Ver todas</span>
                   <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>

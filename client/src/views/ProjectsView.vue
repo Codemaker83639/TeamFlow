@@ -1,13 +1,8 @@
 <template>
   <MainLayout>
-    <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow-xl relative overflow-hidden">
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute w-2 h-2 bg-purple-400/20 rounded-full animate-pulse" style="left: 20%; top: 30%;"></div>
-        <div class="absolute w-1 h-1 bg-indigo-400/30 rounded-full animate-pulse" style="left: 70%; top: 60%; animation-delay: 2s;"></div>
-      </div>
-      
-      <div class="relative z-10">
-        <h2 class="text-3xl font-bold text-dark-purple dark:text-white">Proyectos</h2>
+    <header class="bg-white dark:bg-gray-800 p-6 flex justify-between items-center shadow-xl">
+      <div>
+        <h2 class="text-3xl font-bold text-dark-purple dark:text-[#FBE4D8]">Proyectos</h2>
         <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Gestiona todos tus proyectos en un solo lugar</p>
       </div>
       
