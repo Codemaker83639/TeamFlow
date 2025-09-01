@@ -51,7 +51,7 @@
             </div>
             
             <div class="space-y-3">
-              <button class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 group/help">
+              <a :href="documentationUrl" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 group/help">
                 <div class="flex items-center space-x-3">
                   <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -61,9 +61,9 @@
                 <svg class="w-4 h-4 text-gray-400 group-hover/help:text-accent group-hover/help:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
-              </button>
+              </a>
               
-              <button class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 group/help">
+              <a :href="faqUrl" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 group/help">
                 <div class="flex items-center space-x-3">
                   <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -73,7 +73,7 @@
                 <svg class="w-4 h-4 text-gray-400 group-hover/help:text-accent group-hover/help:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
-              </button>
+              </a>
               
               <a href="https://wa.me/18298143826" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 group/help">
                 <div class="flex items-center space-x-3">
@@ -86,7 +86,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
               </a>
-              </div>
+            </div>
           </div>
         </div>
 
@@ -180,6 +180,11 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import { useAuthStore } from '@/store/auth.ts';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import CreateUserForm from '@/components/CreateUserForm.vue';
+
+// --- SE IMPORTAN LOS ARCHIVOS PDF ---
+import documentationUrl from '@/assets/Documentación.pdf';
+import faqUrl from '@/assets/Preguntas Frecuentes.pdf';
+
 
 const router = useRouter();
 const authStore = useAuthStore();
