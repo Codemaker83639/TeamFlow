@@ -1,6 +1,5 @@
 <template>
   <MainLayout>
-    <!-- Header mejorado con animación -->
     <header class="bg-white p-6 shadow-lg dark:bg-gray-800 dark:text-light transition-all duration-300 border-b border-gray-100 dark:border-gray-700">
       <h2 class="text-2xl font-bold text-dark-purple dark:text-light">Configuración de la Cuenta</h2>
     </header>
@@ -8,9 +7,7 @@
     <main class="flex-1 overflow-y-auto bg-light dark:bg-dark-purple p-8 transition-colors duration-300">
       <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0">
         
-        <!-- Tarjeta de perfil mejorada -->
         <div class="lg:w-1/3 space-y-6">
-          <!-- Tarjeta de perfil -->
           <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-50 dark:border-gray-700 group">
             <div class="flex flex-col items-center text-center space-y-4">
               <div class="relative">
@@ -40,7 +37,6 @@
             </div>
           </div>
 
-          <!-- Soporte y Ayuda -->
           <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-50 dark:border-gray-700 group">
             <div class="flex items-start space-x-3 mb-4">
               <div class="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center group-hover:bg-accent/20 transition-colors duration-300">
@@ -79,7 +75,7 @@
                 </svg>
               </button>
               
-              <button class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 group/help">
+              <a href="https://wa.me/18298143826" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 group/help">
                 <div class="flex items-center space-x-3">
                   <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -89,14 +85,13 @@
                 <svg class="w-4 h-4 text-gray-400 group-hover/help:text-accent group-hover/help:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
-              </button>
-            </div>
+              </a>
+              </div>
           </div>
         </div>
 
         <div class="lg:w-2/3 space-y-6">
           
-          <!-- Tarjeta de editar perfil mejorada -->
           <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-50 dark:border-gray-700 group">
             <div class="flex items-start space-x-4">
               <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center group-hover:bg-accent/20 transition-colors duration-300">
@@ -121,7 +116,6 @@
             </div>
           </div>
 
-          <!-- Tarjeta de apariencia mejorada -->
           <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-50 dark:border-gray-700 group">
             <div class="flex items-start space-x-4">
               <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center group-hover:bg-accent/20 transition-colors duration-300">
@@ -141,7 +135,6 @@
             </div>
           </div>
 
-          <!-- Zona de peligro mejorada -->
           <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border-l-4 border-red-500 dark:border-red-700 group relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-red-500/20"></div>
             <div class="flex items-start space-x-4">
