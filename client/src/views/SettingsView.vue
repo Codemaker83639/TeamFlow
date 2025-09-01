@@ -23,19 +23,16 @@
         </div>
 
         <div class="lg:w-2/3 space-y-8">
+          
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <h3 class="text-xl font-bold text-dark-purple dark:text-light mb-4">Editar Perfil</h3>
-            <form @submit.prevent="updateProfile" class="space-y-4">
-              <div>
-                <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre Completo</label>
-                <input v-model="fullName" type="text" id="fullName" class="w-full px-3 py-2 mt-1 bg-gray-50 dark:bg-gray-700 dark:text-light border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-              </div>
-              <button type="submit" class="px-4 py-2 font-medium text-white bg-accent rounded-md hover:bg-secondary transition-colors duration-300">
-                Guardar Cambios
-              </button>
-            </form>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              Haz clic en el botón para actualizar la información de tu perfil, como tu nombre completo, email o contraseña.
+            </p>
+            <button @click="openEditModal" class="px-4 py-2 font-medium text-white bg-accent rounded-md hover:bg-secondary transition-colors duration-300">
+              Actualizar mi Información
+            </button>
           </div>
-
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <h3 class="text-xl font-bold text-dark-purple dark:text-light mb-4">{{ $t('settings.appearance') }}</h3>
             <div class="space-y-4">
@@ -61,7 +58,13 @@
 
       </div>
     </main>
-  </MainLayout>
+
+    <CreateUserForm
+      v-if="isEditModalVisible"
+      :userToEdit="authStore.user"
+      @close="closeEditModal"
+    />
+    </MainLayout>
 </template>
 
 <script setup>
@@ -70,12 +73,16 @@ import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
 import { useAuthStore } from '@/store/auth.ts';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'; // <-- Se añadió esta importación
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
+
+// --- 1. IMPORTAMOS EL MODAL ---
+import CreateUserForm from '@/components/CreateUserForm.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-const fullName = ref(authStore.user?.full_name);
+// --- 2. VARIABLE PARA CONTROLAR LA VISIBILIDAD DEL MODAL ---
+const isEditModalVisible = ref(false);
 
 const userInitials = computed(() => {
   if (authStore.user && authStore.user.full_name) {
@@ -85,9 +92,19 @@ const userInitials = computed(() => {
   return '';
 });
 
-const updateProfile = () => {
-  alert('Funcionalidad para actualizar perfil aún no implementada.');
+// --- 3. FUNCIONES PARA ABRIR Y CERRAR EL MODAL ---
+const openEditModal = () => {
+  isEditModalVisible.value = true;
 };
+
+const closeEditModal = () => {
+  isEditModalVisible.value = false;
+  // Opcional pero recomendado: Refrescar los datos del usuario por si se cambió el nombre.
+  // Es probable que tengas una acción en tu authStore para esto, como:
+  // authStore.fetchCurrentUser(); 
+};
+
+// Se elimina la función updateProfile que ya no se usa.
 
 const handleLogout = () => {
   authStore.logout();
