@@ -1,6 +1,5 @@
 <template>
   <div class="bg-dark-purple min-h-screen relative overflow-hidden" style="color: #FBE4D8;">
-    <!-- Grid de fondo sutil -->
     <div class="absolute inset-0 opacity-5">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -14,11 +13,9 @@
 
     <LandingNavbar />
 
-    <!-- Hero Section Completamente Nuevo -->
     <main class="relative z-10 min-h-screen flex items-center">
       <div class="container mx-auto px-6">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <!-- Lado izquierdo - Contenido -->
           <div class="text-left">
             <div class="inline-flex items-center px-4 py-2 rounded-full bg-accent/10 border border-accent/30 mb-8 animate-fade-in">
               <div class="w-2 h-2 bg-accent rounded-full animate-pulse mr-3"></div>
@@ -34,7 +31,6 @@
               Revoluciona la forma en que tu equipo colabora. TeamFlow combina simplicidad con poder para crear experiencias de trabajo excepcionales.
             </p>
 
-            <!-- Botones de acción -->
             <div class="flex flex-col sm:flex-row gap-4 mb-12 animate-slide-up animation-delay-400">
               <RouterLink to="/login">
                 <button class="group bg-accent hover:bg-accent/90 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-accent/25">
@@ -49,7 +45,7 @@
                 </button>
               </RouterLink>
               
-              <a href="https://wa.me/qr/QIMDB7KPDTOYG1" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/18298143826" target="_blank" rel="noopener noreferrer">
                 <button class="group border-2 border-secondary hover:bg-secondary font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300" style="color: #FBE4D8;">
                   <span class="flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,9 +55,8 @@
                   </span>
                 </button>
               </a>
-            </div>
+              </div>
 
-            <!-- Estadísticas rápidas -->
             <div class="flex gap-8 animate-slide-up animation-delay-600">
               <div>
                 <div class="text-3xl font-bold" style="color: #FBE4D8;">10K+</div>
@@ -78,12 +73,9 @@
             </div>
           </div>
 
-          <!-- Lado derecho - Visualización interactiva -->
           <div class="relative animate-fade-in animation-delay-800">
             <div class="dashboard-mockup">
-              <!-- Mockup del dashboard -->
               <div class="bg-primary/40 backdrop-blur-xl rounded-3xl p-8 border border-accent/20 shadow-2xl">
-                <!-- Header del mockup -->
                 <div class="flex items-center justify-between mb-6">
                   <div class="flex items-center gap-3">
                     <div class="w-3 h-3 bg-accent rounded-full"></div>
@@ -93,7 +85,6 @@
                   <div class="text-sm" style="color: #FBE4D8;">TeamFlow Interface</div>
                 </div>
 
-                <!-- Tarjetas del mockup -->
                 <div class="space-y-4">
                   <div class="bg-dark-purple/50 rounded-xl p-4 border border-accent/10 pulse-card">
                     <div class="flex items-center justify-between mb-2">
@@ -129,7 +120,6 @@
                   </div>
                 </div>
 
-                <!-- Team avatars -->
                 <div class="flex items-center gap-2 mt-6">
                   <div class="text-xs mr-2" style="color: #FBE4D8;">Equipo:</div>
                   <div class="flex -space-x-2">
@@ -146,7 +136,6 @@
       </div>
     </main>
 
-    <!-- Sección de características con diseño moderno -->
     <section class="relative py-32 bg-primary/20">
       <div class="container mx-auto px-6">
         <div class="text-center mb-20">
@@ -159,7 +148,6 @@
         </div>
 
         <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <!-- Stat 1 -->
           <div class="text-center group">
             <div class="relative mb-6">
               <div class="w-24 h-24 bg-accent/10 rounded-3xl mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -172,7 +160,6 @@
             <p class="leading-relaxed" style="color: #FBE4D8;">Los proyectos ágiles tienen una tasa de éxito del 64% vs 49% de metodologías tradicionales</p>
           </div>
 
-          <!-- Stat 2 -->
           <div class="text-center group">
             <div class="relative mb-6">
               <div class="w-24 h-24 bg-secondary/10 rounded-3xl mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -185,7 +172,6 @@
             <p class="leading-relaxed" style="color: #FBE4D8;">El trabajo remoto puede aumentar la productividad hasta un 13% según estudios</p>
           </div>
 
-          <!-- Stat 3 -->
           <div class="text-center group">
             <div class="relative mb-6">
               <div class="w-24 h-24 bg-light-accent/10 rounded-3xl mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -201,7 +187,6 @@
       </div>
     </section>
 
-    <!-- CTA Final -->
     <section class="relative py-32">
       <div class="container mx-auto px-6 text-center">
         <div class="max-w-4xl mx-auto">
@@ -212,7 +197,6 @@
             Miles de equipos ya transformaron su forma de trabajar
           </p>
 
-          <!-- Trust indicators con iconos profesionales -->
           <div class="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
             <div class="text-center">
               <div class="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-2xl flex items-center justify-center">
@@ -243,7 +227,6 @@
       </div>
     </section>
 
-    <!-- Footer minimalista -->
     <footer class="border-t border-accent/20 py-12">
       <div class="container mx-auto px-6 text-center">
         <div class="flex items-center justify-center gap-4 mb-6">
