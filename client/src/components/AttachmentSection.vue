@@ -2,13 +2,20 @@
   <div class="mt-6 pt-6 border-t dark:border-gray-700">
     <div class="flex justify-between items-center mb-4">
       <h4 class="text-md font-semibold text-dark-purple dark:text-[#FBE4D8]">Archivos Adjuntos</h4>
-      <button 
-        v-if="!isViewOnly"
-        @click="triggerFileInput" 
-        class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-[#FBE4D8] text-xs font-semibold py-1 px-3 rounded-lg"
-      >
-        + Adjuntar Archivo
-      </button>
+      <div class="text-right">
+        <button 
+          v-if="!isViewOnly"
+          @click="triggerFileInput" 
+          :disabled="taskStore.currentTaskAttachments.length >= 3"
+          class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-[#FBE4D8] text-xs font-semibold py-1 px-3 rounded-lg transition-opacity"
+          :class="{ 'opacity-50 cursor-not-allowed': taskStore.currentTaskAttachments.length >= 3 }"
+        >
+          + Adjuntar Archivo
+        </button>
+        <p v-if="taskStore.currentTaskAttachments.length >= 3" class="text-xs text-red-500 mt-1">
+          Límite de 3 archivos alcanzado.
+        </p>
+      </div>
       <input 
         type="file" 
         ref="fileInput" 
@@ -42,7 +49,7 @@
           </div>
         </div>
         <div class="flex items-center flex-shrink-0">
-          <a :href="`http://localhost:3000/uploads/${attachment.file_path}`" target="_blank" class="p-2 rounded-lg text-gray-400 dark:text-[#FBE4D8] hover:text-accent hover:bg-gray-200 dark:hover:bg-gray-600" title="Descargar">
+          <a :href="`/uploads/${attachment.file_path}`" download target="_blank" class="p-2 rounded-lg text-gray-400 dark:text-[#FBE4D8] hover:text-accent hover:bg-gray-200 dark:hover:bg-gray-600" title="Descargar">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
           </a>
           <button 
@@ -53,7 +60,7 @@
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
           </button>
-          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -62,7 +69,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useTaskStore } from '@/store/taskStore';
-import { useAuthStore } from '@/store/auth'; // 1. IMPORTAMOS AUTH STORE
+import { useAuthStore } from '@/store/auth';
 
 const props = defineProps<{
   taskId: string;
@@ -70,12 +77,19 @@ const props = defineProps<{
 }>();
 
 const taskStore = useTaskStore();
-const authStore = useAuthStore(); // 2. CREAMOS INSTANCIA DE AUTH STORE
+const authStore = useAuthStore();
 const fileInput = ref<HTMLInputElement | null>(null);
 
+// ============================ CAMBIO AQUÍ: LÓGICA DE LA FUNCIÓN ============================
 const triggerFileInput = () => {
+  // Añadimos una comprobación extra para mayor seguridad
+  if (taskStore.currentTaskAttachments.length >= 3) {
+    alert('Ya has alcanzado el límite de 3 archivos adjuntos por tarea.');
+    return;
+  }
   fileInput.value?.click();
 };
+// =========================================================================================
 
 const handleFileSelect = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -94,7 +108,6 @@ const handleFileSelect = async (event: Event) => {
   }
 };
 
-// 3. AÑADIMOS LA FUNCIÓN PARA MANEJAR LA ELIMINACIÓN
 const handleDeleteAttachment = async (attachmentId: number) => {
   if (confirm('¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.')) {
     try {
