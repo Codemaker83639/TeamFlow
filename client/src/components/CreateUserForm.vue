@@ -41,11 +41,15 @@
               required 
               class="w-full p-3 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-[#FBE4D8] focus:ring-2 focus:ring-accent focus:outline-none"
             >
-              <option value="team member">Team Member</option>
-              <option value="viewer">Viewer</option>
-              <option value="Administrator">Administrator</option>
+              <option 
+                v-for="role in availableRoles" 
+                :key="role.value" 
+                :value="role.value"
+              >
+                {{ role.text }}
+              </option>
             </select>
-          </div>
+            </div>
           </div>
       </form>
 
@@ -73,8 +77,6 @@
 import { ref, onMounted, computed } from 'vue';
 import { useUsersStore } from '@/store/users.ts';
 
-// ============================ CAMBIO AQUÍ ============================
-// 1. Añadimos la nueva prop 'isSelfProfile'.
 const props = defineProps({
   userToEdit: {
     type: Object,
@@ -85,10 +87,18 @@ const props = defineProps({
     default: false
   }
 });
-// =====================================================================
 
 const emit = defineEmits(['close']);
 const usersStore = useUsersStore();
+
+// ============================ CAMBIO AQUÍ ============================
+// Definimos los roles disponibles en un solo lugar para que sea fácil de mantener.
+const availableRoles = [
+  { value: 'team member', text: 'Miembro de Equipo' },
+  { value: 'viewer', text: 'Visualizador' },
+  { value: 'Administrator', text: 'Administrador' }
+];
+// =====================================================================
 
 const userData = ref({
   fullName: '',
@@ -120,13 +130,9 @@ const handleSubmit = async () => {
       if (!payload.password) {
         delete payload.password;
       }
-      // ============================ CAMBIO AQUÍ ============================
-      // 2. Medida de seguridad: si es el perfil propio, eliminamos el rol
-      //    del payload para que no pueda ser modificado.
       if (props.isSelfProfile) {
         delete payload.role;
       }
-      // =====================================================================
       
       await usersStore.updateUser(props.userToEdit.id, payload);
       alert('¡Usuario actualizado exitosamente!');

@@ -54,21 +54,19 @@
           </div>
         </form>
 
-        <CommentSection :task-id="props.taskToEdit.id" />
-
-      </div>
+        </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, type PropType } from 'vue'; // 1. Importar PropType
+import { reactive, onMounted, type PropType } from 'vue';
 import { useTaskStore } from '@/store/taskStore';
 import type { TeamMember } from '@/types/Project';
 import type { Task, TaskPriority } from '@/types/Task';
-import CommentSection from './CommentSection.vue';
+// 1. ELIMINAMOS LA IMPORTACIÓN DE CommentSection
+// import CommentSection from './CommentSection.vue'; 
 
-// 2. Usar una forma más explícita para definir las props
 const props = defineProps({
   taskToEdit: {
     type: Object as PropType<Task>,
@@ -105,7 +103,8 @@ onMounted(() => {
     form.due_date = props.taskToEdit.due_date ? new Date(props.taskToEdit.due_date).toISOString().split('T')[0] : '';
     form.estimated_hours = props.taskToEdit.estimated_hours || null;
 
-    taskStore.fetchCommentsForTask(props.taskToEdit.id);
+    // 2. ELIMINAMOS LA LLAMADA INNECESARIA PARA OBTENER COMENTARIOS
+    // taskStore.fetchCommentsForTask(props.taskToEdit.id);
 });
 
 const submitForm = async () => {
