@@ -168,6 +168,7 @@
       v-if="isEditModalVisible"
       :userToEdit="authStore.user"
       @close="closeEditModal"
+      :is-self-profile="true"
     />
 
   </MainLayout>
@@ -180,9 +181,7 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import { useAuthStore } from '@/store/auth.ts';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import CreateUserForm from '@/components/CreateUserForm.vue';
-// ============================ CAMBIO AQUÍ ============================
 import { translateRole } from '@/utils/roleTranslator.js';
-// =====================================================================
 
 // --- SE IMPORTAN LOS ARCHIVOS PDF ---
 import documentationUrl from '@/assets/Documentación.pdf';
