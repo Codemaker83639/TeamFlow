@@ -9,7 +9,7 @@
         <div class="lg:col-span-2">
             <h3 class="text-xl font-bold text-dark-purple dark:text-light mb-4">Equipos Existentes</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div v-if="authStore.user?.role === 'Administrator'" @click="openCreateTeamModal" 
+              <div v-if="authStore.user?.role === 'Administrator' || authStore.user?.role === 'Admin'" @click="openCreateTeamModal" 
                    class="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 p-6 rounded-2xl shadow-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all duration-300 min-h-[200px] overflow-hidden">
                 <div class="absolute inset-0 bg-[#854F6C]/5 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#854F6C]/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
@@ -42,7 +42,7 @@
                       <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{{ team.description }}</p>
                     </div>
                     
-                    <div v-if="authStore.user?.role === 'Administrator'" class="relative">
+                    <div v-if="authStore.user?.role === 'Administrator' || authStore.user?.role === 'Admin'" class="relative">
                       <button @click.stop="toggleMenu(team.id)" 
                               class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-[#DFB6B2] dark:hover:bg-[#854F6C] hover:text-[#854F6C] dark:hover:text-white transition-all duration-200 shadow-sm hover:shadow-md">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +95,7 @@
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-dark-purple dark:text-light">Usuarios</h3>
             <button 
-              v-if="authStore.user?.role === 'Administrator'" 
+              v-if="authStore.user?.role === 'Administrator' || authStore.user?.role === 'Admin'" 
               @click="openCreateUserModal" 
               class="bg-accent hover:bg-opacity-90 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
@@ -109,7 +109,7 @@
             <div v-for="user in users" :key="user.id" 
                  class="group relative bg-gray-50 dark:bg-gray-700 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200">
               <div class="flex items-center space-x-3">
-                <div v-if="authStore.user?.role === 'Administrator' && user.id !== authStore.user?.id" 
+                <div v-if="(authStore.user?.role === 'Administrator' || authStore.user?.role === 'Admin') && user.id !== authStore.user?.id" 
                      class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button @click="openEditUserModal(user)" class="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Editar usuario">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z" /></svg>
@@ -126,7 +126,14 @@
                   <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user.email }}</p>
                 </div>
                 <div class="ml-auto">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#854F6C]/10 text-[#854F6C] dark:bg-[#DFB6B2]/20 dark:text-[#DFB6B2] border border-[#854F6C]/20 dark:border-[#DFB6B2]/30 whitespace-nowrap">{{ user.role }}</span>
+                  <span 
+                    :class="[
+                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap', 
+                      getRoleClasses(user.role)
+                    ]"
+                  >
+                    {{ translateRole(user.role) }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -149,6 +156,7 @@ import CreateTeamForm from '@/components/CreateTeamForm.vue';
 import { useAuthStore } from '@/store/auth.ts';
 import { useTeamsStore } from '@/store/teams.ts';
 import { useUsersStore } from '@/store/users.ts';
+import { translateRole } from '@/utils/roleTranslator.js'; // IMPORTAMOS la función central
 
 const authStore = useAuthStore();
 const teamsStore = useTeamsStore();
@@ -156,6 +164,18 @@ const usersStore = useUsersStore();
 
 const teams = computed(() => teamsStore.teams);
 const users = computed(() => usersStore.users);
+
+// Objeto SÓLO para las clases de los roles en ESTA VISTA
+const getRoleClasses = (role) => {
+  const cleanRole = typeof role === 'string' ? role.trim() : role;
+  const classMap = {
+    'Administrator': 'bg-[#854F6C]/10 text-[#854F6C] dark:bg-[#DFB6B2]/20 dark:text-[#DFB6B2] border border-[#854F6C]/20 dark:border-[#DFB6B2]/30',
+    'Admin': 'bg-[#854F6C]/10 text-[#854F6C] dark:bg-[#DFB6B2]/20 dark:text-[#DFB6B2] border border-[#854F6C]/20 dark:border-[#DFB6B2]/30',
+    'team member': 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-500',
+    'viewer': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-700/30'
+  };
+  return classMap[cleanRole] || 'bg-gray-200 text-gray-800';
+};
 
 // Lógica de Usuarios (INTACTA)
 const showUserFormModal = ref(false);
@@ -212,7 +232,7 @@ onUnmounted(() => {
   document.removeEventListener('click', closeMenu);
 });
 watchEffect(() => {
-  if (authStore.user?.role === 'Administrator') {
+  if (authStore.user?.role === 'Administrator' || authStore.user?.role === 'Admin') {
     usersStore.fetchUsers();
   }
 });

@@ -30,8 +30,8 @@
                 <div class="flex justify-center">
                   <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-secondary bg-light-accent rounded-full capitalize shadow-sm">
                     <div class="w-2 h-2 bg-secondary rounded-full mr-2"></div>
-                    {{ authStore.user?.role }}
-                  </span>
+                    {{ translateRole(authStore.user?.role) }}
+                    </span>
                 </div>
               </div>
             </div>
@@ -180,6 +180,9 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import { useAuthStore } from '@/store/auth.ts';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import CreateUserForm from '@/components/CreateUserForm.vue';
+// ============================ CAMBIO AQUÍ ============================
+import { translateRole } from '@/utils/roleTranslator.js';
+// =====================================================================
 
 // --- SE IMPORTAN LOS ARCHIVOS PDF ---
 import documentationUrl from '@/assets/Documentación.pdf';
@@ -211,6 +214,6 @@ const closeEditModal = () => {
 
 const handleLogout = () => {
   authStore.logout();
-  router.push('/login');
+  router.push('/');
 };
 </script>
