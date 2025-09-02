@@ -67,9 +67,7 @@
                   class="group/task bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700 cursor-grab"
                 >
                   
-                  <!-- Header con Avatar y Menú -->
                   <div class="flex justify-between items-start mb-4">
-                    <!-- Avatar del usuario en la esquina superior izquierda -->
                     <div 
                       v-if="task.assigned_to" 
                       class="relative group/avatar flex-shrink-0 mr-3"
@@ -79,15 +77,12 @@
                         {{ getInitials(task.assigned_to.full_name) }}
                       </div>
                     </div>
-                    <!-- Placeholder cuando no hay usuario asignado -->
                     <div v-else class="w-8 h-8 flex-shrink-0 mr-3"></div>
                     
-                    <!-- Título de la tarea -->
                     <h4 class="font-semibold text-dark-purple dark:text-light flex-1 leading-relaxed">
                       {{ task.title }}
                     </h4>
                     
-                    <!-- Menú de opciones -->
                     <div class="relative flex-shrink-0 ml-3">
                       <button 
                         @click="toggleTaskMenu(task.id)" 
@@ -128,19 +123,17 @@
                     </div>
                   </div>
                   
-                  <!-- Footer con Priority y Botones de acción -->
                   <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2">
                       <span 
                         v-if="task.priority" 
-                        :class="priorityClasses[task.priority]" 
-                        class="px-3 py-1 text-xs font-bold text-white rounded-full shadow-sm"
+                        :class="priorityDetails[task.priority].classes" 
+                        class="px-3 py-1 text-xs font-bold rounded-full shadow-sm"
                       >
-                        {{ task.priority.toUpperCase() }}
+                        {{ priorityDetails[task.priority].text }}
                       </span>
-                    </div>
+                      </div>
                     
-                    <!-- Botón Comentar en el centro -->
                     <button 
                       @click="openDetailModal(task, false)" 
                       class="flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 hover:bg-accent hover:text-white rounded-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md group/comment" 
@@ -152,7 +145,6 @@
                       <span>Comentar</span>
                     </button>
                     
-                    <!-- Botón Ver en la derecha -->
                     <button 
                       @click="openDetailModal(task, true)" 
                       class="flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 hover:bg-secondary hover:text-white rounded-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md group/view" 
@@ -310,12 +302,16 @@ const columnTitles: Record<TaskStatus, string> = {
   done: 'Completado'
 };
 
-const priorityClasses: Record<TaskPriority, string> = {
-  low: 'bg-green-500',
-  medium: 'bg-blue-500',
-  high: 'bg-yellow-500',
-  urgent: 'bg-red-500',
+// ===================== CAMBIOS AQUÍ =====================
+// Se unifica el texto y las clases en un solo objeto para mejor organización.
+const priorityDetails: Record<TaskPriority, { text: string; classes: string }> = {
+  low:    { text: 'Baja',    classes: 'bg-green-500 text-white' },
+  medium: { text: 'Media',   classes: 'bg-blue-500 text-white' },
+  high:   { text: 'Alta',    classes: 'bg-yellow-500 text-white' }, // Ajuste de color de texto para legibilidad
+  urgent: { text: 'Urgente', classes: 'bg-red-500 text-white' },
 };
+// ========================================================
+
 
 onMounted(() => {
   const projectId = route.params.projectId as string;

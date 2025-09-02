@@ -28,8 +28,7 @@
               </div>
               <div>
                 <label for="assigned_to_id" class="block text-sm font-medium text-gray-700 dark:text-[#FBE4D8]">Asignar a</label>
-                <select id="assigned_to_id" v-model="form.assigned_to_id" class="mt-1 block w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-[#FBE4D8]">
-                  <option value="">Nadie</option>
+                <select id="assigned_to_id" v-model="form.assigned_to_id" class="mt-1 block w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-[#FBE4D8]" required>
                   <template v-for="member in teamMembers" :key="member.id">
                     <option v-if="member.user" :value="member.user.id">
                       {{ member.user.full_name }}
@@ -61,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { useTaskStore } from '@/store/taskStore';
 import type { TeamMember } from '@/types/Project';
 import type { TaskPriority } from '@/types/Task';
@@ -75,16 +74,32 @@ const emit = defineEmits(['close']);
 
 const taskStore = useTaskStore();
 
+// Función para obtener el primer miembro válido del equipo
+const getFirstValidMemberId = () => {
+  if (props.teamMembers && props.teamMembers.length > 0) {
+    const firstMember = props.teamMembers.find(member => member.user);
+    return firstMember ? firstMember.user.id : '';
+  }
+  return '';
+};
+
 const form = reactive({
   title: '',
   description: '',
   priority: 'medium' as TaskPriority,
-  assigned_to_id: '',
+  // CAMBIO AQUÍ: Asignamos el primer usuario de la lista por defecto
+  assigned_to_id: getFirstValidMemberId(),
   due_date: '',
   estimated_hours: null as number | null,
 });
 
 const submitForm = async () => {
+  // CAMBIO AQUÍ: Añadimos una validación de seguridad
+  if (!form.assigned_to_id) {
+    alert('Por favor, asigne la tarea a un miembro del equipo.');
+    return; // Detiene el envío del formulario
+  }
+
   try {
     await taskStore.createTask({
       ...form,
