@@ -9,14 +9,24 @@
       <div v-else-if="taskStore.currentTaskComments.length === 0">
         <p class="text-gray-500 dark:text-[#FBE4D8] text-sm">No hay comentarios todavía. ¡Sé el primero en añadir uno!</p>
       </div>
-      <div v-else v-for="comment in taskStore.currentTaskComments" :key="comment.id" class="flex items-start space-x-3">
+      <div v-else v-for="comment in taskStore.currentTaskComments" :key="comment.id" class="flex items-start space-x-3 group">
         <div class="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
           {{ getInitials(comment.user.full_name) }}
         </div>
         <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2">
           <div class="flex items-center justify-between">
             <p class="font-semibold text-sm text-dark-purple dark:text-[#FBE4D8]">{{ comment.user.full_name }}</p>
-            <p class="text-xs text-gray-500 dark:text-[#FBE4D8]">{{ formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: es }) }}</p>
+            <div class="flex items-center space-x-2">
+              <p class="text-xs text-gray-500 dark:text-[#FBE4D8]">{{ formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: es }) }}</p>
+              <button 
+                v-if="!isViewOnly && (authStore.user?.id === comment.user.id || authStore.user?.role === 'Administrator')"
+                @click="handleDeleteComment(comment.id)"
+                class="p-1 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Eliminar comentario"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+              </div>
           </div>
           <p class="text-sm text-gray-800 dark:text-[#FBE4D8] mt-1 whitespace-pre-wrap">{{ comment.content }}</p>
         </div>
@@ -49,6 +59,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useTaskStore } from '@/store/taskStore';
+import { useAuthStore } from '@/store/auth'; // 1. IMPORTAMOS AUTH STORE
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -58,6 +69,7 @@ const props = defineProps<{
 }>();
 
 const taskStore = useTaskStore();
+const authStore = useAuthStore(); // 2. CREAMOS INSTANCIA DE AUTH STORE
 const newComment = ref('');
 const isSubmitting = ref(false);
 
@@ -78,6 +90,17 @@ const handlePostComment = async () => {
     console.error("Failed to post comment:", error);
   } finally {
     isSubmitting.value = false;
+  }
+};
+
+// 3. AÑADIMOS LA FUNCIÓN PARA MANEJAR LA ELIMINACIÓN
+const handleDeleteComment = async (commentId: number) => {
+  if (confirm('¿Estás seguro de que deseas eliminar este comentario?')) {
+    try {
+      await taskStore.deleteComment(props.taskId, commentId);
+    } catch (error) {
+      // El store ya se encarga de mostrar la alerta de error
+    }
   }
 };
 </script>

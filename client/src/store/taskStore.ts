@@ -46,11 +46,37 @@ export const useTaskStore = defineStore('taskStore', {
         isTimerActiveForTask: (state) => (taskId: string) => state.activeTimerTaskId === taskId,
     },
     actions: {
-        // --- 👇 ACCIÓN FINAL AÑADIDA AQUÍ 👇 ---
+        // --- 👇 NUEVAS ACCIONES PARA ELIMINAR 👇 ---
+        async deleteAttachment(taskId: string, attachmentId: number) {
+            try {
+                await taskService.deleteAttachment(taskId, attachmentId);
+                this.currentTaskAttachments = this.currentTaskAttachments.filter(
+                    (attachment) => attachment.id !== attachmentId
+                );
+            } catch (error) {
+                console.error('Error deleting attachment:', error);
+                alert('No se pudo eliminar el archivo adjunto.');
+                throw error;
+            }
+        },
+
+        async deleteComment(taskId: string, commentId: number) {
+            try {
+                await taskService.deleteComment(taskId, commentId);
+                this.currentTaskComments = this.currentTaskComments.filter(
+                    (comment) => comment.id !== commentId
+                );
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                alert('No se pudo eliminar el comentario.');
+                throw error;
+            }
+        },
+        // --- (FIN DE LAS ACCIONES NUEVAS) ---
+
         async discardTimer(taskId: string) {
             try {
                 await taskService.discardTaskTimer(taskId);
-                // Si se descarta un timer activo, actualizamos el estado
                 if (this.activeTimerTaskId === taskId) {
                     this.activeTimerTaskId = null;
                 }

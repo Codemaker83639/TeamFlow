@@ -51,6 +51,12 @@ export default {
         return apiClient.post(`/tasks/${taskId}/comments`, payload);
     },
 
+    // --- 👇 NUEVO MÉTODO PARA ELIMINAR COMENTARIOS 👇 ---
+    deleteComment(taskId: string, commentId: number): Promise<AxiosResponse<void>> {
+        return apiClient.delete(`/tasks/${taskId}/comments/comment/${commentId}`);
+    },
+    // --- (FIN DEL NUEVO MÉTODO) ---
+
     getAttachments(taskId: string): Promise<AxiosResponse<TaskAttachment[]>> {
         return apiClient.get(`/tasks/${taskId}/attachments`);
     },
@@ -66,6 +72,12 @@ export default {
         });
     },
 
+    // --- 👇 NUEVO MÉTODO PARA ELIMINAR ADJUNTOS 👇 ---
+    deleteAttachment(taskId: string, attachmentId: number): Promise<AxiosResponse<void>> {
+        return apiClient.delete(`/tasks/${taskId}/attachments/${attachmentId}`);
+    },
+    // --- (FIN DEL NUEVO MÉTODO) ---
+
     startTaskTimer(taskId: string): Promise<AxiosResponse<void>> {
         return apiClient.post(`/tasks/${taskId}/timer/start`);
     },
@@ -74,7 +86,6 @@ export default {
         return apiClient.post(`/tasks/${taskId}/timer/stop`);
     },
 
-    // --- 👇 FUNCIÓN FINAL AÑADIDA AQUÍ 👇 ---
     /**
      * Envía la señal para descartar (eliminar) el cronómetro activo de una tarea.
      * @param taskId El ID de la tarea.

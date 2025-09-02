@@ -30,20 +30,30 @@
         :key="attachment.id"
         class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-lg"
       >
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-3 min-w-0">
           <div class="w-8 h-8 flex-shrink-0 bg-accent text-white rounded-lg flex items-center justify-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           </div>
-          <div>
-            <p class="text-sm font-semibold text-gray-800 dark:text-[#FBE4D8]">{{ attachment.file_name }}</p>
-            <p class="text-xs text-gray-500 dark:text-[#FBE4D8]">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-gray-800 dark:text-[#FBE4D8] truncate">{{ attachment.file_name }}</p>
+            <p class="text-xs text-gray-500 dark:text-[#FBE4D8] truncate">
               Subido por {{ attachment.uploaded_by.full_name }} - {{ (attachment.file_size_kb).toFixed(1) }} KB
             </p>
           </div>
         </div>
-        <a :href="`http://localhost:3000/uploads/${attachment.file_path}`" target="_blank" class="p-2 rounded-lg text-gray-400 dark:text-[#FBE4D8] hover:text-accent hover:bg-gray-200 dark:hover:bg-gray-600">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        </a>
+        <div class="flex items-center flex-shrink-0">
+          <a :href="`http://localhost:3000/uploads/${attachment.file_path}`" target="_blank" class="p-2 rounded-lg text-gray-400 dark:text-[#FBE4D8] hover:text-accent hover:bg-gray-200 dark:hover:bg-gray-600" title="Descargar">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          </a>
+          <button 
+            v-if="!isViewOnly && (authStore.user?.id === attachment.uploaded_by.id || authStore.user?.role === 'Administrator')"
+            @click="handleDeleteAttachment(attachment.id)"
+            class="p-2 rounded-lg text-gray-400 dark:text-[#FBE4D8] hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30"
+            title="Eliminar archivo"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+          </div>
       </div>
     </div>
   </div>
@@ -52,6 +62,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useTaskStore } from '@/store/taskStore';
+import { useAuthStore } from '@/store/auth'; // 1. IMPORTAMOS AUTH STORE
 
 const props = defineProps<{
   taskId: string;
@@ -59,6 +70,7 @@ const props = defineProps<{
 }>();
 
 const taskStore = useTaskStore();
+const authStore = useAuthStore(); // 2. CREAMOS INSTANCIA DE AUTH STORE
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const triggerFileInput = () => {
@@ -78,6 +90,17 @@ const handleFileSelect = async (event: Event) => {
   } finally {
     if (target) {
       target.value = '';
+    }
+  }
+};
+
+// 3. AÑADIMOS LA FUNCIÓN PARA MANEJAR LA ELIMINACIÓN
+const handleDeleteAttachment = async (attachmentId: number) => {
+  if (confirm('¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.')) {
+    try {
+      await taskStore.deleteAttachment(props.taskId, attachmentId);
+    } catch (error) {
+      // El store se encarga de notificar al usuario si hay un error
     }
   }
 };
