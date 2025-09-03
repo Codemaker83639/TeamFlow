@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with the flag to resolve conflicts
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
@@ -20,7 +20,8 @@ RUN npm run build
 FROM node:18-alpine AS dev
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+# --- CORRECCIÓN AQUÍ ---
+RUN npm install --legacy-peer-deps
 COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "start:dev"]
@@ -41,8 +42,9 @@ RUN adduser -S nestjs -u 1001
 # Copy package files
 COPY package*.json ./
 
-# Install production dependencies
-RUN npm install --only=production && npm cache clean --force
+# Install production dependencies with the flag
+# --- CORRECCIÓN AQUÍ ---
+RUN npm install --only=production --legacy-peer-deps && npm cache clean --force
 
 # Copy built application
 COPY --from=development /app/dist ./dist

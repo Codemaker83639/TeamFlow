@@ -17,10 +17,10 @@ export default defineConfig({
       '@types': resolve(__dirname, 'src/types'),
     }
   },
-  server: { // <-- REEMPLAZA ESTA SECCIÓN COMPLETA
-    host: true,      // Permite conexiones externas (mejor que '0.0.0.0')
-    port: 5173,      // Debe coincidir con el puerto del Dockerfile
-    proxy: {         // Tu configuración de proxy está bien, la mantenemos
+  server: {
+    host: true,
+    port: 5173,
+    proxy: {
       '/api': {
         target: 'http://backend:3000',
         changeOrigin: true,
@@ -30,9 +30,15 @@ export default defineConfig({
         target: 'http://backend:3000',
         changeOrigin: true,
         ws: true,
+      },
+      // --- 👇 ESTE ES EL BLOQUE QUE SOLUCIONA TODO 👇 ---
+      '/uploads': {
+        target: 'http://backend:3000',
+        changeOrigin: true,
+        secure: false,
       }
     },
-    watch: {         // <-- AÑADE ESTA SECCIÓN
+    watch: {
       usePolling: true
     }
   },
