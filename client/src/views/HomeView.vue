@@ -17,11 +17,6 @@
       <div class="container mx-auto px-6">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
           <div class="text-left">
-            <div class="inline-flex items-center px-4 py-2 rounded-full bg-accent/10 border border-accent/30 mb-8 animate-fade-in">
-              <div class="w-2 h-2 bg-accent rounded-full animate-pulse mr-3"></div>
-              <span class="text-sm font-medium" style="color: #FBE4D8;">Plataforma de Gestión #1</span>
-            </div>
-
             <h1 class="text-6xl lg:text-7xl font-black mb-6 leading-tight animate-slide-up" style="color: #FBE4D8;">
               El <span style="color: #FBE4D8;">Futuro</span> del
               <br>Trabajo <span style="color: #FBE4D8;">Remoto</span>
