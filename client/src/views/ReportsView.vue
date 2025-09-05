@@ -18,8 +18,8 @@
           <p class="text-3xl font-bold text-dark-purple dark:text-light">240.5</p>
         </div>
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <p class="text-sm text-accent dark:text-gray-400">Proyectos en Riesgo</p>
-          <p class="text-3xl font-bold text-red-500">2</p>
+          <p class="text-sm text-accent dark:text-gray-400">Proyectos Completados</p>
+          <p class="text-3xl font-bold text-dark-purple dark:text-light">2</p>
         </div>
       </div>
 
