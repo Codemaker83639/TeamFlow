@@ -11,6 +11,7 @@ import { AttachmentsModule } from './attachments/attachments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { TimeTrackingModule } from './time-tracking/time-tracking.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { TimeTrackingModule } from './time-tracking/time-tracking.module';
     NotificationsModule,
     DashboardModule,
     TimeTrackingModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],

@@ -7,21 +7,21 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // --- LA ÚNICA LÍNEA QUE IMPORTA ---
-  // Orden directa: "Cualquier petición que empiece con /uploads, sírvela desde la carpeta 'uploads' que está en la raíz del proyecto".
-  // Esta es la configuración correcta y definitiva para Docker.
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
-  // ------------------------------------
 
   app.enableCors({
-    origin: ['http://localhost:8080'], // Tu configuración original y correcta
+    origin: ['http://localhost:8080'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
+  // --- REVERTIMOS A LA TUBERÍA GLOBAL ORIGINAL Y SIMPLE ---
+  // Esto solucionará los errores 400 al crear proyectos y tareas.
   app.useGlobalPipes(new ValidationPipe());
+  // --------------------------------------------------------
 
   await app.listen(3000);
 }
 bootstrap();
+
