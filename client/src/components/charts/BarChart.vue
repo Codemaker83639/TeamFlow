@@ -1,44 +1,31 @@
 <template>
-  <Bar :data="chartData" :options="chartOptions" />
+  <Bar ref="chartRef" :data="props.chartData" :options="props.chartOptions" />
 </template>
 
-<script>
-import { Bar } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+<script setup>
+import { Bar } from 'vue-chartjs';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { ref, computed } from 'vue';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-export default {
-  name: 'BarChart',
-  components: { Bar },
-  props: {
-    chartData: {
-      type: Object,
-      required: true
-    },
-    // Añadimos una prop para recibir opciones de configuración
-    chartOptions: {
-      type: Object,
-      default: () => ({
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            ticks: {
-              callback: function(value) {
-                return value + ' h';
-              }
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            display: false
-          }
-        }
-      })
-    }
+const props = defineProps({
+  chartData: {
+    type: Object,
+    required: true
+  },
+  chartOptions: {
+    type: Object,
+    default: () => {}
   }
-}
+});
+
+// Ref para acceder a la instancia del componente del gráfico
+const chartRef = ref(null);
+
+// Exponemos la instancia del gráfico para que el componente padre pueda acceder a ella
+defineExpose({
+  chartInstance: computed(() => chartRef.value?.chart)
+});
 </script>
 

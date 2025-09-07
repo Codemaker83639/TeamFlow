@@ -1,40 +1,31 @@
 <template>
-  <Doughnut :data="chartData" :options="chartOptions" />
+    <Doughnut ref="chartRef" :data="props.chartData" :options="props.chartOptions" />
 </template>
 
-<script>
+<script setup>
 import { Doughnut } from 'vue-chartjs';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { ref, computed } from 'vue';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default {
-  name: 'DoughnutChart',
-  components: { Doughnut },
-  props: {
+const props = defineProps({
     chartData: {
-      type: Object,
-      required: true
+        type: Object,
+        required: true
+    },
+    chartOptions: {
+        type: Object,
+        default: () => ({})
     }
-  },
-  setup() {
-    const chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: {
-            color: '#4B5563', // Color de texto para modo claro
-            // En un proyecto real, esto podría ser dinámico con el tema oscuro/claro
-          }
-        }
-      }
-    };
+});
 
-    return {
-      chartOptions
-    };
-  }
-};
+// Ref para acceder a la instancia del componente del gráfico
+const chartRef = ref(null);
+
+// Exponemos la instancia del gráfico para que el componente padre pueda acceder a ella
+defineExpose({
+    chartInstance: computed(() => chartRef.value?.chart)
+});
 </script>
+
