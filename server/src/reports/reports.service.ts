@@ -36,6 +36,7 @@ export class ReportsService {
         break;
     }
 
+    // --- QUERIES EXISTENTES ---
     const completedTasksQuery = this.taskRepository.createQueryBuilder('task')
       .where('task.status = :status', { status: TaskStatus.DONE })
       .andWhere('task.updated_at BETWEEN :startDate AND :now', { startDate, now });
@@ -56,13 +57,22 @@ export class ReportsService {
       .where('time_entry.start_time BETWEEN :startDate AND :now', { startDate, now })
       .groupBy('p.name');
 
+    // --- NUEVA QUERY PARA EL GRÁFICO DE DONA (CON TÍTULOS DE TAREAS) ---
+    const taskStatusDistributionQuery = this.taskRepository.createQueryBuilder('task')
+      .select('task.status', 'status')
+      .addSelect('COUNT(DISTINCT task.id)::int', 'count')
+      .addSelect(`json_agg(json_build_object('id', task.id, 'title', task.title))`, 'tasks')
+      .innerJoin('time_entries', 'time_entry', 'time_entry.task_id = task.id')
+      .where('time_entry.start_time BETWEEN :startDate AND :now', { startDate, now })
+      .groupBy('task.status');
+
+    // --- APLICACIÓN DE FILTROS ---
     if (userId) {
       completedTasksQuery.andWhere('task.assigned_to_id = :userId', { userId });
       loggedHoursQuery.andWhere('time_entry.user_id = :userId', { userId });
       effortByProjectQuery.andWhere('time_entry.user_id = :userId', { userId });
+      taskStatusDistributionQuery.andWhere('time_entry.user_id = :userId', { userId }); // Filtro añadido
 
-      // --- CORRECCIÓN FINAL ---
-      // Ahora solo contamos proyectos completados si el usuario tiene tareas en ellos.
       completedProjectsQuery
         .innerJoin('project.tasks', 'user_task')
         .andWhere('user_task.assigned_to_id = :userId', { userId });
@@ -80,13 +90,24 @@ export class ReportsService {
         .andWhere('project.team_id = :teamId', { teamId });
       effortByProjectQuery
         .andWhere('p.team_id = :teamId', { teamId });
+      taskStatusDistributionQuery // Filtro añadido
+        .innerJoin('task.project', 'p_status')
+        .andWhere('p_status.team_id = :teamId', { teamId });
     }
 
-    const [completedTasks, loggedHoursResult, completedProjects, effortByProjectResult] = await Promise.all([
+    // --- EJECUCIÓN DE TODAS LAS QUERIES ---
+    const [
+      completedTasks,
+      loggedHoursResult,
+      completedProjects,
+      effortByProjectResult,
+      taskStatusDistribution // Nueva variable
+    ] = await Promise.all([
       completedTasksQuery.getCount(),
       loggedHoursQuery.getRawOne(),
       completedProjectsQuery.getCount(),
-      effortByProjectQuery.getRawMany()
+      effortByProjectQuery.getRawMany(),
+      taskStatusDistributionQuery.getRawMany() // Nueva ejecución
     ]);
 
     const loggedHours = (loggedHoursResult?.total_minutes || 0) / 60;
@@ -109,7 +130,7 @@ export class ReportsService {
         completedProjects,
       },
       charts: {
-        taskStatusDistribution: [], // Placeholder
+        taskStatusDistribution, // <-- Reemplazamos el placeholder
         effortByProject,
       },
       filtersApplied,
