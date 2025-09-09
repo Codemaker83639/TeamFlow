@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { GetReportQueryDto, TimeRange } from './dto/get-report-query.dto';
 import { Task } from '../tasks/entities/task.entity';
 import { Project, ProjectStatus } from '../projects/entities/project.entity';
@@ -21,6 +21,7 @@ export class ReportsService {
     const now = new Date();
     let startDate: Date;
 
+    // Lógica de fechas unificada
     switch (timeRange) {
       case TimeRange.DAILY:
         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -30,49 +31,53 @@ export class ReportsService {
         break;
       case TimeRange.WEEKLY:
       default:
-        const firstDayOfWeek = now.getDate() - now.getDay();
-        startDate = new Date(now.setDate(firstDayOfWeek));
-        startDate.setHours(0, 0, 0, 0);
+        // Lógica de "Últimos 7 días" para coincidir con el Dashboard
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
         break;
     }
 
-    // --- QUERIES EXISTENTES ---
+    // --- Consultas Base ---
+
     const completedTasksQuery = this.taskRepository.createQueryBuilder('task')
       .where('task.status = :status', { status: TaskStatus.DONE })
-      .andWhere('task.updated_at BETWEEN :startDate AND :now', { startDate, now });
+      .andWhere('task.updated_at >= :startDate', { startDate });
 
     const loggedHoursQuery = this.timeEntryRepository.createQueryBuilder('time_entry')
       .select('SUM(time_entry.duration_minutes)', 'total_minutes')
-      .where('time_entry.start_time BETWEEN :startDate AND :now', { startDate, now });
+      // Lógica de `created_at` para coincidir con el Dashboard
+      .where('time_entry.created_at >= :startDate', { startDate });
 
     const completedProjectsQuery = this.projectRepository.createQueryBuilder('project')
       .where('project.status = :status', { status: ProjectStatus.COMPLETED })
-      .andWhere('project.updated_at BETWEEN :startDate AND :now', { startDate, now });
+      .andWhere('project.updated_at >= :startDate', { startDate });
 
     const effortByProjectQuery = this.timeEntryRepository.createQueryBuilder('time_entry')
       .select('p.name', 'projectName')
       .addSelect('SUM(time_entry.duration_minutes)', 'total_minutes')
       .innerJoin('time_entry.task', 't')
       .innerJoin('t.project', 'p')
-      .where('time_entry.start_time BETWEEN :startDate AND :now', { startDate, now })
+      .where('time_entry.created_at >= :startDate', { startDate })
       .groupBy('p.name');
 
-    // --- NUEVA QUERY PARA EL GRÁFICO DE DONA (CON TÍTULOS DE TAREAS) ---
     const taskStatusDistributionQuery = this.taskRepository.createQueryBuilder('task')
       .select('task.status', 'status')
-      .addSelect('COUNT(DISTINCT task.id)::int', 'count')
+      .addSelect('COUNT(task.id)::int', 'count')
+      // Agregamos los títulos de las tareas
       .addSelect(`json_agg(json_build_object('id', task.id, 'title', task.title))`, 'tasks')
-      .innerJoin('time_entries', 'time_entry', 'time_entry.task_id = task.id')
-      .where('time_entry.start_time BETWEEN :startDate AND :now', { startDate, now })
+      // --- CORRECCIÓN AQUÍ ---
+      // Usamos la Entidad `TimeEntry` en lugar de la cadena de texto 'time_entry'
+      .innerJoin(TimeEntry, 'te', 'te.task_id = task.id')
+      .where('te.created_at >= :startDate', { startDate })
       .groupBy('task.status');
 
-    // --- APLICACIÓN DE FILTROS ---
+    // --- Aplicación de Filtros ---
+
     if (userId) {
       completedTasksQuery.andWhere('task.assigned_to_id = :userId', { userId });
       loggedHoursQuery.andWhere('time_entry.user_id = :userId', { userId });
       effortByProjectQuery.andWhere('time_entry.user_id = :userId', { userId });
-      taskStatusDistributionQuery.andWhere('time_entry.user_id = :userId', { userId }); // Filtro añadido
-
+      taskStatusDistributionQuery.andWhere('te.user_id = :userId', { userId });
       completedProjectsQuery
         .innerJoin('project.tasks', 'user_task')
         .andWhere('user_task.assigned_to_id = :userId', { userId });
@@ -90,27 +95,32 @@ export class ReportsService {
         .andWhere('project.team_id = :teamId', { teamId });
       effortByProjectQuery
         .andWhere('p.team_id = :teamId', { teamId });
-      taskStatusDistributionQuery // Filtro añadido
+      taskStatusDistributionQuery
         .innerJoin('task.project', 'p_status')
         .andWhere('p_status.team_id = :teamId', { teamId });
     }
 
-    // --- EJECUCIÓN DE TODAS LAS QUERIES ---
+    // --- Ejecución de Consultas ---
+
     const [
       completedTasks,
       loggedHoursResult,
       completedProjects,
       effortByProjectResult,
-      taskStatusDistribution // Nueva variable
+      taskStatusDistribution
     ] = await Promise.all([
       completedTasksQuery.getCount(),
       loggedHoursQuery.getRawOne(),
       completedProjectsQuery.getCount(),
       effortByProjectQuery.getRawMany(),
-      taskStatusDistributionQuery.getRawMany() // Nueva ejecución
+      taskStatusDistributionQuery.getRawMany()
     ]);
 
-    const loggedHours = (loggedHoursResult?.total_minutes || 0) / 60;
+    // --- Formateo de Resultados ---
+
+    const totalMinutes = loggedHoursResult?.total_minutes || 0;
+    // Redondeo a 1 decimal para coincidir con el Dashboard
+    const loggedHours = parseFloat((totalMinutes / 60).toFixed(1));
 
     const effortByProject = effortByProjectResult.map(item => ({
       projectName: item.projectName,
@@ -126,11 +136,11 @@ export class ReportsService {
     return {
       metrics: {
         completedTasks,
-        loggedHours: parseFloat(loggedHours.toFixed(2)),
+        loggedHours,
         completedProjects,
       },
       charts: {
-        taskStatusDistribution, // <-- Reemplazamos el placeholder
+        taskStatusDistribution,
         effortByProject,
       },
       filtersApplied,

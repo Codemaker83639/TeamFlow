@@ -45,8 +45,7 @@
         <Spinner />
       </div>
 
-      <!-- id="report-content" se mantiene para posibles usos, pero ya no es el objetivo principal del PDF -->
-      <div v-else-if="metrics" id="report-content" class="space-y-6">
+      <div v-else-if="metrics" class="space-y-6">
         <!-- MÉTRICAS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
@@ -55,7 +54,7 @@
           </div>
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <p class="text-sm text-accent dark:text-gray-400">Horas Registradas ({{ timeRangeText }})</p>
-            <p class="text-3xl font-bold text-dark-purple dark:text-light">{{ metrics.loggedHours.toFixed(1) }}</p>
+            <p class="text-3xl font-bold text-dark-purple dark:text-light">{{ formatHoursDecimal(metrics.loggedHours) }}</p>
           </div>
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <p class="text-sm text-accent dark:text-gray-400">Proyectos Completados ({{ timeRangeText }})</p>
@@ -99,7 +98,7 @@
                         <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                             <li v-for="project in charts.effortByProject" :key="project.projectName" class="flex justify-between">
                               <span>{{ project.projectName }}</span>
-                              <span class="font-semibold">{{ project.hours.toFixed(2) }} h</span>
+                              <span class="font-semibold">{{ formatHoursDecimal(project.hours) }}</span>
                           </li>
                       </ul>
                   </div>
@@ -148,6 +147,17 @@ const isGeneratingPDF = ref(false);
 
 const barChartRef = ref(null);
 const doughnutChartRef = ref(null);
+
+// --- FUNCIÓN AUXILIAR PARA FORMATEAR HORAS ---
+const formatHoursDecimal = (decimalHours) => {
+  if (decimalHours === null || decimalHours === undefined) {
+    return '0 h 0 min';
+  }
+  const hours = Math.floor(decimalHours);
+  const minutes = Math.round((decimalHours - hours) * 60);
+  return `${hours} h ${minutes} min`;
+};
+// ---------------------------------------------
 
 // Diccionario para traducir los estados de las tareas
 const statusTranslations = {
@@ -282,7 +292,7 @@ const timeRangeText = computed(() => {
 
 const exportToPDF = async () => {
     isGeneratingPDF.value = true;
-    await nextTick(); // Espera a que Vue deshabilite las animaciones
+    await nextTick(); 
 
     try {
         if (typeof window.html2pdf === 'undefined') {
@@ -291,7 +301,6 @@ const exportToPDF = async () => {
             return;
         }
 
-        // --- CONSTRUCCIÓN DEL HTML PARA EL PDF ---
         const metricsData = reportStore.metrics;
         const chartsData = reportStore.charts;
 
@@ -328,7 +337,7 @@ const exportToPDF = async () => {
             chartsData.effortByProject.map(project => `
                 <li style="font-size: 12px; display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f5f5f5;">
                     <span>${project.projectName}</span>
-                    <strong>${project.hours.toFixed(2)} h</strong>
+                    <strong>${formatHoursDecimal(project.hours)}</strong>
                 </li>
             `).join('') : '<li>No hay datos.</li>';
 
@@ -341,7 +350,7 @@ const exportToPDF = async () => {
                 <h2 style="font-size: 22px; margin-top: 25px; margin-bottom: 20px; text-align: center;">${reportTitleText}</h2>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                     ${createMetricCard(`Tareas Completadas (${timeRangeText.value})`, metricsData.completedTasks)}
-                    ${createMetricCard(`Horas Registradas (${timeRangeText.value})`, metricsData.loggedHours.toFixed(1))}
+                    ${createMetricCard(`Horas Registradas (${timeRangeText.value})`, formatHoursDecimal(metricsData.loggedHours))}
                     ${createMetricCard(`Proyectos Completados (${timeRangeText.value})`, metricsData.completedProjects)}
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">

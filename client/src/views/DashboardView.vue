@@ -82,7 +82,7 @@
           <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider mb-2">HORAS TRABAJADAS</p>
           <p class="text-xs text-black dark:text-orange-200 mb-1">(Últimos 7 días)</p>
           <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-black dark:text-orange-100 transition-colors" style="color: #854F6C;">
-            {{ dashboardStore.stats?.workedHours || 0 }}
+            {{ formatHoursDecimal(dashboardStore.stats?.workedHours || 0) }}
           </p>
           <p v-else class="text-4xl font-bold text-gray-400 animate-pulse">...</p>
           <div class="absolute bottom-0 left-0 w-full h-1 group-hover:h-2 transition-all duration-300" style="background-color: #854F6C;"></div>
@@ -269,6 +269,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import TipsFlowCard from '@/components/TipsFlowCard.vue';
 import ProgressChartCard from '@/components/ProgressChartCard.vue';
+
+// --- FUNCIÓN AUXILIAR PARA FORMATEAR HORAS ---
+const formatHoursDecimal = (decimalHours: number): string => {
+  if (decimalHours === null || decimalHours === undefined) {
+    return '0 h 0 min';
+  }
+  const hours = Math.floor(decimalHours);
+  const minutes = Math.round((decimalHours - hours) * 60);
+  return `${hours} h ${minutes} min`;
+};
+// ---------------------------------------------
 
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
