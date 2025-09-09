@@ -80,11 +80,35 @@
                   <button @click="toggleMenu(project.id)" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 p-1 rounded-full focus:outline-none hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
                   </button>
-                  <div v-if="openMenuId === project.id" class="origin-top-right absolute right-0 mt-2 w-56 rounded-xl shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm ring-1 ring-black ring-opacity-5 z-50 border border-purple-100 dark:border-purple-800">
+                  <div v-if="openMenuId === project.id" class="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm ring-1 ring-black ring-opacity-5 z-50 border border-purple-100 dark:border-purple-800">
                     <div class="py-1" @click.stop>
                       <p class="px-4 py-2 text-xs text-gray-400">Cambiar Estado</p>
                       <a v-if="project.status !== 'active'" href="#" @click.prevent="changeStatus(project.id, 'active')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg mx-2">Marcar como Activo</a>
-                      <a v-if="project.status !== 'completed'" href="#" @click.prevent="changeStatus(project.id, 'completed')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg mx-2">Marcar como Completado</a>
+                      
+                      <!-- Opción de completar con restricción -->
+                      <div v-if="project.status !== 'completed'">
+                        <a v-if="project.progress === 100" 
+                           href="#" 
+                           @click.prevent="changeStatus(project.id, 'completed')" 
+                           class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg mx-2">
+                          Marcar como Completado
+                        </a>
+                        <div v-else class="relative">
+                          <span 
+                            @mouseenter="showTooltip(project.id)"
+                            @mouseleave="hideTooltip(project.id)"
+                            class="text-gray-400 dark:text-gray-500 block px-4 py-2 text-sm cursor-not-allowed rounded-lg mx-2 opacity-60">
+                            Marcar como Completado
+                          </span>
+                          <div 
+                            v-if="tooltipVisible[project.id]" 
+                            class="absolute left-0 top-full mt-1 px-3 py-2 bg-red-500 text-white text-xs rounded-lg shadow-lg whitespace-nowrap z-60 transition-opacity duration-200">
+                            El progreso debe estar al 100% para completar
+                            <div class="absolute -top-1 left-4 w-2 h-2 bg-red-500 rotate-45"></div>
+                          </div>
+                        </div>
+                      </div>
+                      
                       <a v-if="project.status !== 'archived'" href="#" @click.prevent="changeStatus(project.id, 'archived')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg mx-2">Marcar como Archivado</a>
                       <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                       <a href="#" @click.prevent="openEditModal(project)" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg mx-2">Editar</a>
@@ -126,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import MainLayout from '@/layouts/MainLayout.vue';
 import CreateProjectModal from '@/components/CreateProjectModal.vue';
@@ -143,6 +167,37 @@ const searchQuery = ref('');
 const statusDropdownOpen = ref(false);
 const openMenuId = ref<string | null>(null);
 const projectToEdit = ref<Project | null>(null);
+
+// Estado reactivo para controlar la visibilidad de tooltips
+const tooltipVisible = reactive<Record<string, boolean>>({});
+const tooltipTimeouts = reactive<Record<string, NodeJS.Timeout>>({});
+
+const showTooltip = (projectId: string) => {
+  // Limpiar timeout previo si existe
+  if (tooltipTimeouts[projectId]) {
+    clearTimeout(tooltipTimeouts[projectId]);
+  }
+  
+  // Mostrar tooltip
+  tooltipVisible[projectId] = true;
+  
+  // Programar ocultación automática después de 2 segundos
+  tooltipTimeouts[projectId] = setTimeout(() => {
+    tooltipVisible[projectId] = false;
+    delete tooltipTimeouts[projectId];
+  }, 2000);
+};
+
+const hideTooltip = (projectId: string) => {
+  // Limpiar timeout si existe
+  if (tooltipTimeouts[projectId]) {
+    clearTimeout(tooltipTimeouts[projectId]);
+    delete tooltipTimeouts[projectId];
+  }
+  
+  // Ocultar tooltip inmediatamente al salir con el mouse
+  tooltipVisible[projectId] = false;
+};
 
 const openCreateModal = () => {
   projectToEdit.value = null;
@@ -165,6 +220,15 @@ const toggleMenu = (projectId: string) => {
 };
 
 const changeStatus = (projectId: string, status: ProjectStatus) => {
+  // Obtener el proyecto actual
+  const project = projectStore.filteredProjects.find(p => p.id === projectId);
+  
+  // Verificar restricción SOLO para marcar como completado
+  if (status === 'completed' && project?.progress !== 100) {
+    alert('No se puede marcar como completado. El proyecto debe tener un progreso del 100%.');
+    return;
+  }
+  
   projectStore.updateProject(projectId, { status });
   openMenuId.value = null; 
 };
