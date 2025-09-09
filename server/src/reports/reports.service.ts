@@ -20,8 +20,8 @@ export class ReportsService {
 
     const now = new Date();
     let startDate: Date;
+    let useInterval = false; // Flag para determinar qué lógica de fecha usar
 
-    // Lógica de fechas unificada
     switch (timeRange) {
       case TimeRange.DAILY:
         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -31,11 +31,21 @@ export class ReportsService {
         break;
       case TimeRange.WEEKLY:
       default:
-        // Lógica de "Últimos 7 días" para coincidir con el Dashboard
+        // Marcamos que para el semanal, usaremos el intervalo de la DB
+        useInterval = true;
+        // startDate sigue siendo necesario para otras consultas que no usan el intervalo
         startDate = new Date();
         startDate.setDate(startDate.getDate() - 7);
         break;
     }
+
+    // Lógica de fecha dinámica para las consultas de tiempo
+    const dateFilterCondition = useInterval
+      ? "created_at >= NOW() - INTERVAL '7 days'"
+      : "created_at >= :startDate";
+
+    const dateParams = useInterval ? {} : { startDate };
+
 
     // --- Consultas Base ---
 
@@ -45,8 +55,7 @@ export class ReportsService {
 
     const loggedHoursQuery = this.timeEntryRepository.createQueryBuilder('time_entry')
       .select('SUM(time_entry.duration_minutes)', 'total_minutes')
-      // Lógica de `created_at` para coincidir con el Dashboard
-      .where('time_entry.created_at >= :startDate', { startDate });
+      .where(`time_entry.${dateFilterCondition}`, dateParams);
 
     const completedProjectsQuery = this.projectRepository.createQueryBuilder('project')
       .where('project.status = :status', { status: ProjectStatus.COMPLETED })
@@ -57,18 +66,15 @@ export class ReportsService {
       .addSelect('SUM(time_entry.duration_minutes)', 'total_minutes')
       .innerJoin('time_entry.task', 't')
       .innerJoin('t.project', 'p')
-      .where('time_entry.created_at >= :startDate', { startDate })
+      .where(`time_entry.${dateFilterCondition}`, dateParams)
       .groupBy('p.name');
 
     const taskStatusDistributionQuery = this.taskRepository.createQueryBuilder('task')
       .select('task.status', 'status')
       .addSelect('COUNT(task.id)::int', 'count')
-      // Agregamos los títulos de las tareas
       .addSelect(`json_agg(json_build_object('id', task.id, 'title', task.title))`, 'tasks')
-      // --- CORRECCIÓN AQUÍ ---
-      // Usamos la Entidad `TimeEntry` en lugar de la cadena de texto 'time_entry'
       .innerJoin(TimeEntry, 'te', 'te.task_id = task.id')
-      .where('te.created_at >= :startDate', { startDate })
+      .where(`te.${dateFilterCondition}`, dateParams)
       .groupBy('task.status');
 
     // --- Aplicación de Filtros ---
@@ -119,7 +125,6 @@ export class ReportsService {
     // --- Formateo de Resultados ---
 
     const totalMinutes = loggedHoursResult?.total_minutes || 0;
-    // Redondeo a 1 decimal para coincidir con el Dashboard
     const loggedHours = parseFloat((totalMinutes / 60).toFixed(1));
 
     const effortByProject = effortByProjectResult.map(item => ({
