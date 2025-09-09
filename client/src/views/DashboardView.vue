@@ -79,8 +79,12 @@
             </div>
           </div>
           
-          <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider mb-2">HORAS TRABAJADAS</p>
-          <p class="text-xs text-black dark:text-orange-200 mb-1">(Últimos 7 días)</p>
+          <!-- Card de Horas Trabajadas - MODIFICADO -->
+          <div class="flex items-center space-x-2 mb-2">
+            <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider">HORAS TRABAJADAS</p>
+            <p class="text-xs text-black dark:text-orange-200">(Últimos 7 días)</p>
+          </div>
+          
           <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-black dark:text-orange-100 transition-colors" style="color: #854F6C;">
             {{ formatHoursDecimal(dashboardStore.stats?.workedHours || 0) }}
           </p>
