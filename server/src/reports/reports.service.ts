@@ -69,13 +69,16 @@ export class ReportsService {
       .where(`time_entry.${dateFilterCondition}`, dateParams)
       .groupBy('p.name');
 
+    // --- ÚNICO CAMBIO AQUÍ ---
     const taskStatusDistributionQuery = this.taskRepository.createQueryBuilder('task')
       .select('task.status', 'status')
-      .addSelect('COUNT(task.id)::int', 'count')
+      // Se añade DISTINCT para contar solo tareas únicas y no filas duplicadas por el join
+      .addSelect('COUNT(DISTINCT task.id)::int', 'count')
       .addSelect(`json_agg(json_build_object('id', task.id, 'title', task.title))`, 'tasks')
       .innerJoin(TimeEntry, 'te', 'te.task_id = task.id')
       .where(`te.${dateFilterCondition}`, dateParams)
       .groupBy('task.status');
+    // --- FIN DEL CAMBIO ---
 
     // --- Aplicación de Filtros ---
 
