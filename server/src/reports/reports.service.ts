@@ -46,7 +46,6 @@ export class ReportsService {
 
     const dateParams = useInterval ? {} : { startDate };
 
-
     // --- Consultas Base ---
 
     const completedTasksQuery = this.taskRepository.createQueryBuilder('task')
@@ -69,16 +68,13 @@ export class ReportsService {
       .where(`time_entry.${dateFilterCondition}`, dateParams)
       .groupBy('p.name');
 
-    // --- ÚNICO CAMBIO AQUÍ ---
+    // CAMBIO: Modificada para usar updated_at de la tarea en lugar de created_at de time_entry
     const taskStatusDistributionQuery = this.taskRepository.createQueryBuilder('task')
       .select('task.status', 'status')
-      // Se añade DISTINCT para contar solo tareas únicas y no filas duplicadas por el join
-      .addSelect('COUNT(DISTINCT task.id)::int', 'count')
+      .addSelect('COUNT(task.id)::int', 'count')
       .addSelect(`json_agg(json_build_object('id', task.id, 'title', task.title))`, 'tasks')
-      .innerJoin(TimeEntry, 'te', 'te.task_id = task.id')
-      .where(`te.${dateFilterCondition}`, dateParams)
+      .where('task.updated_at >= :startDate', { startDate })
       .groupBy('task.status');
-    // --- FIN DEL CAMBIO ---
 
     // --- Aplicación de Filtros ---
 
@@ -86,7 +82,7 @@ export class ReportsService {
       completedTasksQuery.andWhere('task.assigned_to_id = :userId', { userId });
       loggedHoursQuery.andWhere('time_entry.user_id = :userId', { userId });
       effortByProjectQuery.andWhere('time_entry.user_id = :userId', { userId });
-      taskStatusDistributionQuery.andWhere('te.user_id = :userId', { userId });
+      taskStatusDistributionQuery.andWhere('task.assigned_to_id = :userId', { userId });
       completedProjectsQuery
         .innerJoin('project.tasks', 'user_task')
         .andWhere('user_task.assigned_to_id = :userId', { userId });
@@ -155,4 +151,3 @@ export class ReportsService {
     };
   }
 }
-
