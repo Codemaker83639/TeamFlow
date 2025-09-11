@@ -60,7 +60,12 @@
             </div>
           </div>
           
-          <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider mb-2">TAREAS COMPLETADAS</p>
+          <!-- Card de Tareas Completadas - MODIFICADO -->
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs font-semibold text-black dark:text-orange-100 uppercase tracking-wider">TAREAS COMPLETADAS</p>
+            <p class="text-xs text-black dark:text-orange-200">(Últimos 7 días)</p>
+          </div>
+          
           <p v-if="!dashboardStore.isLoading" class="text-4xl font-bold text-black dark:text-orange-100 mb-1 transition-colors" style="color: #854F6C;">
             {{ dashboardStore.stats?.completedTasks || 0 }}
           </p>
