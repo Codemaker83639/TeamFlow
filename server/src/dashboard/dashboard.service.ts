@@ -24,16 +24,20 @@ export class DashboardService {
 
   async getStatsForUser(user: User) {
 
-    // --- INICIO DE LA MODIFICACIÓN ---
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    // --- CAMBIO: Calcular inicio de semana actual (lunes) ---
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = domingo, 1 = lunes, etc.
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Si es domingo, retroceder 6 días
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - daysToMonday);
+    weekStart.setHours(0, 0, 0, 0); // Inicio del día
 
     const completedTasksCount = await this.taskRepository.count({
       where: {
         assigned_to: { id: user.id },
         status: TaskStatus.DONE,
-        // ¡VERIFICA ESTE NOMBRE DE CAMPO! Debe ser el campo de fecha de tu entidad Task.
-        updated_at: MoreThanOrEqual(sevenDaysAgo)
+        // Cambio: usar weekStart en lugar de sevenDaysAgo
+        updated_at: MoreThanOrEqual(weekStart)
       },
     });
     // --- FIN DE LA MODIFICACIÓN ---
@@ -60,11 +64,12 @@ export class DashboardService {
       teamMembersCount = uniqueMemberIds.size;
     }
 
+    // --- CAMBIO: Usar parámetro en lugar de SQL INTERVAL ---
     const result = await this.timeEntryRepository
       .createQueryBuilder('time_entry')
       .select('SUM(time_entry.duration_minutes)', 'totalMinutes')
       .where('time_entry.user_id = :userId', { userId: user.id })
-      .andWhere("time_entry.created_at >= NOW() - INTERVAL '7 days'")
+      .andWhere('time_entry.created_at >= :weekStart', { weekStart })
       .getRawOne();
 
     const totalMinutes = result.totalMinutes || 0;
@@ -72,9 +77,9 @@ export class DashboardService {
 
     return {
       activeProjects: activeProjectsCount,
-      completedTasks: completedTasksCount, // Este valor ahora está filtrado por los últimos 7 días
+      completedTasks: completedTasksCount, // Ahora filtrado por semana actual
       teamMembers: teamMembersCount,
-      workedHours: workedHours,
+      workedHours: workedHours, // Ahora filtrado por semana actual
     };
   }
 }
