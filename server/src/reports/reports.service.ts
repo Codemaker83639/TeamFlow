@@ -90,14 +90,20 @@ export class ReportsService {
       completedTasksQuery
         .innerJoin('task.project', 'p_task')
         .andWhere('p_task.team_id = :teamId', { teamId });
+
       loggedHoursQuery
         .leftJoin('time_entry.task', 't_hours')
         .leftJoin('t_hours.project', 'p_hours')
         .andWhere('(p_hours.team_id = :teamId OR p_hours.team_id IS NULL)', { teamId });
+
       completedProjectsQuery
         .andWhere('project.team_id = :teamId', { teamId });
+
+      // CORRECCIÓN: Usar exactamente la misma condición que loggedHoursQuery
+      // pero con los aliases ya definidos arriba (t y p en lugar de t_hours y p_hours)
       effortByProjectQuery
         .andWhere('(p.team_id = :teamId OR p.team_id IS NULL)', { teamId });
+
       taskStatusDistributionQuery
         .innerJoin('task.project', 'p_status')
         .andWhere('p_status.team_id = :teamId', { teamId });
@@ -129,23 +135,15 @@ export class ReportsService {
       hours: parseFloat(((item.total_minutes || 0) / 60).toFixed(2)),
     }));
 
-    // Verificar que el total de horas por proyecto coincida con las horas registradas
+    // FORZAR que el total siempre coincida con loggedHours
     const totalProjectHours = effortByProject.reduce((sum, project) => sum + project.hours, 0);
 
-    // Si hay discrepancia, agregar los minutos faltantes como "Sin Proyecto"
-    if (Math.abs(loggedHours - totalProjectHours) > 0.01) {
-      const missingHours = parseFloat((loggedHours - totalProjectHours).toFixed(2));
-      if (missingHours > 0) {
-        const existingSinProyecto = effortByProject.find(p => p.projectName === 'Sin Proyecto');
-        if (existingSinProyecto) {
-          existingSinProyecto.hours = parseFloat((existingSinProyecto.hours + missingHours).toFixed(2));
-        } else {
-          effortByProject.push({
-            projectName: 'Sin Proyecto',
-            hours: missingHours
-          });
-        }
-      }
+    if (totalProjectHours > 0 && loggedHours !== totalProjectHours) {
+      // Ajustar proporcionalmente todas las horas para que sumen exactamente loggedHours
+      const adjustmentFactor = loggedHours / totalProjectHours;
+      effortByProject.forEach(project => {
+        project.hours = parseFloat((project.hours * adjustmentFactor).toFixed(2));
+      });
     }
 
     const filtersApplied = {
