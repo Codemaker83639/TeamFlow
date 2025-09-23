@@ -1,0 +1,2 @@
+nvm use 16
+pm2 start app.mjs --name server-jh --interpreter=node

@@ -67,11 +67,12 @@ export class ReportsService {
       .where(`time_entry.${dateFilterCondition}`, dateParams)
       .groupBy('COALESCE(p.name, \'Sin Proyecto\')');
 
-    // Cambiar criterio: mostrar todas las tareas del usuario, sin importar fechas de creación/modificación
+    // CORRECCIÓN: Aplicar el mismo filtro de fecha que completedTasksQuery
     const taskStatusDistributionQuery = this.taskRepository.createQueryBuilder('task')
       .select('task.status', 'status')
       .addSelect('COUNT(task.id)::int', 'count')
       .addSelect(`json_agg(json_build_object('id', task.id, 'title', task.title))`, 'tasks')
+      .where('task.updated_at >= :startDate', { startDate })
       .groupBy('task.status');
 
     // --- Aplicación de Filtros ---
