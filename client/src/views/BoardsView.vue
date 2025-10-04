@@ -270,9 +270,35 @@ const handleDragEnd = (event: SortableEvent) => {
   const originalStatus = from.closest('.board-column')?.dataset.status as TaskStatus | undefined;
   const taskId = item.dataset.taskId;
   const projectId = route.params.projectId as string;
+  
   if (!taskId || !newStatus || !originalStatus || newStatus === originalStatus) {
     return;
   }
+  
+  // Restricción Kanban: verificar si el usuario ya tiene una tarea en la columna de destino
+  // (excepto en Backlog y Completado)
+  const restrictedColumns: TaskStatus[] = ['todo', 'in_progress', 'review'];
+  
+  if (restrictedColumns.includes(newStatus)) {
+    const taskToMove = taskStore.tasks.find(t => t.id === taskId);
+    
+    if (taskToMove?.assigned_to) {
+      const tasksInTargetColumn = taskStore.groupedTasks[newStatus] || [];
+      const userAlreadyHasTask = tasksInTargetColumn.some(
+        task => task.assigned_to?.id === taskToMove.assigned_to?.id && task.id !== taskId
+      );
+      
+      if (userAlreadyHasTask) {
+        // Revertir el movimiento visualmente
+        alert(`⚠️ Restricción Kanban: ${taskToMove.assigned_to.full_name} ya tiene una tarea en "${columnTitles[newStatus]}". Un usuario solo puede tener una tarea por columna.`);
+        
+        // Forzar actualización para revertir la UI
+        taskStore.fetchTasksByProject(projectId);
+        return;
+      }
+    }
+  }
+  
   taskStore.updateTask(taskId, projectId, { status: newStatus });
 };
 
@@ -302,16 +328,12 @@ const columnTitles: Record<TaskStatus, string> = {
   done: 'Completado'
 };
 
-// ===================== CAMBIOS AQUÍ =====================
-// Se unifica el texto y las clases en un solo objeto para mejor organización.
 const priorityDetails: Record<TaskPriority, { text: string; classes: string }> = {
   low:    { text: 'Baja',    classes: 'bg-green-500 text-white' },
   medium: { text: 'Media',   classes: 'bg-blue-500 text-white' },
-  high:   { text: 'Alta',    classes: 'bg-yellow-500 text-white' }, // Ajuste de color de texto para legibilidad
+  high:   { text: 'Alta',    classes: 'bg-yellow-500 text-white' },
   urgent: { text: 'Urgente', classes: 'bg-red-500 text-white' },
 };
-// ========================================================
-
 
 onMounted(() => {
   const projectId = route.params.projectId as string;
