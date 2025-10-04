@@ -136,7 +136,14 @@
                 {{ getInitials(member.user?.full_name) }}
               </div>
             </div>
-            <button @click="goToBoard(project.id)" class="text-xs font-semibold bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-accent dark:text-light-accent py-2 px-4 rounded-xl hover:from-purple-100 hover:to-indigo-100 dark:hover:from-purple-800 dark:hover:to-indigo-800 transition-all duration-300 transform hover:scale-105 shadow-md">
+            <button 
+              @click="project.status !== 'archived' ? goToBoard(project.id) : null" 
+              :disabled="project.status === 'archived'"
+              :class="project.status === 'archived' 
+                ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60' 
+                : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-accent dark:text-light-accent hover:from-purple-100 hover:to-indigo-100 dark:hover:from-purple-800 dark:hover:to-indigo-800 hover:scale-105'"
+              class="text-xs font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform shadow-md"
+            >
               Ver Tablero
             </button>
             <p class="text-xs text-gray-500 dark:text-gray-400"></p>
