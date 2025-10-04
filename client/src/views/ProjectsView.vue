@@ -64,8 +64,8 @@
       </div>
       
       <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <div v-for="project in projectStore.filteredProjects" :key="project.id" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-purple-100/50 dark:border-gray-700/50 flex flex-col justify-between transition-all duration-300 group relative overflow-hidden hover:shadow-2xl hover:scale-105 hover:-translate-y-1">
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-2xl pointer-events-none"></div>
+        <div v-for="project in projectStore.filteredProjects" :key="project.id" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-purple-100/50 dark:border-gray-700/50 flex flex-col justify-between transition-all duration-300 group relative hover:shadow-2xl hover:scale-105 hover:-translate-y-1">
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-2xl pointer-events-none overflow-hidden"></div>
           
           <div class="space-y-4 relative z-10">
             <div class="flex justify-between items-start">
@@ -76,11 +76,11 @@
               
               <div class="flex-shrink-0 flex items-center space-x-2">
                 <span :class="statusClasses[project.status]" class="px-3 py-1 text-xs font-semibold rounded-full shadow-sm">{{ statusTitles[project.status] }}</span>
-                <div class="relative">
+                <div class="relative z-50">
                   <button @click="toggleMenu(project.id)" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 p-1 rounded-full focus:outline-none hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
                   </button>
-                  <div v-if="openMenuId === project.id" class="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm ring-1 ring-black ring-opacity-5 z-50 border border-purple-100 dark:border-purple-800">
+                  <div v-if="openMenuId === project.id" class="origin-top-right absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm ring-1 ring-black ring-opacity-5 z-50 border border-purple-100 dark:border-purple-800">
                     <div class="py-1" @click.stop>
                       <p class="px-4 py-2 text-xs text-gray-400">Cambiar Estado</p>
                       <a v-if="project.status !== 'active'" href="#" @click.prevent="changeStatus(project.id, 'active')" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg mx-2">Marcar como Activo</a>
@@ -199,6 +199,14 @@ const hideTooltip = (projectId: string) => {
   tooltipVisible[projectId] = false;
 };
 
+const toggleMenu = (projectId: string) => {
+  if (openMenuId.value === projectId) {
+    openMenuId.value = null;
+  } else {
+    openMenuId.value = projectId;
+  }
+};
+
 const openCreateModal = () => {
   projectToEdit.value = null;
   isModalOpen.value = true;
@@ -213,10 +221,6 @@ const openEditModal = (project: Project) => {
 const closeModal = () => {
   isModalOpen.value = false;
   projectToEdit.value = null;
-};
-
-const toggleMenu = (projectId: string) => {
-  openMenuId.value = openMenuId.value === projectId ? null : projectId;
 };
 
 const changeStatus = (projectId: string, status: ProjectStatus) => {
