@@ -28,8 +28,7 @@
             </div>
             <div>
               <label for="assigned_to_id" class="block text-sm font-medium text-gray-700 dark:text-[#FBE4D8]">Asignar a</label>
-              <select id="assigned_to_id" v-model="form.assigned_to_id" class="mt-1 block w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-[#FBE4D8]">
-                <option value="">Nadie</option>
+              <select id="assigned_to_id" v-model="form.assigned_to_id" class="mt-1 block w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-[#FBE4D8]" required>
                 <option v-for="member in teamMembers" :key="member.user.id" :value="member.user.id">
                   {{ member.user.full_name }}
                 </option>
@@ -64,8 +63,6 @@ import { reactive, onMounted, type PropType } from 'vue';
 import { useTaskStore } from '@/store/taskStore';
 import type { TeamMember } from '@/types/Project';
 import type { Task, TaskPriority } from '@/types/Task';
-// 1. ELIMINAMOS LA IMPORTACIÓN DE CommentSection
-// import CommentSection from './CommentSection.vue'; 
 
 const props = defineProps({
   taskToEdit: {
@@ -102,9 +99,6 @@ onMounted(() => {
     form.assigned_to_id = props.taskToEdit.assigned_to?.id || '';
     form.due_date = props.taskToEdit.due_date ? new Date(props.taskToEdit.due_date).toISOString().split('T')[0] : '';
     form.estimated_hours = props.taskToEdit.estimated_hours || null;
-
-    // 2. ELIMINAMOS LA LLAMADA INNECESARIA PARA OBTENER COMENTARIOS
-    // taskStore.fetchCommentsForTask(props.taskToEdit.id);
 });
 
 const submitForm = async () => {
