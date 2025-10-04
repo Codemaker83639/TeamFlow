@@ -44,7 +44,7 @@
               </div>
               <div>
                 <label for="estimated_hours" class="block text-sm font-medium text-gray-700 dark:text-[#FBE4D8]">Horas Estimadas</label>
-                <input type="number" step="0.5" min="0" id="estimated_hours" v-model="form.estimated_hours" class="mt-1 block w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-[#FBE4D8]">
+                <input type="number" step="0.5" min="0" max="3" id="estimated_hours" v-model="form.estimated_hours" class="mt-1 block w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-[#FBE4D8]">
               </div>
             </div>
           <div class="mt-6 flex justify-end space-x-3">
@@ -87,17 +87,22 @@ const form = reactive({
   title: '',
   description: '',
   priority: 'medium' as TaskPriority,
-  // CAMBIO AQUÍ: Asignamos el primer usuario de la lista por defecto
   assigned_to_id: getFirstValidMemberId(),
   due_date: '',
   estimated_hours: null as number | null,
 });
 
 const submitForm = async () => {
-  // CAMBIO AQUÍ: Añadimos una validación de seguridad
+  // Validación de seguridad para asignación
   if (!form.assigned_to_id) {
     alert('Por favor, asigne la tarea a un miembro del equipo.');
-    return; // Detiene el envío del formulario
+    return;
+  }
+
+  // Validación adicional para horas estimadas
+  if (form.estimated_hours !== null && form.estimated_hours > 3) {
+    alert('Las horas estimadas no pueden exceder 3 horas.');
+    return;
   }
 
   try {
