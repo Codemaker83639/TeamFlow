@@ -139,9 +139,9 @@
               </div>
             </div>
             <button 
-              @click="project.status !== 'archived' ? goToBoard(project.id) : null" 
-              :disabled="project.status === 'archived'"
-              :class="project.status === 'archived' 
+              @click="canAccessBoard(project) ? goToBoard(project.id) : showAccessDenied()" 
+              :disabled="!canAccessBoard(project)"
+              :class="!canAccessBoard(project)
                 ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60' 
                 : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-accent dark:text-light-accent hover:from-purple-100 hover:to-indigo-100 dark:hover:from-purple-800 dark:hover:to-indigo-800 hover:scale-105'"
               class="text-xs font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform shadow-md"
@@ -206,6 +206,32 @@ const hideTooltip = (projectId: string) => {
   
   // Ocultar tooltip inmediatamente al salir con el mouse
   tooltipVisible[projectId] = false;
+};
+
+// Función para verificar si el usuario puede acceder al tablero
+const canAccessBoard = (project: Project): boolean => {
+  // Los administradores siempre tienen acceso
+  if (authStore.user?.role === 'Administrator') {
+    return project.status !== 'archived';
+  }
+  
+  // Para miembros, verificar que el proyecto no esté archivado
+  // y que el usuario pertenezca al equipo del proyecto
+  if (project.status === 'archived') {
+    return false;
+  }
+  
+  // Verificar si el usuario actual es miembro del equipo del proyecto
+  const userBelongsToTeam = project.team?.members?.some(
+    member => member.user?.id === authStore.user?.id
+  );
+  
+  return userBelongsToTeam || false;
+};
+
+// Función para mostrar mensaje de acceso denegado
+const showAccessDenied = () => {
+  alert('No tienes acceso a este proyecto. Solo puedes acceder a proyectos donde tu equipo esté asignado.');
 };
 
 const toggleMenu = (projectId: string) => {
