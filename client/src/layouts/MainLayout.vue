@@ -54,7 +54,8 @@
             </RouterLink>
           </li>
           
-          <li class="mb-2">
+          <!-- Vista de Equipos - Solo para Administradores -->
+          <li v-if="authStore.user?.role === 'Administrator'" class="mb-2">
             <RouterLink 
               to="/teams" 
               class="block py-2 px-4 rounded-lg hover:bg-secondary flex items-center transition-colors duration-200"
@@ -66,7 +67,8 @@
             </RouterLink>
           </li>
           
-          <li class="mb-2">
+          <!-- Vista de Reportes - Solo para Administradores -->
+          <li v-if="authStore.user?.role === 'Administrator'" class="mb-2">
             <RouterLink 
               to="/reports" 
               class="block py-2 px-4 rounded-lg hover:bg-secondary flex items-center transition-colors duration-200"
