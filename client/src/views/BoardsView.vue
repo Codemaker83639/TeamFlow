@@ -275,22 +275,19 @@ const handleDragEnd = (event: SortableEvent) => {
     return;
   }
   
-  // Restricción Kanban: verificar si el usuario ya tiene una tarea en la columna de destino
-  // (excepto en Backlog y Completado)
-  const restrictedColumns: TaskStatus[] = ['todo', 'in_progress', 'review'];
-  
-  if (restrictedColumns.includes(newStatus)) {
+  // Restricción Kanban: Solo aplicar en la columna "En Progreso"
+  if (newStatus === 'in_progress') {
     const taskToMove = taskStore.tasks.find(t => t.id === taskId);
     
     if (taskToMove?.assigned_to) {
-      const tasksInTargetColumn = taskStore.groupedTasks[newStatus] || [];
-      const userAlreadyHasTask = tasksInTargetColumn.some(
+      const tasksInProgress = taskStore.groupedTasks['in_progress'] || [];
+      const userAlreadyHasTask = tasksInProgress.some(
         task => task.assigned_to?.id === taskToMove.assigned_to?.id && task.id !== taskId
       );
       
       if (userAlreadyHasTask) {
         // Revertir el movimiento visualmente
-        alert(`⚠️ Restricción Kanban: ${taskToMove.assigned_to.full_name} ya tiene una tarea en "${columnTitles[newStatus]}". Un usuario solo puede tener una tarea por columna.`);
+        alert(`⚠️ Restricción Kanban: ${taskToMove.assigned_to.full_name} ya tiene una tarea en "En Progreso". Un usuario solo puede tener una tarea en esta columna a la vez.`);
         
         // Forzar actualización para revertir la UI
         taskStore.fetchTasksByProject(projectId);
